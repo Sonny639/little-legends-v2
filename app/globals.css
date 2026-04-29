@@ -127,6 +127,10 @@
   }
 }
 
+nextjs-portal {
+  display: none !important;
+}
+
 .storybook-app-bg {
   background:
     radial-gradient(circle at 8% 10%, rgba(255, 255, 255, 0.92) 0 78px, transparent 80px),

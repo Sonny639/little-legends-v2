@@ -20,16 +20,16 @@ export default function ComingSoonPage() {
 
         <div className="relative z-10 flex h-full w-full flex-col px-4 py-4">
           <div className="flex items-center justify-between gap-3">
-            <div className="flex min-w-0 items-center gap-2 rounded-full bg-[#070820]/58 py-1.5 pr-2.5 backdrop-blur-md min-[390px]:pr-3">
-              <div className="grid h-9 w-9 shrink-0 place-items-center rounded-full bg-amber-200 text-rose-500 shadow-[0_0_24px_rgba(251,191,36,0.45)] min-[390px]:h-10 min-[390px]:w-10">
-                <Heart className="h-5 w-5 fill-rose-400 text-rose-500 min-[390px]:h-6 min-[390px]:w-6" />
+            <div className="flex min-w-0 items-center gap-1.5 rounded-full bg-[#070820]/58 py-1.5 pr-2 backdrop-blur-md min-[360px]:gap-2 min-[390px]:pr-3">
+              <div className="grid h-8 w-8 shrink-0 place-items-center rounded-full bg-amber-200 text-rose-500 shadow-[0_0_24px_rgba(251,191,36,0.45)] min-[390px]:h-10 min-[390px]:w-10">
+                <Heart className="h-4.5 w-4.5 fill-rose-400 text-rose-500 min-[390px]:h-6 min-[390px]:w-6" />
               </div>
-              <span className="whitespace-nowrap text-sm font-black text-white drop-shadow-[0_3px_12px_rgba(0,0,0,0.6)] min-[390px]:text-base">
+              <span className="whitespace-nowrap text-[11px] font-black text-white drop-shadow-[0_3px_12px_rgba(0,0,0,0.6)] min-[360px]:text-sm min-[390px]:text-base">
                 Little Legends Story
               </span>
             </div>
 
-            <div className="inline-flex shrink-0 items-center gap-1 rounded-full border border-amber-200/35 bg-[#120d2f]/78 px-2.5 py-2 text-xs font-black text-amber-100 shadow-[0_0_28px_rgba(251,191,36,0.24)] backdrop-blur-md min-[390px]:gap-1.5 min-[390px]:px-3">
+            <div className="inline-flex shrink-0 items-center gap-1 rounded-full border border-amber-200/35 bg-[#120d2f]/78 px-2 py-2 text-[11px] font-black text-amber-100 shadow-[0_0_28px_rgba(251,191,36,0.24)] backdrop-blur-md min-[360px]:px-2.5 min-[360px]:text-xs min-[390px]:gap-1.5 min-[390px]:px-3">
               <Sparkles className="h-3.5 w-3.5 text-amber-200" />
               Coming Soon
             </div>
