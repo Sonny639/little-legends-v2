@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 900" role="img" aria-label="Bitcoin Hero saves the day as the town celebrates">
+  <defs><radialGradient id="r" cx=".5" cy=".25" r=".75"><stop stop-color="#fef08a"/><stop offset=".45" stop-color="#fdba74"/><stop offset="1" stop-color="#7dd3fc"/></radialGradient></defs>
+  <rect width="1200" height="900" fill="url(#r)"/>
+  <g fill="#f7931a" opacity=".32"><circle cx="155" cy="150" r="65"/><circle cx="1035" cy="165" r="82"/><circle cx="210" cy="705" r="52"/><circle cx="1010" cy="720" r="60"/></g>
+  <path d="M0 690 C230 600 370 705 600 620 C830 535 980 625 1200 545 L1200 900 L0 900Z" fill="#bae6fd"/>
+  <circle cx="600" cy="170" r="92" fill="#f7931a" stroke="#082f49" stroke-width="12"/><text x="600" y="202" text-anchor="middle" font-family="Arial Black, Arial" font-size="104" fill="white">&#8383;</text>
+  <g transform="translate(430 270)">
+    <path d="M170 135 C70 190 40 325 100 468 L240 468 C300 325 270 190 170 135Z" fill="#fb923c" stroke="#082f49" stroke-width="10"/>
+    <path d="M98 190 C10 260 12 395 86 535 L148 470 C120 350 132 260 190 200Z" fill="#0ea5e9" stroke="#082f49" stroke-width="8"/>
+    <circle cx="170" cy="76" r="74" fill="#fed7aa" stroke="#082f49" stroke-width="9"/><circle cx="142" cy="74" r="8" fill="#082f49"/><circle cx="198" cy="74" r="8" fill="#082f49"/><path d="M142 110 Q170 138 200 110" fill="none" stroke="#082f49" stroke-width="8" stroke-linecap="round"/>
+    <circle cx="170" cy="252" r="58" fill="#f7931a" stroke="#082f49" stroke-width="8"/><text x="170" y="275" text-anchor="middle" font-family="Arial Black, Arial" font-size="56" fill="white">&#8383;</text>
+    <rect x="102" y="352" width="136" height="30" rx="15" fill="#facc15" stroke="#082f49" stroke-width="6"/>
+  </g>
+  <g fill="#facc15" stroke="#082f49" stroke-width="6"><circle cx="290" cy="650" r="36"/><circle cx="910" cy="645" r="36"/><circle cx="360" cy="740" r="28"/><circle cx="840" cy="742" r="28"/></g>
+</svg>

@@ -1,0 +1,27 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="400" height="400" viewBox="0 0 400 400" role="img" aria-labelledby="title desc">
+  <title id="title">Little Legends placeholder artwork</title>
+  <desc id="desc">A simple fallback illustration for missing Little Legends artwork.</desc>
+  <defs>
+    <linearGradient id="sky" x1="0" x2="1" y1="0" y2="1">
+      <stop offset="0" stop-color="#e0f2fe"/>
+      <stop offset="0.55" stop-color="#fce7f3"/>
+      <stop offset="1" stop-color="#fef3c7"/>
+    </linearGradient>
+    <linearGradient id="cape" x1="0" x2="1" y1="0" y2="1">
+      <stop offset="0" stop-color="#ef4444"/>
+      <stop offset="1" stop-color="#f97316"/>
+    </linearGradient>
+  </defs>
+  <rect width="400" height="400" rx="32" fill="url(#sky)"/>
+  <circle cx="312" cy="84" r="34" fill="#fde68a"/>
+  <path d="M88 315c43-49 84-73 123-73s80 24 123 73H88Z" fill="#0f766e" opacity=".18"/>
+  <path d="M141 265c28-46 45-72 59-72s31 26 59 72c-33 25-85 25-118 0Z" fill="url(#cape)"/>
+  <circle cx="200" cy="143" r="54" fill="#f8c9a7"/>
+  <path d="M148 136c10-43 33-67 69-67 27 0 51 20 58 53-34-10-75-5-127 14Z" fill="#78350f"/>
+  <path d="M163 155c21 18 51 18 72 0" fill="none" stroke="#7c2d12" stroke-linecap="round" stroke-width="8"/>
+  <circle cx="181" cy="132" r="6" fill="#1f2937"/>
+  <circle cx="219" cy="132" r="6" fill="#1f2937"/>
+  <path d="M170 214h60l20 82h-100l20-82Z" fill="#0ea5e9"/>
+  <path d="M200 222l14 26 29 4-21 20 5 29-27-14-27 14 5-29-21-20 29-4 14-26Z" fill="#facc15"/>
+  <text x="200" y="354" fill="#0f172a" font-family="Arial, sans-serif" font-size="24" font-weight="700" text-anchor="middle">Little Legends</text>
+</svg>

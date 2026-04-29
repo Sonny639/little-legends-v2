@@ -1,0 +1,30 @@
+ ⨯ [Error: ENOENT: no such file or directory, open 'C:\Users\sonny\OneDrive\Desktop\Sonny\Little Legends\little-legends-v2\.next\server\app\page\app-build-manifest.json'] {
+  errno: -4058,
+  code: 'ENOENT',
+  syscall: 'open',
+  path: 'C:\\Users\\sonny\\OneDrive\\Desktop\\Sonny\\Little Legends\\little-legends-v2\\.next\\server\\app\\page\\app-build-manifest.json'
+}
+ ⨯ [Error: ENOENT: no such file or directory, open 'C:\Users\sonny\OneDrive\Desktop\Sonny\Little Legends\little-legends-v2\.next\static\development\_buildManifest.js.tmp.a73na75iktd'] {
+  errno: -4058,
+  code: 'ENOENT',
+  syscall: 'open',
+  path: 'C:\\Users\\sonny\\OneDrive\\Desktop\\Sonny\\Little Legends\\little-legends-v2\\.next\\static\\development\\_buildManifest.js.tmp.a73na75iktd'
+}
+[Error: ENOENT: no such file or directory, open 'C:\Users\sonny\OneDrive\Desktop\Sonny\Little Legends\little-legends-v2\.next\server\app\page\app-build-manifest.json'] {
+  errno: -4058,
+  code: 'ENOENT',
+  syscall: 'open',
+  path: 'C:\\Users\\sonny\\OneDrive\\Desktop\\Sonny\\Little Legends\\little-legends-v2\\.next\\server\\app\\page\\app-build-manifest.json'
+}
+ ⨯ [Error: ENOENT: no such file or directory, open 'C:\Users\sonny\OneDrive\Desktop\Sonny\Little Legends\little-legends-v2\.next\static\development\_buildManifest.js.tmp.oh1ndq70jj'] {
+  errno: -4058,
+  code: 'ENOENT',
+  syscall: 'open',
+  path: 'C:\\Users\\sonny\\OneDrive\\Desktop\\Sonny\\Little Legends\\little-legends-v2\\.next\\static\\development\\_buildManifest.js.tmp.oh1ndq70jj'
+}
+[Error: ENOENT: no such file or directory, open 'C:\Users\sonny\OneDrive\Desktop\Sonny\Little Legends\little-legends-v2\.next\static\development\_buildManifest.js.tmp.ebmzfch6zev'] {
+  errno: -4058,
+  code: 'ENOENT',
+  syscall: 'open',
+  path: 'C:\\Users\\sonny\\OneDrive\\Desktop\\Sonny\\Little Legends\\little-legends-v2\\.next\\static\\development\\_buildManifest.js.tmp.ebmzfch6zev'
+}

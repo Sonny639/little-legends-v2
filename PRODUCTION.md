@@ -1,0 +1,99 @@
+# Little Legends Production Checklist
+
+Use this before sending real customers through checkout.
+
+## Environment
+
+Set these in the production host:
+
+```bash
+NEXT_PUBLIC_APP_URL=https://your-domain.example
+DATABASE_URL=
+DATABASE_SSL=true
+STRIPE_SECRET_KEY=
+STRIPE_WEBHOOK_SECRET=
+ADMIN_USERNAME=admin
+ADMIN_PASSWORD=
+ADMIN_SESSION_SECRET=
+FAL_API_KEY=
+```
+
+Required before launch:
+
+- `NEXT_PUBLIC_APP_URL` must be the real public URL.
+- `DATABASE_URL` must point to production Postgres.
+- `ADMIN_PASSWORD` and `ADMIN_SESSION_SECRET` must be strong unique values.
+- `STRIPE_SECRET_KEY` must be the correct live or test key for the environment.
+- `STRIPE_WEBHOOK_SECRET` must match the Stripe endpoint webhook secret.
+
+## Database
+
+Create or migrate the production tables:
+
+```bash
+npm run db:init
+```
+
+Optional one-time import from local JSON:
+
+```bash
+npm run db:import-json
+```
+
+## Stripe
+
+Configure a Stripe webhook endpoint:
+
+```text
+POST https://your-domain.example/api/stripe/webhook
+```
+
+Listen for:
+
+- `checkout.session.completed`
+- `checkout.session.async_payment_succeeded`
+
+Then copy the webhook signing secret into `STRIPE_WEBHOOK_SECRET`.
+
+## Preflight Checks
+
+Run locally or in CI:
+
+```bash
+npm run lint
+npm run build
+```
+
+With the app running:
+
+```bash
+npm run smoke:order
+```
+
+If Stripe is configured, the smoke test checks order save and checkout session creation. Full paid download unlock still requires an actual Stripe payment or webhook event.
+
+## Manual Launch Test
+
+Before launch, manually test:
+
+- Create a story from `/`.
+- Choose a digital order and confirm Stripe checkout opens.
+- Complete a test payment in Stripe test mode.
+- Confirm `/checkout/success` marks the order paid.
+- Open the download link.
+- Confirm the order appears in `/admin/orders`.
+- Resend confirmation email from admin.
+- Create a hardback order and confirm postage details appear in admin.
+
+## Content
+
+Confirm all 18 launch hero types have:
+
+- Bespoke story title and theme.
+- Preview choices that make sense.
+- Download page rendering.
+- Artwork fallback or generated artwork plan.
+
+## Operations
+
+Keep admin credentials private. Check `/admin/orders`, `/admin/print-queue`, `/admin/enquiries`, and `/admin/email-log` after each test order.

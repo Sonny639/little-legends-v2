@@ -1,0 +1,143 @@
+import fs from "fs/promises"
+import path from "path"
+
+import { hasDatabase, query } from "@/lib/db"
+import { type OrderRecord, updateOrderEmailSentAt } from "@/lib/orders"
+
+export type EmailLogEntry = {
+  id: string
+  createdAt: string
+  to: string
+  subject: string
+  body: string
+  orderId: string
+  provider: "log"
+}
+
+const dataDirectory = path.join(process.cwd(), "data")
+const emailLogFile = path.join(dataDirectory, "email-log.json")
+
+type EmailLogRow = {
+  id: string
+  created_at: Date | string
+  recipient: string
+  subject: string
+  body: string
+  order_id: string
+  provider: "log"
+}
+
+const toIso = (value: Date | string) => (value instanceof Date ? value.toISOString() : new Date(value).toISOString())
+
+const rowToEmailLogEntry = (row: EmailLogRow): EmailLogEntry => ({
+  id: row.id,
+  createdAt: toIso(row.created_at),
+  to: row.recipient,
+  subject: row.subject,
+  body: row.body,
+  orderId: row.order_id,
+  provider: row.provider,
+})
+
+const appUrl = () => process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3003"
+
+export const getOrderDownloadUrl = (orderId: string) => `${appUrl()}/download/${encodeURIComponent(orderId)}`
+
+const ensureEmailLogFile = async () => {
+  await fs.mkdir(dataDirectory, { recursive: true })
+
+  try {
+    await fs.access(emailLogFile)
+  } catch {
+    await fs.writeFile(emailLogFile, "[]", "utf8")
+  }
+}
+
+const appendEmailLog = async (entry: EmailLogEntry) => {
+  if (hasDatabase()) {
+    await query(
+      `
+        insert into email_logs (id, created_at, recipient, subject, body, order_id, provider)
+        values ($1, $2, $3, $4, $5, $6, $7)
+        on conflict (id) do update set
+          created_at = excluded.created_at,
+          recipient = excluded.recipient,
+          subject = excluded.subject,
+          body = excluded.body,
+          order_id = excluded.order_id,
+          provider = excluded.provider
+      `,
+      [entry.id, entry.createdAt, entry.to, entry.subject, entry.body, entry.orderId, entry.provider],
+    )
+
+    return
+  }
+
+  await ensureEmailLogFile()
+
+  const fileContents = await fs.readFile(emailLogFile, "utf8")
+  const parsedEntries = JSON.parse(fileContents.replace(/^\uFEFF/, ""))
+  const entries = Array.isArray(parsedEntries) ? parsedEntries : []
+
+  await fs.writeFile(emailLogFile, JSON.stringify([entry, ...entries], null, 2), "utf8")
+}
+
+export const readEmailLog = async (): Promise<EmailLogEntry[]> => {
+  if (hasDatabase()) {
+    const result = await query<EmailLogRow>("select * from email_logs order by created_at desc")
+    return result.rows.map(rowToEmailLogEntry)
+  }
+
+  await ensureEmailLogFile()
+
+  const fileContents = await fs.readFile(emailLogFile, "utf8")
+  const parsedEntries = JSON.parse(fileContents.replace(/^\uFEFF/, ""))
+
+  return Array.isArray(parsedEntries) ? parsedEntries : []
+}
+
+export const sendOrderConfirmationEmail = async (order: OrderRecord) => {
+  const downloadUrl = order.downloadUrl || getOrderDownloadUrl(order.id)
+  const createdAt = new Date().toISOString()
+  const subject = `Your Little Legends story is ready: ${order.storyTitle}`
+  const body = [
+    `Hi there,`,
+    ``,
+    `Your Little Legends story is ready.`,
+    ``,
+    `${order.heroName}'s personalised adventure has been created and is ready to read, print, or save.`,
+    ``,
+    `Story: ${order.storyTitle}`,
+    `Hero: ${order.heroName} the ${order.heroType}`,
+    `Order reference: ${order.id}`,
+    `Download link: ${downloadUrl}`,
+    ``,
+    order.product === "digital"
+      ? `Your digital story is available straight away. Open the link above and use Download PDF to save a copy.`
+      : `Your digital copy is available now. Your printed book order has also been logged for fulfilment.`,
+    ``,
+    `If anything looks wrong, reply via the contact page with your order reference and we will help.`,
+    ``,
+    `Little Legends`,
+  ].join("\n")
+
+  await appendEmailLog({
+    id: `email_${Date.now()}`,
+    createdAt,
+    to: order.email,
+    subject,
+    body,
+    orderId: order.id,
+    provider: "log",
+  })
+
+  await updateOrderEmailSentAt(order.id, createdAt)
+
+  return {
+    provider: "log" as const,
+    sentAt: createdAt,
+    to: order.email,
+    subject,
+    downloadUrl,
+  }
+}

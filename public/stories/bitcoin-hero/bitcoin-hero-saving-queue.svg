@@ -1,0 +1,24 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 900" role="img" aria-label="Bitcoin Hero helps children make saving plans">
+  <rect width="1200" height="900" fill="#fff7ed"/>
+  <path d="M0 640 C240 560 410 690 610 600 C820 505 980 610 1200 520 L1200 900 L0 900Z" fill="#bbf7d0"/>
+  <g fill="#fef3c7" stroke="#082f49" stroke-width="8">
+    <rect x="115" y="475" width="180" height="210" rx="28"/>
+    <rect x="380" y="455" width="180" height="230" rx="28"/>
+    <rect x="645" y="455" width="180" height="230" rx="28"/>
+    <rect x="910" y="475" width="180" height="210" rx="28"/>
+  </g>
+  <g fill="#f7931a" stroke="#082f49" stroke-width="6">
+    <circle cx="205" cy="555" r="34"/><circle cx="470" cy="545" r="34"/><circle cx="735" cy="545" r="34"/><circle cx="1000" cy="555" r="34"/>
+  </g>
+  <g transform="translate(455 210)">
+    <path d="M145 120 C55 168 32 292 86 420 L204 420 C258 292 235 168 145 120Z" fill="#fb923c" stroke="#082f49" stroke-width="9"/>
+    <path d="M86 170 C10 235 15 350 76 470 L130 416 C104 312 116 234 164 178Z" fill="#0ea5e9" stroke="#082f49" stroke-width="7"/>
+    <circle cx="145" cy="64" r="64" fill="#fed7aa" stroke="#082f49" stroke-width="8"/>
+    <circle cx="122" cy="62" r="7" fill="#082f49"/><circle cx="168" cy="62" r="7" fill="#082f49"/>
+    <path d="M122 96 Q145 114 170 96" fill="none" stroke="#082f49" stroke-width="7" stroke-linecap="round"/>
+    <circle cx="145" cy="228" r="48" fill="#f7931a" stroke="#082f49" stroke-width="7"/><text x="145" y="248" text-anchor="middle" font-family="Arial Black, Arial" font-size="47" fill="white">&#8383;</text>
+  </g>
+  <g stroke="#082f49" stroke-width="8" stroke-linecap="round">
+    <path d="M160 725 H265"/><path d="M425 725 H530"/><path d="M690 725 H795"/><path d="M955 725 H1060"/>
+  </g>
+</svg>

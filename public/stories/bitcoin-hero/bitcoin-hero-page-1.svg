@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 900" role="img" aria-label="Bitcoin Hero follows an orange beacon over Pocket Town">
+  <defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#fff7ed"/><stop offset=".52" stop-color="#fed7aa"/><stop offset="1" stop-color="#7dd3fc"/></linearGradient></defs>
+  <rect width="1200" height="900" fill="url(#g)"/>
+  <circle cx="600" cy="165" r="96" fill="#f7931a" stroke="#082f49" stroke-width="12"/>
+  <text x="600" y="198" text-anchor="middle" font-family="Arial Black, Arial" font-size="106" fill="white">&#8383;</text>
+  <path d="M0 640 C230 560 370 670 560 610 C780 535 930 590 1200 505 L1200 900 L0 900Z" fill="#bae6fd"/>
+  <g transform="translate(435 255)">
+    <path d="M165 138 C70 185 38 310 96 438 L234 438 C292 310 260 185 165 138Z" fill="#fb923c" stroke="#082f49" stroke-width="10"/>
+    <path d="M96 190 C20 255 10 370 75 500 L135 440 C110 335 130 250 178 198Z" fill="#0ea5e9" stroke="#082f49" stroke-width="8"/>
+    <circle cx="165" cy="82" r="72" fill="#fed7aa" stroke="#082f49" stroke-width="9"/>
+    <circle cx="138" cy="78" r="8" fill="#082f49"/><circle cx="192" cy="78" r="8" fill="#082f49"/>
+    <path d="M138 112 Q165 136 194 112" fill="none" stroke="#082f49" stroke-width="8" stroke-linecap="round"/>
+    <circle cx="165" cy="245" r="56" fill="#f7931a" stroke="#082f49" stroke-width="8"/>
+    <text x="165" y="266" text-anchor="middle" font-family="Arial Black, Arial" font-size="54" fill="white">&#8383;</text>
+    <rect x="100" y="340" width="130" height="28" rx="14" fill="#facc15" stroke="#082f49" stroke-width="6"/>
+  </g>
+  <g fill="#facc15" stroke="#082f49" stroke-width="6"><circle cx="205" cy="720" r="42"/><circle cx="985" cy="675" r="35"/><circle cx="1070" cy="750" r="26"/></g>
+</svg>

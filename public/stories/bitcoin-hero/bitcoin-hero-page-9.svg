@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 900" role="img" aria-label="Bitcoin Hero uses the Lightning Lane for small payments">
+  <rect width="1200" height="900" fill="#e0f2fe"/>
+  <path d="M110 720 C310 460 480 610 600 340 C720 610 890 460 1090 720" fill="none" stroke="#facc15" stroke-width="54" stroke-linecap="round"/>
+  <path d="M110 720 C310 460 480 610 600 340 C720 610 890 460 1090 720" fill="none" stroke="#082f49" stroke-width="10" stroke-linecap="round"/>
+  <g fill="#fff7ed" stroke="#082f49" stroke-width="8"><rect x="125" y="540" width="190" height="165" rx="28"/><rect x="885" y="540" width="190" height="165" rx="28"/></g>
+  <g transform="translate(478 300)">
+    <path d="M122 104 C48 148 28 250 72 360 L172 360 C216 250 196 148 122 104Z" fill="#fb923c" stroke="#082f49" stroke-width="8"/>
+    <path d="M72 150 C2 212 8 306 60 400 L108 354 C88 266 96 202 138 158Z" fill="#0ea5e9" stroke="#082f49" stroke-width="6"/>
+    <circle cx="122" cy="56" r="56" fill="#fed7aa" stroke="#082f49" stroke-width="7"/><circle cx="102" cy="54" r="6" fill="#082f49"/><circle cx="142" cy="54" r="6" fill="#082f49"/><path d="M102 83 Q122 100 144 83" fill="none" stroke="#082f49" stroke-width="6" stroke-linecap="round"/>
+    <circle cx="122" cy="194" r="40" fill="#f7931a" stroke="#082f49" stroke-width="6"/><text x="122" y="210" text-anchor="middle" font-family="Arial Black, Arial" font-size="39" fill="white">&#8383;</text>
+  </g>
+  <g fill="#f7931a" stroke="#082f49" stroke-width="6"><circle cx="220" cy="622" r="34"/><circle cx="980" cy="622" r="34"/></g>
+</svg>

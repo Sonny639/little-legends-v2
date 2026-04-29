@@ -1,0 +1,14 @@
+
+> little-legends-v2@0.1.0 dev
+> next dev --turbopack --hostname 127.0.0.1 --port 3002
+
+   ▲ Next.js 15.3.3 (Turbopack)
+   - Local:        http://127.0.0.1:3002
+   - Network:      http://127.0.0.1:3002
+   - Environments: .env.local
+
+ ✓ Starting...
+ ✓ Ready in 1465ms
+ ○ Compiling / ...
+ ✓ Compiled / in 2.5s
+ GET / 200 in 2946ms

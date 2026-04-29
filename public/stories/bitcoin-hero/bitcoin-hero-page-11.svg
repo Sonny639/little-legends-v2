@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 900" role="img" aria-label="Pocket Town follows a Bitcoin saving plan">
+  <rect width="1200" height="900" fill="#fef3c7"/>
+  <path d="M0 650 C220 570 390 675 600 590 C820 500 980 590 1200 520 L1200 900 L0 900Z" fill="#bbf7d0"/>
+  <g fill="#fff7ed" stroke="#082f49" stroke-width="8"><rect x="115" y="430" width="210" height="210" rx="26"/><rect x="495" y="380" width="210" height="260" rx="26"/><rect x="875" y="430" width="210" height="210" rx="26"/></g>
+  <g fill="#facc15" stroke="#082f49" stroke-width="6"><circle cx="220" cy="530" r="36"/><circle cx="600" cy="500" r="36"/><circle cx="980" cy="530" r="36"/></g>
+  <g transform="translate(460 230)">
+    <path d="M140 112 C54 160 32 282 84 405 L196 405 C248 282 226 160 140 112Z" fill="#fb923c" stroke="#082f49" stroke-width="9"/>
+    <path d="M84 162 C6 225 10 338 74 452 L126 400 C102 302 112 225 158 170Z" fill="#0ea5e9" stroke="#082f49" stroke-width="7"/>
+    <circle cx="140" cy="60" r="62" fill="#fed7aa" stroke="#082f49" stroke-width="8"/><circle cx="118" cy="58" r="7" fill="#082f49"/><circle cx="162" cy="58" r="7" fill="#082f49"/><path d="M118 90 Q140 108 164 90" fill="none" stroke="#082f49" stroke-width="7" stroke-linecap="round"/>
+    <circle cx="140" cy="220" r="46" fill="#f7931a" stroke="#082f49" stroke-width="7"/><text x="140" y="239" text-anchor="middle" font-family="Arial Black, Arial" font-size="45" fill="white">&#8383;</text>
+  </g>
+</svg>

@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 900" role="img" aria-label="Bitcoin Hero helps value travel safely across the world">
+  <rect width="1200" height="900" fill="#e0f2fe"/>
+  <circle cx="600" cy="450" r="310" fill="#bfdbfe" stroke="#082f49" stroke-width="12"/>
+  <path d="M330 430 C455 335 590 540 720 418 C825 320 915 390 1010 310" fill="none" stroke="#facc15" stroke-width="34" stroke-linecap="round"/>
+  <path d="M330 430 C455 335 590 540 720 418 C825 320 915 390 1010 310" fill="none" stroke="#082f49" stroke-width="7" stroke-linecap="round"/>
+  <g fill="#f7931a" stroke="#082f49" stroke-width="7">
+    <circle cx="315" cy="438" r="44"/><circle cx="1018" cy="305" r="44"/><circle cx="728" cy="418" r="32"/>
+  </g>
+  <g transform="translate(465 300)">
+    <path d="M135 112 C52 158 30 274 80 395 L190 395 C240 274 218 158 135 112Z" fill="#fb923c" stroke="#082f49" stroke-width="9"/>
+    <path d="M80 160 C5 226 10 334 70 448 L122 394 C100 298 108 224 152 168Z" fill="#38bdf8" stroke="#082f49" stroke-width="7"/>
+    <circle cx="135" cy="60" r="62" fill="#fed7aa" stroke="#082f49" stroke-width="8"/>
+    <circle cx="113" cy="58" r="7" fill="#082f49"/><circle cx="157" cy="58" r="7" fill="#082f49"/>
+    <path d="M113 90 Q135 108 159 90" fill="none" stroke="#082f49" stroke-width="7" stroke-linecap="round"/>
+    <circle cx="135" cy="218" r="46" fill="#f7931a" stroke="#082f49" stroke-width="7"/><text x="135" y="237" text-anchor="middle" font-family="Arial Black, Arial" font-size="45" fill="white">&#8383;</text>
+  </g>
+  <g fill="#fff7ed" stroke="#082f49" stroke-width="7"><rect x="140" y="560" width="175" height="120" rx="24"/><rect x="885" y="455" width="175" height="120" rx="24"/></g>
+</svg>

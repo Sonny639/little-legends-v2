@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 900" role="img" aria-label="Bitcoin Hero teaches calm research in the open market">
+  <rect width="1200" height="900" fill="#fff7ed"/>
+  <path d="M90 365 H1110 V900 H90Z" fill="#fed7aa" stroke="#082f49" stroke-width="12"/>
+  <path d="M90 365 L210 220 H990 L1110 365Z" fill="#f7931a" stroke="#082f49" stroke-width="12"/>
+  <g fill="#fef3c7" stroke="#082f49" stroke-width="8"><rect x="170" y="505" width="160" height="160" rx="22"/><rect x="520" y="505" width="160" height="160" rx="22"/><rect x="870" y="505" width="160" height="160" rx="22"/></g>
+  <g transform="translate(470 275)">
+    <path d="M130 112 C52 158 30 272 78 388 L182 388 C230 272 208 158 130 112Z" fill="#fb923c" stroke="#082f49" stroke-width="9"/>
+    <path d="M80 160 C5 220 10 330 68 445 L118 388 C98 292 106 220 146 168Z" fill="#38bdf8" stroke="#082f49" stroke-width="7"/>
+    <circle cx="130" cy="60" r="60" fill="#fed7aa" stroke="#082f49" stroke-width="8"/><circle cx="108" cy="58" r="7" fill="#082f49"/><circle cx="152" cy="58" r="7" fill="#082f49"/><path d="M108 90 Q130 108 154 90" fill="none" stroke="#082f49" stroke-width="7" stroke-linecap="round"/>
+    <circle cx="130" cy="210" r="44" fill="#f7931a" stroke="#082f49" stroke-width="7"/><text x="130" y="228" text-anchor="middle" font-family="Arial Black, Arial" font-size="43" fill="white">&#8383;</text>
+  </g>
+  <g fill="#facc15" stroke="#082f49" stroke-width="6"><circle cx="250" cy="585" r="42"/><circle cx="600" cy="585" r="42"/><circle cx="950" cy="585" r="42"/></g>
+</svg>

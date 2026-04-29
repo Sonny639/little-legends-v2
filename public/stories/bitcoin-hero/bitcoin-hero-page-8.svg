@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 900" role="img" aria-label="Bitcoin Hero waits by the HODL clock">
+  <rect width="1200" height="900" fill="#fef9c3"/>
+  <circle cx="600" cy="390" r="260" fill="#fff7ed" stroke="#082f49" stroke-width="14"/>
+  <circle cx="600" cy="390" r="34" fill="#082f49"/>
+  <path d="M600 390 L600 210 M600 390 L742 510" stroke="#082f49" stroke-width="18" stroke-linecap="round"/>
+  <g fill="#f7931a" stroke="#082f49" stroke-width="7"><circle cx="600" cy="125" r="40"/><circle cx="865" cy="390" r="40"/><circle cx="600" cy="655" r="40"/><circle cx="335" cy="390" r="40"/></g>
+  <g transform="translate(480 350)">
+    <path d="M120 100 C48 142 28 245 72 352 L168 352 C212 245 192 142 120 100Z" fill="#fb923c" stroke="#082f49" stroke-width="8"/>
+    <path d="M72 145 C4 205 8 296 58 386 L105 344 C86 260 94 198 134 152Z" fill="#38bdf8" stroke="#082f49" stroke-width="6"/>
+    <circle cx="120" cy="54" r="54" fill="#fed7aa" stroke="#082f49" stroke-width="7"/><circle cx="100" cy="52" r="6" fill="#082f49"/><circle cx="140" cy="52" r="6" fill="#082f49"/><path d="M100 80 Q120 96 142 80" fill="none" stroke="#082f49" stroke-width="6" stroke-linecap="round"/>
+    <circle cx="120" cy="188" r="38" fill="#f7931a" stroke="#082f49" stroke-width="6"/><text x="120" y="204" text-anchor="middle" font-family="Arial Black, Arial" font-size="38" fill="white">&#8383;</text>
+  </g>
+</svg>

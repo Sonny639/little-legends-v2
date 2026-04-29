@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 900" role="img" aria-label="Bitcoin Hero blocks the spendy glitch">
+  <rect width="1200" height="900" fill="#fee2e2"/>
+  <g opacity=".9" stroke="#ef4444" stroke-width="14" stroke-linecap="round"><path d="M120 150 L230 260 M230 150 L120 260"/><path d="M925 190 L1045 310 M1045 190 L925 310"/><path d="M160 640 L270 750 M270 640 L160 750"/></g>
+  <path d="M760 250 C930 230 1040 350 1010 515 C980 680 785 700 705 555 C630 420 625 275 760 250Z" fill="#fb7185" stroke="#082f49" stroke-width="12"/>
+  <circle cx="845" cy="430" r="95" fill="#f97316" stroke="#082f49" stroke-width="10"/><text x="845" y="462" text-anchor="middle" font-family="Arial Black, Arial" font-size="88" fill="white">&#8383;</text>
+  <g transform="translate(335 250)">
+    <path d="M140 118 C54 165 30 288 84 410 L196 410 C250 288 226 165 140 118Z" fill="#fb923c" stroke="#082f49" stroke-width="9"/>
+    <path d="M84 166 C4 225 6 350 74 465 L125 405 C100 304 110 226 158 174Z" fill="#0ea5e9" stroke="#082f49" stroke-width="7"/>
+    <circle cx="140" cy="62" r="62" fill="#fed7aa" stroke="#082f49" stroke-width="8"/><circle cx="118" cy="60" r="7" fill="#082f49"/><circle cx="162" cy="60" r="7" fill="#082f49"/><path d="M118 92 Q140 108 164 92" fill="none" stroke="#082f49" stroke-width="7" stroke-linecap="round"/>
+    <circle cx="140" cy="224" r="46" fill="#f7931a" stroke="#082f49" stroke-width="7"/><text x="140" y="243" text-anchor="middle" font-family="Arial Black, Arial" font-size="45" fill="white">&#8383;</text>
+    <path d="M230 194 L365 130 L385 290 L238 286Z" fill="#facc15" stroke="#082f49" stroke-width="8"/>
+  </g>
+</svg>

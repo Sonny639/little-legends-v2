@@ -1,0 +1,584 @@
+"use client"
+
+import { useEffect, useMemo, useState } from "react"
+import Link from "next/link"
+import { BookOpen, Download, Mail, PackageCheck, RefreshCw, Search, Trash2, Truck } from "lucide-react"
+
+import { Badge } from "@/components/ui/badge"
+import { Button } from "@/components/ui/button"
+import { Card } from "@/components/ui/card"
+import { Input } from "@/components/ui/input"
+import { AdminShell } from "../admin-shell"
+
+type CheckoutProduct = "digital" | "hardback" | "upgrade"
+type FulfilmentStatus = "new" | "in_progress" | "ready" | "sent"
+type PaymentStatus = "payment_pending" | "paid_demo" | "paid"
+
+type StoryPathChoice = {
+  pageId: string
+  choiceId: string
+  pathTag?: string
+  text: string
+}
+
+type OrderRecord = {
+  id: string
+  createdAt: string
+  product: CheckoutProduct
+  total: number
+  email: string
+  phone?: string
+  heroName: string
+  heroType: string
+  storyTitle: string
+  storyId: string
+  gender: "boy" | "girl" | null
+  photoCount?: number
+  choices: StoryPathChoice[]
+  postage?: {
+    fullName: string
+    addressLine1: string
+    addressLine2: string
+    city: string
+    postcode: string
+    country: string
+  }
+  status: PaymentStatus
+  fulfilmentStatus?: FulfilmentStatus
+  fulfilmentUpdatedAt?: string
+  checkoutUrl?: string
+  downloadUrl?: string
+  emailSentAt?: string
+}
+
+const storageKey = "little-legends-orders"
+
+const productLabel: Record<CheckoutProduct, string> = {
+  digital: "Digital PDF",
+  hardback: "Hardback Book",
+  upgrade: "Hard Copy Upgrade",
+}
+
+const fulfilmentOptions: { value: FulfilmentStatus; label: string; className: string }[] = [
+  { value: "new", label: "New", className: "bg-sky-100 text-sky-800" },
+  { value: "in_progress", label: "In progress", className: "bg-amber-100 text-amber-800" },
+  { value: "ready", label: "Ready", className: "bg-purple-100 text-purple-800" },
+  { value: "sent", label: "Sent", className: "bg-emerald-100 text-emerald-800" },
+]
+
+const fulfilmentLabel = (status?: FulfilmentStatus) =>
+  fulfilmentOptions.find((option) => option.value === (status || "new")) || fulfilmentOptions[0]
+
+const paymentLabel = (status: PaymentStatus) => {
+  if (status === "paid") return "Paid"
+  if (status === "paid_demo") return "Paid demo"
+  return "Payment pending"
+}
+
+const formatDate = (value: string) =>
+  new Intl.DateTimeFormat("en-GB", {
+    dateStyle: "medium",
+    timeStyle: "short",
+  }).format(new Date(value))
+
+const money = new Intl.NumberFormat("en-GB", { style: "currency", currency: "GBP" })
+
+const csvEscape = (value: string | number | null | undefined) => `"${String(value ?? "").replaceAll('"', '""')}"`
+
+export default function AdminOrdersPage() {
+  const [orders, setOrders] = useState<OrderRecord[]>([])
+  const [query, setQuery] = useState("")
+  const [statusFilter, setStatusFilter] = useState<FulfilmentStatus | "all">("all")
+  const [isLoading, setIsLoading] = useState(true)
+  const [adminMessage, setAdminMessage] = useState("")
+
+  const loadOrders = async () => {
+    setIsLoading(true)
+    setAdminMessage("")
+
+    try {
+      const response = await fetch("/api/orders", { cache: "no-store" })
+      if (!response.ok) throw new Error("Failed to load server orders")
+
+      const data = await response.json()
+      if (Array.isArray(data.orders)) {
+        setOrders(data.orders)
+        return
+      }
+    } catch {
+      const savedOrders = window.localStorage.getItem(storageKey)
+      if (!savedOrders) {
+        setOrders([])
+        setAdminMessage("Server orders are unavailable and there are no browser demo orders.")
+        return
+      }
+
+      try {
+        const parsedOrders = JSON.parse(savedOrders)
+        setOrders(Array.isArray(parsedOrders) ? parsedOrders : [])
+        setAdminMessage("Showing browser demo orders because the server order store is unavailable.")
+      } catch {
+        setOrders([])
+        setAdminMessage("Could not read browser demo orders.")
+      }
+    } finally {
+      setIsLoading(false)
+    }
+  }
+
+  useEffect(() => {
+    loadOrders()
+  }, [])
+
+  const filteredOrders = useMemo(() => {
+    const normalisedQuery = query.trim().toLowerCase()
+    const statusMatchedOrders =
+      statusFilter === "all"
+        ? orders
+        : orders.filter((order) => (order.fulfilmentStatus || "new") === statusFilter)
+
+    if (!normalisedQuery) return statusMatchedOrders
+
+    return statusMatchedOrders.filter((order) =>
+      [
+        order.id,
+        order.email,
+        order.heroName,
+        order.heroType,
+        order.storyTitle,
+        productLabel[order.product],
+        order.postage?.fullName,
+        order.postage?.postcode,
+      ]
+        .filter(Boolean)
+        .some((value) => String(value).toLowerCase().includes(normalisedQuery)),
+    )
+  }, [orders, query, statusFilter])
+
+  const totals = useMemo(
+    () => ({
+      revenue: orders.reduce((sum, order) => sum + order.total, 0),
+      printOrders: orders.filter((order) => order.product !== "digital").length,
+      digitalOrders: orders.filter((order) => order.product === "digital").length,
+      fulfilment: fulfilmentOptions.reduce(
+        (counts, option) => ({
+          ...counts,
+          [option.value]: orders.filter((order) => (order.fulfilmentStatus || "new") === option.value).length,
+        }),
+        {} as Record<FulfilmentStatus, number>,
+      ),
+    }),
+    [orders],
+  )
+
+  const exportCsv = () => {
+    const headers = [
+      "id",
+      "createdAt",
+      "status",
+      "fulfilmentStatus",
+      "fulfilmentUpdatedAt",
+      "checkoutUrl",
+      "downloadUrl",
+      "emailSentAt",
+      "product",
+      "total",
+      "email",
+      "phone",
+      "heroName",
+      "heroType",
+      "storyTitle",
+      "storyId",
+      "gender",
+      "photoCount",
+      "choices",
+      "postageName",
+      "addressLine1",
+      "addressLine2",
+      "city",
+      "postcode",
+      "country",
+    ]
+
+    const rows = filteredOrders.map((order) => [
+      order.id,
+      order.createdAt,
+      order.status,
+      fulfilmentLabel(order.fulfilmentStatus).label,
+      order.fulfilmentUpdatedAt,
+      order.checkoutUrl,
+      order.downloadUrl,
+      order.emailSentAt,
+      productLabel[order.product],
+      order.total.toFixed(2),
+      order.email,
+      order.phone,
+      order.heroName,
+      order.heroType,
+      order.storyTitle,
+      order.storyId,
+      order.gender,
+      order.photoCount ?? 0,
+      order.choices.map((choice) => `${choice.pageId}: ${choice.text}`).join(" | "),
+      order.postage?.fullName,
+      order.postage?.addressLine1,
+      order.postage?.addressLine2,
+      order.postage?.city,
+      order.postage?.postcode,
+      order.postage?.country,
+    ])
+
+    const csv = [headers, ...rows].map((row) => row.map(csvEscape).join(",")).join("\n")
+    const url = URL.createObjectURL(new Blob([csv], { type: "text/csv;charset=utf-8" }))
+    const link = document.createElement("a")
+    link.href = url
+    const suffix = statusFilter === "all" ? "all" : statusFilter.replace("_", "-")
+    link.download = `little-legends-orders-${suffix}-${new Date().toISOString().slice(0, 10)}.csv`
+    link.click()
+    URL.revokeObjectURL(url)
+  }
+
+  const clearOrders = async () => {
+    try {
+      await fetch("/api/orders", { method: "DELETE" })
+    } catch {
+      setAdminMessage("Server orders could not be cleared. Browser demo orders were cleared.")
+    }
+
+    window.localStorage.removeItem(storageKey)
+    setOrders([])
+  }
+
+  const updateFulfilmentStatus = async (orderId: string, fulfilmentStatus: FulfilmentStatus) => {
+    setAdminMessage("")
+
+    try {
+      const response = await fetch("/api/orders", {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ orderId, fulfilmentStatus }),
+      })
+
+      if (!response.ok) throw new Error("Failed to update order")
+
+      const data = await response.json()
+      setOrders((currentOrders) =>
+        currentOrders.map((order) =>
+          order.id === orderId
+            ? {
+                ...order,
+                fulfilmentStatus: data.order?.fulfilmentStatus || fulfilmentStatus,
+                fulfilmentUpdatedAt: data.order?.fulfilmentUpdatedAt || new Date().toISOString(),
+              }
+            : order,
+        ),
+      )
+    } catch {
+      setAdminMessage("Could not update fulfilment status. Check the server order store and try again.")
+    }
+  }
+
+  const resendConfirmationEmail = async (orderId: string) => {
+    setAdminMessage("")
+
+    try {
+      const response = await fetch("/api/orders/email", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ orderId }),
+      })
+
+      if (!response.ok) throw new Error("Failed to resend email")
+
+      const data = await response.json()
+      setOrders((currentOrders) =>
+        currentOrders.map((order) =>
+          order.id === orderId
+            ? {
+                ...order,
+                emailSentAt: data.email?.sentAt || new Date().toISOString(),
+                downloadUrl: data.email?.downloadUrl || order.downloadUrl,
+              }
+            : order,
+        ),
+      )
+      setAdminMessage(`Confirmation email logged for ${data.email?.to || "customer"}.`)
+    } catch {
+      setAdminMessage("Could not resend the confirmation email. Check the order status and try again.")
+    }
+  }
+
+  return (
+    <AdminShell>
+      <div className="space-y-6">
+        <div className="rounded-[2rem] border-4 border-sky-950 bg-white p-5 shadow-[8px_8px_0_rgba(8,47,73,0.18)]">
+          <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+            <div>
+              <Badge className="mb-3 bg-amber-300 px-3 py-1 text-sky-950">Admin demo</Badge>
+              <h1 className="text-3xl font-black uppercase leading-tight text-sky-950 sm:text-5xl">Orders</h1>
+              <p className="mt-2 max-w-2xl text-sm font-bold leading-6 text-slate-700">
+                Demo fulfilment orders for checking story choices, products, email details, and hardback delivery.
+              </p>
+            </div>
+            <div className="flex flex-col gap-3 sm:flex-row">
+              <Button asChild variant="outline" className="h-11 rounded-xl border-sky-200 bg-white px-5 font-black text-sky-700">
+                <Link href="/">Back to app</Link>
+              </Button>
+              <Button
+                type="button"
+                onClick={loadOrders}
+                disabled={isLoading}
+                variant="outline"
+                className="h-11 rounded-xl border-sky-200 bg-white px-5 font-black text-sky-700"
+              >
+                <RefreshCw className={`h-4 w-4 ${isLoading ? "animate-spin" : ""}`} />
+                Refresh
+              </Button>
+              <Button
+                type="button"
+                onClick={exportCsv}
+                disabled={filteredOrders.length === 0}
+                className="h-11 rounded-xl bg-sky-500 px-5 font-black text-white hover:bg-sky-600"
+              >
+                <Download className="h-4 w-4" />
+                Export CSV
+              </Button>
+              <Button
+                type="button"
+                onClick={clearOrders}
+                disabled={orders.length === 0}
+                variant="outline"
+                className="h-11 rounded-xl border-rose-100 bg-white px-5 font-black text-rose-600 hover:bg-rose-50"
+              >
+                <Trash2 className="h-4 w-4" />
+                Clear
+              </Button>
+            </div>
+          </div>
+        </div>
+
+        {adminMessage && (
+          <Card className="border-4 border-amber-300 bg-amber-50 p-4 text-sm font-black text-amber-900">
+            {adminMessage}
+          </Card>
+        )}
+
+        <div className="grid gap-4 md:grid-cols-3">
+          <Card className="border-4 border-sky-950 bg-sky-50 p-5 shadow-[6px_6px_0_rgba(8,47,73,0.12)]">
+            <PackageCheck className="h-6 w-6 text-sky-700" />
+            <p className="text-sm font-black uppercase text-sky-700">Orders</p>
+            <p className="text-4xl font-black text-sky-950">{orders.length}</p>
+          </Card>
+          <Card className="border-4 border-sky-950 bg-amber-50 p-5 shadow-[6px_6px_0_rgba(8,47,73,0.12)]">
+            <BookOpen className="h-6 w-6 text-amber-700" />
+            <p className="text-sm font-black uppercase text-amber-700">Demo revenue</p>
+            <p className="text-4xl font-black text-sky-950">{money.format(totals.revenue)}</p>
+          </Card>
+          <Card className="border-4 border-sky-950 bg-emerald-50 p-5 shadow-[6px_6px_0_rgba(8,47,73,0.12)]">
+            <Truck className="h-6 w-6 text-emerald-700" />
+            <p className="text-sm font-black uppercase text-emerald-700">Fulfilment</p>
+            <p className="text-lg font-black text-sky-950">{totals.printOrders} print / {totals.digitalOrders} digital</p>
+          </Card>
+        </div>
+
+        <Card className="border-4 border-sky-950 bg-white p-5 shadow-[8px_8px_0_rgba(8,47,73,0.14)]">
+          <div className="grid gap-4 lg:grid-cols-[1fr_auto] lg:items-center">
+            <div className="relative">
+              <Search className="absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
+              <Input
+                value={query}
+                onChange={(event) => setQuery(event.target.value)}
+                placeholder="Search by order, email, hero, product, or postcode..."
+                className="h-12 rounded-xl border-2 border-sky-100 bg-white pl-11 font-semibold"
+              />
+            </div>
+            <div className="flex flex-wrap gap-2">
+              <Button
+                type="button"
+                onClick={() => setStatusFilter("all")}
+                variant={statusFilter === "all" ? "default" : "outline"}
+                className={`h-10 rounded-xl px-4 text-xs font-black ${
+                  statusFilter === "all"
+                    ? "bg-sky-500 text-white hover:bg-sky-600"
+                    : "border-sky-100 bg-white text-sky-700 hover:bg-sky-50"
+                }`}
+              >
+                All {orders.length}
+              </Button>
+              {fulfilmentOptions.map((option) => {
+                const isSelected = statusFilter === option.value
+
+                return (
+                  <Button
+                    key={`filter-${option.value}`}
+                    type="button"
+                    onClick={() => setStatusFilter(option.value)}
+                    variant={isSelected ? "default" : "outline"}
+                    className={`h-10 rounded-xl px-4 text-xs font-black ${
+                      isSelected
+                        ? "bg-sky-500 text-white hover:bg-sky-600"
+                        : "border-sky-100 bg-white text-sky-700 hover:bg-sky-50"
+                    }`}
+                  >
+                    {option.label} {totals.fulfilment[option.value]}
+                  </Button>
+                )
+              })}
+            </div>
+          </div>
+        </Card>
+
+        {isLoading ? (
+          <Card className="border-4 border-sky-950 bg-white p-8 text-center shadow-[8px_8px_0_rgba(8,47,73,0.14)]">
+            <h2 className="text-2xl font-black text-sky-950">Loading orders</h2>
+          </Card>
+        ) : filteredOrders.length === 0 ? (
+          <Card className="border-4 border-sky-950 bg-white p-8 text-center shadow-[8px_8px_0_rgba(8,47,73,0.14)]">
+            <h2 className="text-2xl font-black text-sky-950">No orders found</h2>
+            <p className="mx-auto mt-2 max-w-lg text-sm font-semibold leading-6 text-slate-700">
+              Complete a demo checkout in the app, then return here to inspect the saved order.
+            </p>
+          </Card>
+        ) : (
+          <div className="grid gap-5">
+            {filteredOrders.map((order) => (
+              <Card key={order.id} className="border-4 border-sky-950 bg-[#fffdf5] p-5 shadow-[8px_8px_0_rgba(8,47,73,0.14)]">
+                <div className="grid gap-5 lg:grid-cols-[1fr_0.8fr]">
+                  <div className="space-y-4">
+                    <div className="flex flex-wrap items-center gap-2">
+                      <Badge className="bg-emerald-100 px-3 py-1 text-emerald-800">{paymentLabel(order.status)}</Badge>
+                      <Badge className={`${fulfilmentLabel(order.fulfilmentStatus).className} px-3 py-1`}>
+                        {fulfilmentLabel(order.fulfilmentStatus).label}
+                      </Badge>
+                      <Badge className="bg-sky-100 px-3 py-1 text-sky-800">{productLabel[order.product]}</Badge>
+                      <Badge className="bg-amber-100 px-3 py-1 text-amber-800">{money.format(order.total)}</Badge>
+                      <Badge className={`${order.emailSentAt ? "bg-emerald-100 text-emerald-800" : "bg-rose-100 text-rose-800"} px-3 py-1`}>
+                        {order.emailSentAt ? "Email sent" : "Email not sent"}
+                      </Badge>
+                      {order.product !== "digital" && (
+                        <Badge className="bg-purple-100 px-3 py-1 text-purple-800">Print required</Badge>
+                      )}
+                      {(order.status === "paid" || order.status === "paid_demo") && (
+                        <Link href={`/download/${order.id}`} className="rounded-full bg-white px-3 py-1 text-xs font-black text-sky-700 underline">
+                          Download
+                        </Link>
+                      )}
+                    </div>
+                    <div>
+                      <p className="text-xs font-black uppercase tracking-widest text-sky-700">{formatDate(order.createdAt)}</p>
+                      <h2 className="mt-1 break-all text-2xl font-black text-sky-950">{order.id}</h2>
+                      <p className="mt-2 text-lg font-black text-rose-600">{order.heroName} the {order.heroType}</p>
+                      <p className="text-sm font-bold leading-6 text-slate-700">{order.storyTitle}</p>
+                    </div>
+
+                    <div className="grid gap-3 sm:grid-cols-2">
+                      <div className="rounded-xl border-2 border-sky-100 bg-white p-4">
+                        <div className="mb-2 flex items-center gap-2 text-sm font-black text-sky-900">
+                          <Mail className="h-4 w-4" />
+                          Customer
+                        </div>
+                        <p className="break-all text-sm font-semibold text-slate-700">{order.email}</p>
+                        {order.phone && <p className="mt-1 text-sm font-semibold text-slate-700">{order.phone}</p>}
+                        {order.emailSentAt && (
+                          <p className="mt-2 text-xs font-bold text-emerald-700">
+                            Email logged: {formatDate(order.emailSentAt)}
+                          </p>
+                        )}
+                        {(order.status === "paid" || order.status === "paid_demo") && (
+                          <Button
+                            type="button"
+                            onClick={() => resendConfirmationEmail(order.id)}
+                            variant="outline"
+                            className="mt-3 h-9 rounded-xl border-sky-100 bg-white px-3 text-xs font-black text-sky-700 hover:bg-sky-50"
+                          >
+                            <Mail className="h-4 w-4" />
+                            Resend confirmation
+                          </Button>
+                        )}
+                      </div>
+                      <div className="rounded-xl border-2 border-sky-100 bg-white p-4">
+                        <div className="mb-2 flex items-center gap-2 text-sm font-black text-sky-900">
+                          <BookOpen className="h-4 w-4" />
+                          Story
+                        </div>
+                        <p className="text-sm font-semibold text-slate-700">ID: {order.storyId}</p>
+                        <p className="mt-1 text-sm font-semibold text-slate-700">Gender: {order.gender || "Not set"}</p>
+                        <p className="mt-1 text-sm font-semibold text-slate-700">Reference photos: {order.photoCount ?? 0}</p>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="space-y-4">
+                    <div className="rounded-xl border-2 border-sky-100 bg-white p-4">
+                      <div className="mb-3 text-sm font-black text-sky-900">Fulfilment status</div>
+                      <p className="mb-3 text-xs font-bold leading-5 text-slate-600">
+                        Last updated: {formatDate(order.fulfilmentUpdatedAt || order.createdAt)}
+                      </p>
+                      <div className="grid grid-cols-2 gap-2">
+                        {fulfilmentOptions.map((option) => {
+                          const isSelected = (order.fulfilmentStatus || "new") === option.value
+
+                          return (
+                            <Button
+                              key={`${order.id}-${option.value}`}
+                              type="button"
+                              onClick={() => updateFulfilmentStatus(order.id, option.value)}
+                              variant={isSelected ? "default" : "outline"}
+                              className={`h-10 rounded-xl text-xs font-black ${
+                                isSelected
+                                  ? "bg-sky-500 text-white hover:bg-sky-600"
+                                  : "border-sky-100 bg-white text-sky-700 hover:bg-sky-50"
+                              }`}
+                            >
+                              {option.label}
+                            </Button>
+                          )
+                        })}
+                      </div>
+                    </div>
+
+                    {order.postage && (
+                      <div className="rounded-xl border-2 border-sky-100 bg-white p-4">
+                        <div className="mb-2 flex items-center gap-2 text-sm font-black text-sky-900">
+                          <Truck className="h-4 w-4" />
+                          Postage
+                        </div>
+                        <div className="space-y-1 text-sm font-semibold leading-6 text-slate-700">
+                          <p>{order.postage.fullName}</p>
+                          <p>{order.postage.addressLine1}</p>
+                          {order.postage.addressLine2 && <p>{order.postage.addressLine2}</p>}
+                          <p>{order.postage.city}</p>
+                          <p>{order.postage.postcode}</p>
+                          <p>{order.postage.country}</p>
+                        </div>
+                      </div>
+                    )}
+
+                    <div className="rounded-xl border-2 border-sky-100 bg-white p-4">
+                      <div className="mb-2 text-sm font-black text-sky-900">Story choices</div>
+                      {order.choices.length === 0 ? (
+                        <p className="text-sm font-semibold text-slate-700">No choices recorded.</p>
+                      ) : (
+                        <div className="space-y-2">
+                          {order.choices.map((choice) => (
+                            <div key={`${order.id}-${choice.pageId}-${choice.choiceId}`} className="rounded-lg bg-sky-50 px-3 py-2 text-sm font-semibold leading-6 text-slate-700">
+                              <span className="font-black text-sky-900">{choice.pageId}:</span> {choice.text}
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              </Card>
+            ))}
+          </div>
+        )}
+      </div>
+    </AdminShell>
+  )
+}

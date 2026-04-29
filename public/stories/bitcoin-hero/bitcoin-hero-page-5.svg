@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 900" role="img" aria-label="Bitcoin Hero crosses moving price waves calmly">
+  <rect width="1200" height="900" fill="#ecfeff"/>
+  <path d="M0 680 C130 575 260 780 400 660 C540 540 670 760 820 640 C970 520 1070 650 1200 560 L1200 900 L0 900Z" fill="#38bdf8" opacity=".55"/>
+  <path d="M110 575 C265 410 385 720 530 520 C675 320 825 650 1005 430" fill="none" stroke="#f7931a" stroke-width="38" stroke-linecap="round"/>
+  <g transform="translate(470 250)">
+    <path d="M130 120 C50 165 28 280 78 400 L182 400 C232 280 210 165 130 120Z" fill="#fb923c" stroke="#082f49" stroke-width="9"/>
+    <path d="M80 168 C0 242 6 352 68 460 L120 400 C98 300 104 225 148 176Z" fill="#0ea5e9" stroke="#082f49" stroke-width="7"/>
+    <circle cx="130" cy="66" r="62" fill="#fed7aa" stroke="#082f49" stroke-width="8"/><circle cx="108" cy="64" r="7" fill="#082f49"/><circle cx="152" cy="64" r="7" fill="#082f49"/><path d="M108 96 Q130 112 154 96" fill="none" stroke="#082f49" stroke-width="7" stroke-linecap="round"/>
+    <circle cx="130" cy="220" r="46" fill="#f7931a" stroke="#082f49" stroke-width="7"/><text x="130" y="239" text-anchor="middle" font-family="Arial Black, Arial" font-size="45" fill="white">&#8383;</text>
+    <path d="M222 215 L322 165 L340 245 Z" fill="#facc15" stroke="#082f49" stroke-width="7"/>
+  </g>
+  <g stroke="#082f49" stroke-width="8" stroke-linecap="round"><path d="M210 330 L260 270 L310 350 L365 230"/><path d="M900 285 L945 330 L1015 235 L1070 300"/></g>
+</svg>
