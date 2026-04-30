@@ -26,7 +26,7 @@ export default function ContactPage() {
       const response = await fetch("/api/enquiries", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name, email, subject, message }),
+        body: JSON.stringify({ name, email, subject, message, source: "contact" }),
       })
 
       if (!response.ok) throw new Error("Could not send enquiry")

@@ -1,6 +1,48 @@
+"use client"
+
+import { type FormEvent, useState } from "react"
 import { Mail, Sparkles } from "lucide-react"
 
 export default function ComingSoonPage() {
+  const [email, setEmail] = useState("")
+  const [status, setStatus] = useState("")
+  const [isSubmitting, setIsSubmitting] = useState(false)
+
+  const handleSignup = async (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault()
+    setStatus("")
+
+    const trimmedEmail = email.trim()
+    if (!trimmedEmail || !trimmedEmail.includes("@")) {
+      setStatus("Please enter a valid email.")
+      return
+    }
+
+    setIsSubmitting(true)
+
+    try {
+      const response = await fetch("/api/enquiries", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          name: "Launch list signup",
+          email: trimmedEmail,
+          subject: "Coming soon launch list",
+          message: `New Little Legends Story launch signup: ${trimmedEmail}`,
+        }),
+      })
+
+      if (!response.ok) throw new Error("Signup failed")
+
+      setEmail("")
+      setStatus("You are on the list.")
+    } catch {
+      setStatus("Could not join the list. Please try again.")
+    } finally {
+      setIsSubmitting(false)
+    }
+  }
+
   return (
     <main className="min-h-screen w-full overflow-x-hidden bg-[#070820]">
       <h1 className="sr-only">Little Legends Story</h1>
@@ -17,6 +59,7 @@ export default function ComingSoonPage() {
         />
 
         <form
+          onSubmit={handleSignup}
           className="absolute left-[5.4%] top-[71.5%] z-10 flex h-[15.8%] w-[89.2%] flex-col p-[3.3%]"
           aria-label="Join the Little Legends Story launch list"
         >
@@ -28,16 +71,21 @@ export default function ComingSoonPage() {
             <input
               id="launch-email-mobile"
               type="email"
+              value={email}
+              onChange={(event) => setEmail(event.target.value)}
               placeholder=" "
+              disabled={isSubmitting}
               className="peer h-full w-full rounded-full border border-transparent bg-transparent pl-[15%] pr-[5%] text-[clamp(1rem,4.7vw,1.45rem)] font-black text-white outline-none placeholder:text-transparent focus:border-amber-200/50 focus:bg-[#292a45]/95 [&:not(:placeholder-shown)]:bg-[#292a45]/95"
             />
           </div>
           <button
             type="submit"
+            disabled={isSubmitting}
             className="mt-[4%] h-[39%] rounded-full text-transparent outline-none focus-visible:ring-4 focus-visible:ring-amber-200/45"
           >
             Join the list
           </button>
+          {status && <p className="sr-only" role="status">{status}</p>}
         </form>
       </section>
 
@@ -56,6 +104,7 @@ export default function ComingSoonPage() {
           </div>
 
           <form
+            onSubmit={handleSignup}
             className="absolute left-[4%] top-[75.4%] flex h-[8.2%] w-[37.6%] items-center gap-[1.5%] rounded-full border border-white/14 bg-[#17182f]/96 p-[0.55%] shadow-[0_0_0_1px_rgba(255,255,255,0.04),0_18px_48px_rgba(0,0,0,0.32)] backdrop-blur-md"
             aria-label="Join the Little Legends Story launch list"
           >
@@ -67,15 +116,19 @@ export default function ComingSoonPage() {
               <input
                 id="launch-email"
                 type="email"
+                value={email}
+                onChange={(event) => setEmail(event.target.value)}
                 placeholder="Enter your email"
+                disabled={isSubmitting}
                 className="h-full w-full rounded-full border border-white/10 bg-[#24253f] pl-[18%] pr-[5%] text-[clamp(0.85rem,1.25vw,1.25rem)] font-semibold text-white outline-none placeholder:text-violet-100/68 focus:border-amber-200/45"
               />
             </div>
             <button
               type="submit"
+              disabled={isSubmitting}
               className="h-full w-[35%] rounded-full bg-amber-200 text-[clamp(0.78rem,1.22vw,1.18rem)] font-black text-[#35165f] shadow-[0_0_28px_rgba(251,191,36,0.28)] outline-none transition hover:bg-amber-100 focus-visible:ring-4 focus-visible:ring-amber-200/45"
             >
-              Join the list
+              {isSubmitting ? "Joining..." : status === "You are on the list." ? "Joined" : "Join the list"}
             </button>
           </form>
         </div>

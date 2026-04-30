@@ -80,7 +80,7 @@ export default function AdminEnquiriesPage() {
       <Card className="border-4 border-sky-950 bg-white p-5 shadow-[8px_8px_0_rgba(8,47,73,0.14)]">
         <Badge className="mb-2 bg-rose-100 px-3 py-1 text-rose-800">Customer messages</Badge>
         <h2 className="text-3xl font-black text-sky-950">Enquiries</h2>
-        <p className="mt-1 text-sm font-bold text-slate-700">Messages from contact forms and future support flows.</p>
+        <p className="mt-1 text-sm font-bold text-slate-700">Messages from contact forms, launch signups, and future support flows.</p>
       </Card>
 
       {message && <Card className="border-4 border-amber-300 bg-amber-50 p-4 text-sm font-black text-amber-900">{message}</Card>}

@@ -16,12 +16,23 @@ ADMIN_USERNAME=admin
 ADMIN_PASSWORD=
 ADMIN_SESSION_SECRET=
 FAL_API_KEY=
+CONTACT_TO_EMAIL=hello@littlelegendsstory.com
+SMTP_HOST=smtp.porkbun.com
+SMTP_PORT=587
+SMTP_USER=hello@littlelegendsstory.com
+SMTP_PASSWORD=
+SMTP_FROM_EMAIL=hello@littlelegendsstory.com
+SMTP_FROM_NAME=Little Legends Story
 ```
 
 Required before launch:
 
 - `NEXT_PUBLIC_APP_URL` must be the real public URL.
 - `DATABASE_URL` must point to production Postgres.
+- Launch page signups are saved in `/admin/enquiries`; use production Postgres before collecting real emails.
+- Use `hello@littlelegendsstory.com` as the public contact/reply inbox.
+- Contact form notifications use Porkbun SMTP when `SMTP_PASSWORD` is set. Porkbun's SMTP settings are `smtp.porkbun.com`, port `587`, STARTTLS, with the full email address as the username.
+- Launch page signups are saved in admin only; they do not send email notifications while the landing page is temporary.
 - `ADMIN_PASSWORD` and `ADMIN_SESSION_SECRET` must be strong unique values.
 - `STRIPE_SECRET_KEY` must be the correct live or test key for the environment.
 - `STRIPE_WEBHOOK_SECRET` must match the Stripe endpoint webhook secret.

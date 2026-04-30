@@ -25,6 +25,13 @@ FAL_API_KEY=
 ADMIN_USERNAME=admin
 ADMIN_PASSWORD=
 ADMIN_SESSION_SECRET=
+CONTACT_TO_EMAIL=hello@littlelegendsstory.com
+SMTP_HOST=smtp.porkbun.com
+SMTP_PORT=587
+SMTP_USER=hello@littlelegendsstory.com
+SMTP_PASSWORD=
+SMTP_FROM_EMAIL=hello@littlelegendsstory.com
+SMTP_FROM_NAME=Little Legends Story
 ```
 
 When `STRIPE_SECRET_KEY` is empty, checkout runs in demo mode and the success page marks the order as `paid_demo`.
@@ -41,6 +48,8 @@ Set `ADMIN_PASSWORD` to enable the admin login screen on `/admin/login`. `POST /
 - `/admin` - admin dashboard for paid orders, revenue, print queue, enquiries, and email logs.
 - `/admin/print-queue` - paid hardback and upgrade orders for printer fulfilment.
 - `/admin/enquiries` - customer enquiry inbox.
+- Launch page email signups are saved into `/admin/enquiries` with the subject `Coming soon launch list`.
+- Contact page enquiries are saved into `/admin/enquiries` and, when SMTP env vars are set, emailed to `CONTACT_TO_EMAIL`.
 - `/admin/email-log` - local confirmation email log.
 - `/download/[orderId]` - locked until payment is confirmed, then renders the printable story.
 - `/artwork` - artwork manifest and prompt review.

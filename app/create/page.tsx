@@ -307,7 +307,7 @@ export default function Home() {
   const getFilteredCharacters = () => {
     if (!characterSearchTerm) return featuredCharacters.slice(characterBatchIndex * 9, characterBatchIndex * 9 + 9)
 
-    return featuredCharacters.filter(
+    return allCharacters.filter(
       (char) =>
         char.name.toLowerCase().includes(characterSearchTerm.toLowerCase()) ||
         char.category.toLowerCase().includes(characterSearchTerm.toLowerCase()),
@@ -408,7 +408,7 @@ export default function Home() {
   }
 
   const renderWelcome = () => (
-    <section className="relative isolate flex h-full min-h-0 items-center justify-center overflow-hidden rounded-[2rem] border border-white/80 bg-[#fff7ff] px-4 py-4 text-center shadow-[0_24px_80px_rgba(172,122,218,0.18)] sm:px-8 lg:py-5">
+    <section className="relative isolate flex min-h-full items-center justify-center overflow-hidden rounded-[1.5rem] border border-white/80 bg-[#fff7ff] px-3 py-4 text-center shadow-[0_24px_80px_rgba(172,122,218,0.18)] sm:rounded-[2rem] sm:px-8 lg:py-5">
       <div className="absolute inset-0 -z-10 bg-[linear-gradient(180deg,#fffaff_0%,#f3ecff_42%,#e7f8ff_74%,#fff7d7_100%)]" />
       <div className="absolute inset-x-0 bottom-0 -z-10 h-44 bg-[radial-gradient(ellipse_at_center,rgba(255,221,117,0.58)_0%,rgba(255,221,117,0.28)_36%,transparent_68%)]" />
       <div className="absolute inset-0 -z-10 opacity-80 [background-image:radial-gradient(circle_at_10%_18%,rgba(255,198,229,0.95)_0_4px,transparent_5px),radial-gradient(circle_at_24%_72%,rgba(255,226,121,0.9)_0_3px,transparent_4px),radial-gradient(circle_at_82%_20%,rgba(153,213,255,0.95)_0_4px,transparent_5px),radial-gradient(circle_at_88%_68%,rgba(198,178,255,0.95)_0_3px,transparent_4px)]" />
@@ -425,7 +425,7 @@ export default function Home() {
             <img
               src="/little-legends-reading-hero.png"
               alt="A parent and child reading a magical storybook where the child becomes the hero"
-              className="h-40 w-full object-cover sm:h-52 lg:h-60 xl:h-64"
+            className="h-36 w-full object-cover min-[390px]:h-40 sm:h-52 lg:h-60 xl:h-64"
             />
             <div className="absolute inset-0 bg-[linear-gradient(180deg,transparent_58%,rgba(255,255,255,0.82)_100%)]" />
             <div className="absolute bottom-3 left-1/2 flex -translate-x-1/2 items-center gap-2 rounded-full bg-white/90 px-4 py-2 text-sm font-black text-fuchsia-700 shadow-md">
@@ -2599,8 +2599,8 @@ export default function Home() {
   }
 
   return (
-    <div className={`${currentStep === "welcome" ? "h-screen overflow-hidden" : "min-h-screen"} storybook-app-bg`}>
-      <div className={`container mx-auto px-3 sm:px-4 ${currentStep === "welcome" ? "flex h-full min-h-0 flex-col py-2 sm:py-3" : "py-5 sm:py-8"}`}>
+    <div className={`${currentStep === "welcome" ? "min-h-[100svh] overflow-x-hidden" : "min-h-screen"} storybook-app-bg`}>
+      <div className={`container mx-auto px-3 sm:px-4 ${currentStep === "welcome" ? "flex min-h-[100svh] flex-col py-2 sm:py-3" : "py-5 sm:py-8"}`}>
         <div className={`flex items-center justify-between ${currentStep === "welcome" ? "mx-auto mb-3 w-full max-w-6xl shrink-0" : "mb-6"}`}>
           <button
             type="button"
@@ -2636,7 +2636,7 @@ export default function Home() {
           </div>
         )}
 
-        <div className={`${currentStep === "welcome" ? "mx-auto min-h-0 w-full max-w-6xl flex-1" : "mx-auto max-w-6xl"}`}>
+        <div className={`${currentStep === "welcome" ? "mx-auto w-full max-w-6xl flex-1" : "mx-auto max-w-6xl"}`}>
           {currentStep === "welcome" && renderWelcome()}
           {currentStep === "gender" && renderGenderSelection()}
           {currentStep === "name" && renderNameSelection()}

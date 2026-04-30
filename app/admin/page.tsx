@@ -12,8 +12,23 @@ export const dynamic = "force-dynamic"
 
 const money = new Intl.NumberFormat("en-GB", { style: "currency", currency: "GBP" })
 
+const getDataIssueMessage = (label: string, reason: unknown) => {
+  const detail = reason instanceof Error ? reason.message : "Unknown error"
+
+  return `${label} could not be loaded. Check the production database tables/env vars. ${detail}`
+}
+
 export default async function AdminDashboardPage() {
-  const [orders, enquiries, emails] = await Promise.all([readOrders(), readEnquiries(), readEmailLog()])
+  const [ordersResult, enquiriesResult, emailsResult] = await Promise.allSettled([readOrders(), readEnquiries(), readEmailLog()])
+  const orders = ordersResult.status === "fulfilled" ? ordersResult.value : []
+  const enquiries = enquiriesResult.status === "fulfilled" ? enquiriesResult.value : []
+  const emails = emailsResult.status === "fulfilled" ? emailsResult.value : []
+  const dataIssues = [
+    ordersResult.status === "rejected" ? getDataIssueMessage("Orders", ordersResult.reason) : null,
+    enquiriesResult.status === "rejected" ? getDataIssueMessage("Enquiries", enquiriesResult.reason) : null,
+    emailsResult.status === "rejected" ? getDataIssueMessage("Email log", emailsResult.reason) : null,
+  ].filter(Boolean)
+
   const paidOrders = orders.filter((order) => order.status === "paid" || order.status === "paid_demo")
   const printOrders = paidOrders.filter((order) => order.product !== "digital")
   const openPrintOrders = printOrders.filter((order) => (order.fulfilmentStatus || "new") !== "sent")
@@ -29,6 +44,15 @@ export default async function AdminDashboardPage() {
 
   return (
     <AdminShell>
+      {dataIssues.length > 0 && (
+        <Card className="border-4 border-amber-300 bg-amber-50 p-4 text-sm font-black leading-6 text-amber-900">
+          <p>Admin data is not fully connected yet.</p>
+          {dataIssues.map((issue) => (
+            <p key={issue}>{issue}</p>
+          ))}
+        </Card>
+      )}
+
       <div className="grid gap-4 md:grid-cols-4">
         {stats.map((stat) => {
           const Icon = stat.icon

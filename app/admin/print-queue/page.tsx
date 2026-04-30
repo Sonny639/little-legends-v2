@@ -16,11 +16,23 @@ const formatDate = (value: string) =>
   }).format(new Date(value))
 
 export default async function AdminPrintQueuePage() {
-  const orders = await readOrders()
+  const ordersResult = await readOrders()
+    .then((orders) => ({ orders, issue: "" }))
+    .catch((error: unknown) => ({
+      orders: [],
+      issue: error instanceof Error ? error.message : "Unknown database error",
+    }))
+  const orders = ordersResult.orders
   const printOrders = orders.filter((order) => (order.status === "paid" || order.status === "paid_demo") && order.product !== "digital")
 
   return (
     <AdminShell>
+      {ordersResult.issue && (
+        <Card className="border-4 border-amber-300 bg-amber-50 p-4 text-sm font-black leading-6 text-amber-900">
+          Print queue could not load orders. Check the production database tables/env vars. {ordersResult.issue}
+        </Card>
+      )}
+
       <Card className="border-4 border-sky-950 bg-white p-5 shadow-[8px_8px_0_rgba(8,47,73,0.14)]">
         <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
           <div>
