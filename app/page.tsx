@@ -1,4 +1,4 @@
-import { Heart, Mail, Sparkles } from "lucide-react"
+import { Mail, Sparkles } from "lucide-react"
 
 export default function ComingSoonPage() {
   return (
@@ -10,71 +10,35 @@ export default function ComingSoonPage() {
 
       <section className="relative h-[100svh] w-full overflow-hidden sm:hidden">
         <img
-          src="/inspiration/magic-reference.png"
+          src="/inspiration/mobile-homepage.png"
           alt="Little Legends Story coming soon: your child becomes the hero in personalised magical bedtime storybooks"
-          className="absolute inset-0 h-full w-full object-cover object-[72%_center]"
+          className="absolute inset-0 h-full w-full select-none object-cover object-center"
           draggable={false}
         />
-        <div className="absolute inset-0 bg-[linear-gradient(90deg,rgba(7,8,32,0.94)_0%,rgba(20,12,48,0.74)_48%,rgba(7,8,32,0.18)_100%)]" />
-        <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(7,8,32,0.2)_0%,rgba(7,8,32,0.04)_36%,rgba(7,8,32,0.92)_100%)]" />
 
-        <div className="relative z-10 flex h-full w-full flex-col px-4 py-4">
-          <div className="flex items-center justify-between gap-3">
-            <div className="flex min-w-0 items-center gap-1.5 rounded-full bg-[#070820]/58 py-1.5 pr-2 backdrop-blur-md min-[360px]:gap-2 min-[390px]:pr-3">
-              <div className="grid h-8 w-8 shrink-0 place-items-center rounded-full bg-amber-200 text-rose-500 shadow-[0_0_24px_rgba(251,191,36,0.45)] min-[390px]:h-10 min-[390px]:w-10">
-                <Heart className="h-4.5 w-4.5 fill-rose-400 text-rose-500 min-[390px]:h-6 min-[390px]:w-6" />
-              </div>
-              <span className="whitespace-nowrap text-[11px] font-black text-white drop-shadow-[0_3px_12px_rgba(0,0,0,0.6)] min-[360px]:text-sm min-[390px]:text-base">
-                Little Legends Story
-              </span>
-            </div>
-
-            <div className="inline-flex shrink-0 items-center gap-1 rounded-full border border-amber-200/35 bg-[#120d2f]/78 px-2 py-2 text-[11px] font-black text-amber-100 shadow-[0_0_28px_rgba(251,191,36,0.24)] backdrop-blur-md min-[360px]:px-2.5 min-[360px]:text-xs min-[390px]:gap-1.5 min-[390px]:px-3">
-              <Sparkles className="h-3.5 w-3.5 text-amber-200" />
-              Coming Soon
-            </div>
+        <form
+          className="absolute left-[5.4%] top-[71.5%] z-10 flex h-[15.8%] w-[89.2%] flex-col p-[3.3%]"
+          aria-label="Join the Little Legends Story launch list"
+        >
+          <label htmlFor="launch-email-mobile" className="sr-only">
+            Email address
+          </label>
+          <div className="relative h-[39%]">
+            <Mail className="pointer-events-none absolute left-[5.5%] top-1/2 h-[34%] w-auto -translate-y-1/2 text-violet-200/0 peer-focus:text-violet-200/80" />
+            <input
+              id="launch-email-mobile"
+              type="email"
+              placeholder=" "
+              className="peer h-full w-full rounded-full border border-transparent bg-transparent pl-[15%] pr-[5%] text-[clamp(1rem,4.7vw,1.45rem)] font-black text-white outline-none placeholder:text-transparent focus:border-amber-200/50 focus:bg-[#292a45]/95 [&:not(:placeholder-shown)]:bg-[#292a45]/95"
+            />
           </div>
-
-          <div className="mt-11 max-w-[21.5rem]">
-            <h2 className="font-serif text-[3.35rem] font-black leading-[0.86] tracking-normal text-white drop-shadow-[0_8px_24px_rgba(0,0,0,0.58)] min-[390px]:text-[3.65rem]">
-              Your child.
-              <span className="mt-1 block bg-[linear-gradient(90deg,#ffe7a2_0%,#ff9edc_45%,#d9a5ff_100%)] bg-clip-text text-transparent">
-                The hero.
-              </span>
-            </h2>
-            <p className="mt-4 max-w-[18rem] font-serif text-xl leading-7 text-white drop-shadow-[0_4px_12px_rgba(0,0,0,0.55)]">
-              Personalised storybooks for magical bedtime moments.
-            </p>
-          </div>
-
-          <form
-            className="mt-auto w-full rounded-[1.75rem] border border-white/18 bg-[#12142f]/92 p-2 shadow-[0_18px_48px_rgba(0,0,0,0.42)] backdrop-blur-md"
-            aria-label="Join the Little Legends Story launch list"
+          <button
+            type="submit"
+            className="mt-[4%] h-[39%] rounded-full text-transparent outline-none focus-visible:ring-4 focus-visible:ring-amber-200/45"
           >
-            <label htmlFor="launch-email-mobile" className="sr-only">
-              Email address
-            </label>
-            <div className="relative">
-              <Mail className="pointer-events-none absolute left-5 top-1/2 h-5 w-5 -translate-y-1/2 text-violet-200/75" />
-              <input
-                id="launch-email-mobile"
-                type="email"
-                placeholder="Enter your email"
-                className="h-12 w-full rounded-full border border-white/10 bg-white/8 pl-13 pr-4 text-base font-bold text-white outline-none placeholder:text-violet-100/70 focus:border-amber-200/50"
-              />
-            </div>
-            <button
-              type="submit"
-              className="mt-2 h-12 w-full rounded-full bg-amber-200 text-base font-black text-[#35165f] shadow-[0_0_30px_rgba(251,191,36,0.28)]"
-            >
-              Join the list
-            </button>
-          </form>
-
-          <div className="mt-3 rounded-[1.35rem] border border-white/14 bg-white/10 px-4 py-3 text-sm font-black text-white shadow-[0_16px_44px_rgba(0,0,0,0.32)] backdrop-blur-md">
-            Made with love. Approved by parents.
-          </div>
-        </div>
+            Join the list
+          </button>
+        </form>
       </section>
 
       <section className="relative hidden h-screen w-screen place-items-center overflow-hidden sm:grid">
