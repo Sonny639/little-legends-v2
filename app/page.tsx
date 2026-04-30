@@ -12,7 +12,7 @@ export default function ComingSoonPage() {
         <img
           src="/inspiration/magic-reference.png"
           alt="Little Legends Story coming soon: your child becomes the hero in personalised magical bedtime storybooks"
-          className="absolute inset-0 h-full w-full object-cover object-[58%_center]"
+          className="absolute inset-0 h-full w-full object-cover object-[72%_center]"
           draggable={false}
         />
         <div className="absolute inset-0 bg-[linear-gradient(90deg,rgba(7,8,32,0.94)_0%,rgba(20,12,48,0.74)_48%,rgba(7,8,32,0.18)_100%)]" />
@@ -48,7 +48,7 @@ export default function ComingSoonPage() {
           </div>
 
           <form
-            className="mt-6 w-full rounded-[1.75rem] border border-white/18 bg-[#12142f]/92 p-2 shadow-[0_18px_48px_rgba(0,0,0,0.42)] backdrop-blur-md"
+            className="mt-auto w-full rounded-[1.75rem] border border-white/18 bg-[#12142f]/92 p-2 shadow-[0_18px_48px_rgba(0,0,0,0.42)] backdrop-blur-md"
             aria-label="Join the Little Legends Story launch list"
           >
             <label htmlFor="launch-email-mobile" className="sr-only">
@@ -71,7 +71,7 @@ export default function ComingSoonPage() {
             </button>
           </form>
 
-          <div className="mt-auto rounded-[1.35rem] border border-white/14 bg-white/10 px-4 py-3 text-sm font-black text-white shadow-[0_16px_44px_rgba(0,0,0,0.32)] backdrop-blur-md">
+          <div className="mt-3 rounded-[1.35rem] border border-white/14 bg-white/10 px-4 py-3 text-sm font-black text-white shadow-[0_16px_44px_rgba(0,0,0,0.32)] backdrop-blur-md">
             Made with love. Approved by parents.
           </div>
         </div>
