@@ -2,17 +2,17 @@ import { Mail, Sparkles } from "lucide-react"
 
 export default function ComingSoonPage() {
   return (
-    <main className="h-screen w-full overflow-hidden bg-[#070820]">
+    <main className="min-h-screen w-full overflow-x-hidden bg-[#070820]">
       <h1 className="sr-only">Little Legends Story</h1>
       <p className="sr-only">
         Coming soon. Your child becomes the hero in personalised magical bedtime storybooks.
       </p>
 
-      <section className="relative h-[100svh] w-full overflow-hidden sm:hidden">
+      <section className="relative w-full overflow-hidden sm:hidden">
         <img
           src="/inspiration/mobile-homepage.png"
           alt="Little Legends Story coming soon: your child becomes the hero in personalised magical bedtime storybooks"
-          className="absolute inset-0 h-full w-full select-none object-cover object-center"
+          className="block h-auto w-full select-none"
           draggable={false}
         />
 
@@ -23,8 +23,8 @@ export default function ComingSoonPage() {
           <label htmlFor="launch-email-mobile" className="sr-only">
             Email address
           </label>
-          <div className="relative h-[39%]">
-            <Mail className="pointer-events-none absolute left-[5.5%] top-1/2 h-[34%] w-auto -translate-y-1/2 text-violet-200/0 peer-focus:text-violet-200/80" />
+          <div className="group relative h-[39%]">
+            <Mail className="pointer-events-none absolute left-[5.5%] top-1/2 h-[34%] w-auto -translate-y-1/2 text-violet-200/0 group-focus-within:text-violet-200/80" />
             <input
               id="launch-email-mobile"
               type="email"
