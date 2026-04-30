@@ -423,8 +423,8 @@ export default function Home() {
           <div className="absolute inset-x-8 bottom-0 h-16 rounded-full bg-fuchsia-200/50 blur-2xl" />
           <div className="relative overflow-hidden rounded-[2rem] border-4 border-white bg-white shadow-[0_22px_65px_rgba(169,113,219,0.26)]">
             <img
-              src="/little-legends-reading-hero.png"
-              alt="A parent and child reading a magical storybook where the child becomes the hero"
+              src="/little-legends-reading-hero-family.png"
+              alt="A family reading a magical storybook where the child becomes the hero"
             className="h-36 w-full object-cover min-[390px]:h-40 sm:h-52 lg:h-60 xl:h-64"
             />
             <div className="absolute inset-0 bg-[linear-gradient(180deg,transparent_58%,rgba(255,255,255,0.82)_100%)]" />
