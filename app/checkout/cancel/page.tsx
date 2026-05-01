@@ -14,7 +14,15 @@ type CheckoutCancelPageProps = {
 
 export default async function CheckoutCancelPage({ searchParams }: CheckoutCancelPageProps) {
   const { orderId } = await searchParams
-  const orders = orderId ? await readOrders() : []
+  const orderLookup = orderId
+    ? await readOrders()
+        .then((orders) => ({ orders, issue: "" }))
+        .catch((error: unknown) => ({
+          orders: [],
+          issue: error instanceof Error ? error.message : "Order lookup is temporarily unavailable.",
+        }))
+    : { orders: [], issue: "" }
+  const orders = orderLookup.orders
   const order = orderId ? orders.find((savedOrder) => savedOrder.id === orderId) : null
 
   return (
@@ -39,6 +47,12 @@ export default async function CheckoutCancelPage({ searchParams }: CheckoutCance
           </div>
 
           <div className="space-y-4 bg-[#fffdf5] p-6">
+            {orderLookup.issue && (
+              <div className="rounded-xl border-2 border-amber-200 bg-amber-50 p-4 text-sm font-bold leading-6 text-amber-900">
+                Your payment was cancelled. We could not reload the saved order details just now, but nothing has been charged.
+              </div>
+            )}
+
             {order && (
               <div className="rounded-xl border-2 border-sky-100 bg-white p-4">
                 <div className="text-xs font-black uppercase tracking-widest text-sky-700">Order reference</div>
@@ -51,7 +65,7 @@ export default async function CheckoutCancelPage({ searchParams }: CheckoutCance
 
             <div className="grid gap-3 sm:grid-cols-2">
               <Button asChild className="h-11 rounded-xl bg-sky-500 px-5 font-black text-white hover:bg-sky-600">
-                <Link href="/">
+                <Link href="/create">
                   <ArrowLeft className="h-4 w-4" />
                   Back to app
                 </Link>

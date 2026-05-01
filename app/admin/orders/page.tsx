@@ -318,15 +318,15 @@ export default function AdminOrdersPage() {
         <div className="rounded-[2rem] border-4 border-sky-950 bg-white p-5 shadow-[8px_8px_0_rgba(8,47,73,0.18)]">
           <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
             <div>
-              <Badge className="mb-3 bg-amber-300 px-3 py-1 text-sky-950">Admin demo</Badge>
+              <Badge className="mb-3 bg-amber-300 px-3 py-1 text-sky-950">Order management</Badge>
               <h1 className="text-3xl font-black uppercase leading-tight text-sky-950 sm:text-5xl">Orders</h1>
               <p className="mt-2 max-w-2xl text-sm font-bold leading-6 text-slate-700">
-                Demo fulfilment orders for checking story choices, products, email details, and hardback delivery.
+                Manage story choices, products, email details, payment status, and hardback delivery.
               </p>
             </div>
             <div className="flex flex-col gap-3 sm:flex-row">
               <Button asChild variant="outline" className="h-11 rounded-xl border-sky-200 bg-white px-5 font-black text-sky-700">
-                <Link href="/">Back to app</Link>
+                <Link href="/create">Back to app</Link>
               </Button>
               <Button
                 type="button"
@@ -375,7 +375,7 @@ export default function AdminOrdersPage() {
           </Card>
           <Card className="border-4 border-sky-950 bg-amber-50 p-5 shadow-[6px_6px_0_rgba(8,47,73,0.12)]">
             <BookOpen className="h-6 w-6 text-amber-700" />
-            <p className="text-sm font-black uppercase text-amber-700">Demo revenue</p>
+            <p className="text-sm font-black uppercase text-amber-700">Revenue</p>
             <p className="text-4xl font-black text-sky-950">{money.format(totals.revenue)}</p>
           </Card>
           <Card className="border-4 border-sky-950 bg-emerald-50 p-5 shadow-[6px_6px_0_rgba(8,47,73,0.12)]">
@@ -440,7 +440,7 @@ export default function AdminOrdersPage() {
           <Card className="border-4 border-sky-950 bg-white p-8 text-center shadow-[8px_8px_0_rgba(8,47,73,0.14)]">
             <h2 className="text-2xl font-black text-sky-950">No orders found</h2>
             <p className="mx-auto mt-2 max-w-lg text-sm font-semibold leading-6 text-slate-700">
-              Complete a demo checkout in the app, then return here to inspect the saved order.
+              Complete a checkout in the app, then return here to inspect the saved order.
             </p>
           </Card>
         ) : (

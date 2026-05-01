@@ -85,6 +85,8 @@ export default function Home() {
   const [isPreparingCheckout, setIsPreparingCheckout] = useState(false)
   const [failedArtwork, setFailedArtwork] = useState<Record<string, boolean>>({})
   const [latestOrder, setLatestOrder] = useState<OrderRecord | null>(null)
+  const [checkoutReturnMessage, setCheckoutReturnMessage] = useState("")
+  const [checkoutError, setCheckoutError] = useState("")
   const [checkoutForm, setCheckoutForm] = useState({
     email: "",
     fullName: "",
@@ -296,7 +298,31 @@ export default function Home() {
     setCheckoutProduct(product)
     setOrderSubmitted(false)
     setIsPreparingCheckout(false)
+    setCheckoutReturnMessage("")
+    setCheckoutError("")
     setCurrentStep("checkout")
+  }
+
+  const goBack = () => {
+    setCheckoutReturnMessage("")
+    setCheckoutError("")
+
+    if (currentStep === "name") {
+      setCurrentStep("gender")
+    } else if (currentStep === "upload") {
+      setCurrentStep("name")
+    } else if (currentStep === "character") {
+      setCurrentStep("upload")
+    } else if (currentStep === "story") {
+      setCurrentStep("character")
+    } else if (currentStep === "checkout") {
+      setOrderSubmitted(false)
+      setIsPreparingCheckout(false)
+      setStoryPageId("purchase")
+      setCurrentStep("story")
+    } else if (currentStep === "full-story") {
+      setCurrentStep("checkout")
+    }
   }
 
   const updateCheckoutField = (field: keyof typeof checkoutForm, value: string) => {
@@ -406,6 +432,28 @@ export default function Home() {
     setUploadedImages([])
     setPhotoUploadMessage("Photos cleared. Add the clearest face photo first.")
   }
+
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search)
+
+    if (params.get("checkout") === "cancelled") {
+      setCheckoutReturnMessage("Payment was cancelled. Nothing has been charged.")
+      setIsPreparingCheckout(false)
+      window.history.replaceState({}, "", window.location.pathname)
+    }
+  }, [])
+
+  useEffect(() => {
+    const resetPreparingState = () => setIsPreparingCheckout(false)
+
+    window.addEventListener("pageshow", resetPreparingState)
+    document.addEventListener("visibilitychange", resetPreparingState)
+
+    return () => {
+      window.removeEventListener("pageshow", resetPreparingState)
+      document.removeEventListener("visibilitychange", resetPreparingState)
+    }
+  }, [])
 
   const renderWelcome = () => (
     <section className="relative isolate flex min-h-full items-center justify-center overflow-hidden rounded-[1.5rem] border border-white/80 bg-[#fff7ff] px-3 py-4 text-center shadow-[0_24px_80px_rgba(172,122,218,0.18)] sm:rounded-[2rem] sm:px-8 lg:py-5">
@@ -2014,6 +2062,7 @@ export default function Home() {
     const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
       event.preventDefault()
       if (isPreparingCheckout) return
+      setCheckoutError("")
       setIsPreparingCheckout(true)
       const createdAt = new Date().toISOString()
       const order: OrderRecord = {
@@ -2048,15 +2097,22 @@ export default function Home() {
       const existingOrders = JSON.parse(window.localStorage.getItem("little-legends-orders") || "[]")
       window.localStorage.setItem("little-legends-orders", JSON.stringify([order, ...existingOrders]))
       try {
-        await fetch("/api/orders", {
+        const orderResponse = await fetch("/api/orders", {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
           },
           body: JSON.stringify(order),
         })
+
+        if (!orderResponse.ok) {
+          throw new Error("Order could not be saved")
+        }
       } catch (error) {
         console.error("Failed to save order to server store:", error)
+        setCheckoutError("We could not save the order yet. Please try again before going to payment.")
+        setIsPreparingCheckout(false)
+        return
       }
 
       let checkoutUrl = ""
@@ -2076,6 +2132,15 @@ export default function Home() {
         }
       } catch (error) {
         console.error("Failed to create checkout session:", error)
+        setCheckoutError("We could not open secure checkout. Please try again.")
+        setIsPreparingCheckout(false)
+        return
+      }
+
+      if (!checkoutUrl) {
+        setCheckoutError("Secure checkout is not ready yet. Please try again.")
+        setIsPreparingCheckout(false)
+        return
       }
 
       setLatestOrder({
@@ -2242,7 +2307,7 @@ export default function Home() {
                 )}
 
                 <Button
-                  onClick={() => setCurrentStep("story")}
+                  onClick={goBack}
                   variant="outline"
                   className="h-10 w-full rounded-xl border-sky-200 bg-white font-black text-sky-700"
                 >
@@ -2296,6 +2361,7 @@ export default function Home() {
                     onClick={() => {
                       setCheckoutProduct(product)
                       setOrderSubmitted(false)
+                      setCheckoutError("")
                     }}
                     className={`rounded-2xl border-4 p-4 text-left shadow-[5px_5px_0_rgba(8,47,73,0.12)] transition-all hover:-translate-y-0.5 ${
                       isSelected ? "border-sky-950 bg-sky-100" : "border-sky-100 bg-white"
@@ -2415,6 +2481,11 @@ export default function Home() {
                 <a href="/terms" className="underline-offset-4 hover:underline">Terms</a>
                 <a href="/contact" className="underline-offset-4 hover:underline">Support</a>
               </div>
+              {checkoutError && (
+                <div className="mt-4 rounded-xl border-2 border-rose-200 bg-rose-50 px-3 py-2 text-sm font-black leading-6 text-rose-800" role="alert">
+                  {checkoutError}
+                </div>
+              )}
               <Button
                 type="submit"
                 disabled={isPreparingCheckout}
@@ -2613,14 +2684,7 @@ export default function Home() {
           </button>
           {currentStep !== "welcome" && currentStep !== "gender" && (
             <Button
-              onClick={() => {
-                if (currentStep === "name") setCurrentStep("gender")
-                else if (currentStep === "upload") setCurrentStep("name")
-                else if (currentStep === "character") setCurrentStep("upload")
-                else if (currentStep === "story") setCurrentStep("character")
-                else if (currentStep === "checkout") setCurrentStep("story")
-                else if (currentStep === "full-story") setCurrentStep("checkout")
-              }}
+              onClick={goBack}
               variant="outline"
               className="rounded-full border-sky-200 bg-white/85 px-4 font-black text-sky-700 hover:bg-white"
             >
@@ -2633,6 +2697,12 @@ export default function Home() {
           <div className="mx-auto mb-5 flex w-full max-w-6xl items-center justify-between rounded-full border border-white/80 bg-white/72 px-3 py-2 text-xs font-black uppercase tracking-wide text-sky-800 shadow-sm backdrop-blur sm:px-4">
             <span>{stepLabels[currentStep]}</span>
             <span className="text-slate-500">Little Legends</span>
+          </div>
+        )}
+
+        {checkoutReturnMessage && (
+          <div className="mx-auto mb-5 w-full max-w-6xl rounded-2xl border-2 border-amber-200 bg-amber-50 px-4 py-3 text-sm font-black leading-6 text-amber-900 shadow-sm">
+            {checkoutReturnMessage}
           </div>
         )}
 

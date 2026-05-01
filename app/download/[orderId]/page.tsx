@@ -25,8 +25,33 @@ const normaliseChoices = (choices: { pageId: string; choiceId: string; pathTag?:
 
 export default async function DownloadPage({ params }: DownloadPageProps) {
   const { orderId } = await params
-  const orders = await readOrders()
+  const ordersResult = await readOrders()
+    .then((orders) => ({ orders, issue: "" }))
+    .catch(() => ({
+      orders: [],
+      issue: "We could not load this order just now. Please try the link again shortly.",
+    }))
+  const orders = ordersResult.orders
   const order = orders.find((savedOrder) => savedOrder.id === orderId)
+
+  if (ordersResult.issue) {
+    return (
+      <main className="storybook-app-bg min-h-screen px-4 py-6 sm:py-8">
+        <div className="mx-auto max-w-3xl">
+          <Card className="border-4 border-sky-950 bg-white p-6 text-center shadow-[12px_12px_0_rgba(8,47,73,0.18)]">
+            <Lock className="mx-auto h-12 w-12 text-amber-600" />
+            <h1 className="mt-4 text-3xl font-black uppercase text-sky-950">Story temporarily unavailable</h1>
+            <p className="mx-auto mt-3 max-w-lg text-sm font-bold leading-6 text-slate-700">
+              {ordersResult.issue}
+            </p>
+            <Button asChild className="mt-5 h-11 rounded-xl bg-sky-500 px-5 font-black text-white hover:bg-sky-600">
+              <Link href="/contact">Contact support</Link>
+            </Button>
+          </Card>
+        </div>
+      </main>
+    )
+  }
 
   if (!order) {
     return (
@@ -39,7 +64,7 @@ export default async function DownloadPage({ params }: DownloadPageProps) {
               This download link does not match an order. Please check the link in your confirmation email.
             </p>
             <Button asChild className="mt-5 h-11 rounded-xl bg-sky-500 px-5 font-black text-white hover:bg-sky-600">
-              <Link href="/">Back to app</Link>
+              <Link href="/create">Back to app</Link>
             </Button>
           </Card>
         </div>
@@ -63,7 +88,7 @@ export default async function DownloadPage({ params }: DownloadPageProps) {
               variant="outline"
               className="mt-5 h-11 rounded-xl border-sky-200 bg-white px-5 font-black text-sky-700"
             >
-              <Link href="/checkout/cancel">Back to checkout help</Link>
+              <Link href="/create">Back to app</Link>
             </Button>
           </Card>
         </div>
@@ -94,7 +119,7 @@ export default async function DownloadPage({ params }: DownloadPageProps) {
             </div>
             <div className="grid gap-2 sm:grid-cols-2">
               <Button asChild variant="outline" className="h-11 rounded-xl border-sky-200 bg-white px-5 font-black text-sky-700">
-                <Link href="/">
+                <Link href="/create">
                   <ArrowLeft className="h-4 w-4" />
                   App
                 </Link>

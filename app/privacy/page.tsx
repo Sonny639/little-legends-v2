@@ -10,7 +10,7 @@ export default function PrivacyPage() {
       <div className="mx-auto max-w-4xl">
         <Card className="storybook-panel p-4 sm:p-5">
           <Button asChild variant="outline" className="mb-4 h-9 rounded-xl border-sky-200 bg-white px-4 font-black text-sky-700">
-            <Link href="/">
+            <Link href="/create">
               <ArrowLeft className="h-4 w-4" />
               Back to app
             </Link>

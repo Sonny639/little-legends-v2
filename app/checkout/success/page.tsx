@@ -17,7 +17,16 @@ type CheckoutSuccessPageProps = {
 
 export default async function CheckoutSuccessPage({ searchParams }: CheckoutSuccessPageProps) {
   const { orderId, session_id: sessionId } = await searchParams
-  let order = orderId && !stripe ? await updateOrderPaymentStatus(orderId, "paid_demo") : null
+  let order: Awaited<ReturnType<typeof updateOrderPaymentStatus>> = null
+  let orderIssue = ""
+
+  if (orderId && !stripe) {
+    try {
+      order = await updateOrderPaymentStatus(orderId, "paid_demo")
+    } catch (error) {
+      orderIssue = error instanceof Error ? error.message : "Payment confirmation is temporarily unavailable."
+    }
+  }
 
   if (orderId && sessionId && stripe) {
     try {
@@ -28,14 +37,24 @@ export default async function CheckoutSuccessPage({ searchParams }: CheckoutSucc
         order = await updateOrderPaymentStatus(orderId, "paid")
       }
     } catch (error) {
+      orderIssue = error instanceof Error ? error.message : "Payment confirmation is temporarily unavailable."
       console.error("Failed to verify Stripe checkout session:", error)
     }
   }
 
   if (order && !order.emailSentAt) {
-    await sendOrderConfirmationEmail(order)
+    try {
+      await sendOrderConfirmationEmail(order)
+    } catch (error) {
+      console.error("Failed to send/log order confirmation:", error)
+    }
   }
-  const orders = order ? [] : await readOrders()
+  const orders = order
+    ? []
+    : await readOrders().catch((error: unknown) => {
+        orderIssue = error instanceof Error ? error.message : "Order lookup is temporarily unavailable."
+        return []
+      })
   const fallbackOrder = orderId ? orders.find((savedOrder) => savedOrder.id === orderId) : null
   const visibleOrder = order || fallbackOrder || null
   const isPaid = visibleOrder?.status === "paid" || visibleOrder?.status === "paid_demo"
@@ -66,6 +85,12 @@ export default async function CheckoutSuccessPage({ searchParams }: CheckoutSucc
           </div>
 
           <div className="space-y-4 bg-[#fffdf5] p-6">
+            {orderIssue && (
+              <div className="rounded-xl border-2 border-amber-200 bg-amber-50 p-4 text-sm font-bold leading-6 text-amber-900">
+                Payment returned successfully, but we could not reload the saved order details just now. Please check again shortly.
+              </div>
+            )}
+
             {visibleOrder ? (
               <div className="rounded-xl border-2 border-sky-100 bg-white p-4">
                 <div className="text-xs font-black uppercase tracking-widest text-sky-700">Order reference</div>
@@ -82,7 +107,7 @@ export default async function CheckoutSuccessPage({ searchParams }: CheckoutSucc
 
             <div className="grid gap-3 sm:grid-cols-3">
               <Button asChild className="h-11 rounded-xl bg-sky-500 px-5 font-black text-white hover:bg-sky-600">
-                <Link href="/">
+                <Link href="/create">
                   <CheckCircle2 className="h-4 w-4" />
                   Back to app
                 </Link>

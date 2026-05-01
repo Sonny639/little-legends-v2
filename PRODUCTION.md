@@ -7,7 +7,7 @@ Use this before sending real customers through checkout.
 Set these in the production host:
 
 ```bash
-NEXT_PUBLIC_APP_URL=https://your-domain.example
+NEXT_PUBLIC_APP_URL=https://littlelegendsstory.com
 DATABASE_URL=
 DATABASE_SSL=true
 STRIPE_SECRET_KEY=
@@ -56,7 +56,7 @@ npm run db:import-json
 Configure a Stripe webhook endpoint:
 
 ```text
-POST https://your-domain.example/api/stripe/webhook
+POST https://littlelegendsstory.com/api/stripe/webhook
 ```
 
 Listen for:
@@ -87,7 +87,7 @@ If Stripe is configured, the smoke test checks order save and checkout session c
 
 Before launch, manually test:
 
-- Create a story from `/`.
+- Create a story from `/create`.
 - Choose a digital order and confirm Stripe checkout opens.
 - Complete a test payment in Stripe test mode.
 - Confirm `/checkout/success` marks the order paid.
