@@ -39,7 +39,21 @@ const rowToEmailLogEntry = (row: EmailLogRow): EmailLogEntry => ({
   provider: row.provider,
 })
 
-const appUrl = () => process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3003"
+const isLocalUrl = (value: string) => /^https?:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/i.test(value)
+
+const appUrl = () => {
+  const configuredUrl = process.env.NEXT_PUBLIC_APP_URL
+
+  if (configuredUrl && !(process.env.NODE_ENV === "production" && isLocalUrl(configuredUrl))) {
+    return configuredUrl.replace(/\/$/, "")
+  }
+
+  if (process.env.NODE_ENV === "production") {
+    return "https://littlelegendsstory.com"
+  }
+
+  return "http://localhost:3003"
+}
 
 export const getOrderDownloadUrl = (orderId: string) => `${appUrl()}/download/${encodeURIComponent(orderId)}`
 

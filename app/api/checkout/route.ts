@@ -18,6 +18,35 @@ const isCheckoutOrder = (value: unknown): value is OrderRecord => {
   )
 }
 
+const trimTrailingSlash = (value: string) => value.replace(/\/$/, "")
+
+const getAppUrl = (request: Request) => {
+  const origin = request.headers.get("origin")
+
+  if (origin && origin !== "null") {
+    return trimTrailingSlash(origin)
+  }
+
+  const forwardedHost = request.headers.get("x-forwarded-host")
+  const forwardedProto = request.headers.get("x-forwarded-proto") || "https"
+
+  if (forwardedHost) {
+    return `${forwardedProto}://${forwardedHost}`
+  }
+
+  const configuredUrl = process.env.NEXT_PUBLIC_APP_URL
+
+  if (configuredUrl) {
+    return trimTrailingSlash(configuredUrl)
+  }
+
+  if (process.env.VERCEL_URL) {
+    return `https://${process.env.VERCEL_URL}`
+  }
+
+  return "http://localhost:3003"
+}
+
 export async function POST(request: Request) {
   try {
     const { order } = await request.json()
@@ -32,7 +61,7 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "Invalid checkout product total" }, { status: 400 })
     }
 
-    const appUrl = process.env.NEXT_PUBLIC_APP_URL || request.headers.get("origin") || "http://localhost:3003"
+    const appUrl = getAppUrl(request)
     const stripeSuccessUrl = `${appUrl}/checkout/success?orderId=${encodeURIComponent(order.id)}&session_id={CHECKOUT_SESSION_ID}`
     const demoSuccessUrl = `${appUrl}/checkout/success?orderId=${encodeURIComponent(order.id)}`
     const cancelUrl = `${appUrl}/create?checkout=cancelled&orderId=${encodeURIComponent(order.id)}`
