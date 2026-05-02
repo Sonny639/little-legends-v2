@@ -912,7 +912,7 @@ export default function Home() {
         <Badge className="bg-amber-300 px-3 py-1 text-sky-950">Step 3 of 5</Badge>
         <h2 className="text-3xl font-black leading-tight text-sky-950 sm:text-5xl">Add photos for {selectedLegendName}</h2>
         <p className="mx-auto max-w-2xl text-sm font-semibold leading-6 text-slate-700 sm:text-lg sm:leading-7">
-          The first photo is the main likeness reference. We'll use it to match face shape, hair, and visible skin tone in the character artwork.
+          The first photo is the main likeness reference. It helps guide the preview and tells us how many final reference photos to collect for your order.
         </p>
       </div>
 
@@ -923,7 +923,7 @@ export default function Home() {
             <div>
               <p className="text-sm font-black text-emerald-900">Used for their illustrated character</p>
               <p className="mt-1 text-sm font-semibold leading-6 text-emerald-800">
-                Photos help us create a warm storybook likeness. They should be uploaded by a parent or guardian with permission.
+                Photos help us create a warm storybook likeness. For early access orders, we may ask for the original photo files by email using your order reference.
               </p>
             </div>
           </div>
@@ -960,7 +960,7 @@ export default function Home() {
           Upload Photos
         </button>
         <p className="text-sm font-semibold text-slate-600">
-          {uploadedImages.length > 0 ? `${uploadedImages.length} of 3 photos selected` : "Add the clearest face photo first."}
+          {uploadedImages.length > 0 ? `${uploadedImages.length} of 3 photos selected for reference` : "Add the clearest face photo first."}
         </p>
       </div>
 
@@ -1030,7 +1030,7 @@ export default function Home() {
             <div className="text-center sm:text-left">
               <p className="text-xs font-black uppercase tracking-widest text-teal-700">Photos selected</p>
               <p className="text-lg font-black text-sky-950">
-                {uploadedImages.length} of 3 photo{uploadedImages.length === 1 ? "" : "s"} ready
+                {uploadedImages.length} of 3 photo{uploadedImages.length === 1 ? "" : "s"} selected
               </p>
             </div>
             <Button
@@ -2224,6 +2224,9 @@ export default function Home() {
                     </div>
                     <p className="text-sm font-semibold leading-6 text-slate-700">
                       The confirmation email includes the download link and, for digital orders, a hard copy upgrade link.
+                      {uploadedImages.length > 0
+                        ? " Because photos were selected, we may follow up by email for the original files before final artwork."
+                        : ""}
                     </p>
                   </div>
                   <div className="rounded-xl border-2 border-sky-100 bg-white p-4">
@@ -2474,6 +2477,7 @@ export default function Home() {
               </div>
               <p className="text-sm font-semibold leading-6 text-slate-700">
                 Payment opens securely. We only keep the details needed for your receipt, story download, and postage.
+                {uploadedImages.length > 0 ? " Photo references may be collected by email using your order reference." : ""}
               </p>
               <div className="mt-4 grid gap-2 text-xs font-black text-sky-900">
                 <div className="rounded-xl bg-white/80 px-3 py-2">Secure checkout</div>

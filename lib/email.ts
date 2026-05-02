@@ -141,6 +141,15 @@ export const sendOrderConfirmationEmail = async (order: OrderRecord) => {
   const downloadUrl = order.downloadUrl || getOrderDownloadUrl(order.id)
   const createdAt = new Date().toISOString()
   const subject = `Your Little Legends story is ready: ${order.storyTitle}`
+  const photoCount = order.photoCount || 0
+  const photoFollowUp =
+    photoCount > 0
+      ? [
+          ``,
+          `Photo note: ${photoCount} reference photo${photoCount === 1 ? " was" : "s were"} selected during checkout.`,
+          `For early access orders, we may reply to ask for the original photo file${photoCount === 1 ? "" : "s"} before final artwork is prepared.`,
+        ]
+      : []
   const body = [
     `Hi there,`,
     ``,
@@ -156,6 +165,7 @@ export const sendOrderConfirmationEmail = async (order: OrderRecord) => {
     order.product === "digital"
       ? `Your digital story is available straight away. Open the link above and use Download PDF to save a copy.`
       : `Your digital copy is available now. Your printed book order has also been logged for fulfilment.`,
+    ...photoFollowUp,
     ``,
     `If anything looks wrong, reply via the contact page with your order reference and we will help.`,
     ``,

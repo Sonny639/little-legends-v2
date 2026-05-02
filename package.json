@@ -9,7 +9,10 @@
     "lint": "tsc --noEmit -p tsconfig.typecheck.json",
     "db:init": "node scripts/init-db.mjs",
     "db:import-json": "node scripts/import-json-to-db.mjs",
-    "smoke:order": "node scripts/smoke-order-flow.mjs"
+    "smoke:order": "node scripts/smoke-order-flow.mjs",
+    "smoke:mvp": "node scripts/smoke-mvp-flow.mjs",
+    "smoke:admin": "node scripts/smoke-admin-flow.mjs",
+    "smoke:stripe": "node scripts/smoke-stripe-flow.mjs"
   },
   "dependencies": {
     "@radix-ui/react-label": "^2.1.7",

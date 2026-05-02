@@ -318,7 +318,7 @@ export default function AdminOrdersPage() {
               <Badge className="mb-3 bg-amber-300 px-3 py-1 text-sky-950">Order management</Badge>
               <h1 className="text-3xl font-black uppercase leading-tight text-sky-950 sm:text-5xl">Orders</h1>
               <p className="mt-2 max-w-2xl text-sm font-bold leading-6 text-slate-700">
-                Manage story choices, products, email details, payment status, and hardback delivery.
+                Manage story choices, products, email details, payment status, photo follow-up, and hardback delivery.
               </p>
             </div>
             <div className="flex flex-col gap-3 sm:flex-row">
@@ -504,7 +504,12 @@ export default function AdminOrdersPage() {
                         </div>
                         <p className="text-sm font-semibold text-slate-700">ID: {order.storyId}</p>
                         <p className="mt-1 text-sm font-semibold text-slate-700">Gender: {order.gender || "Not set"}</p>
-                        <p className="mt-1 text-sm font-semibold text-slate-700">Reference photos: {order.photoCount ?? 0}</p>
+                        <p className="mt-1 text-sm font-semibold text-slate-700">Reference photos selected: {order.photoCount ?? 0}</p>
+                        {(order.photoCount ?? 0) > 0 && (
+                          <p className="mt-2 rounded-xl bg-amber-50 px-3 py-2 text-xs font-bold leading-5 text-amber-900">
+                            Preview references only. Request original photo files by email if needed for final artwork.
+                          </p>
+                        )}
                       </div>
                     </div>
                   </div>
