@@ -10,6 +10,8 @@ Set these in the production host:
 NEXT_PUBLIC_APP_URL=https://littlelegendsstory.com
 NEXT_PUBLIC_SUPABASE_URL=
 NEXT_PUBLIC_SUPABASE_ANON_KEY=
+SUPABASE_SERVICE_ROLE_KEY=
+SUPABASE_STORAGE_BUCKET=order-photos
 DATABASE_URL=
 DATABASE_SSL=true
 STRIPE_SECRET_KEY=
@@ -31,6 +33,8 @@ Required before launch:
 
 - `NEXT_PUBLIC_APP_URL` must be the real public URL.
 - `NEXT_PUBLIC_SUPABASE_URL` and `NEXT_PUBLIC_SUPABASE_ANON_KEY` must point to the production Supabase project.
+- `SUPABASE_SERVICE_ROLE_KEY` is required for private order photo uploads during checkout.
+- `SUPABASE_STORAGE_BUCKET` should point to a private bucket such as `order-photos`.
 - Launch page signups are saved in `/admin/enquiries`; use production Supabase before collecting real emails.
 - Use `hello@littlelegendsstory.com` as the public contact/reply inbox.
 - Contact form notifications use Porkbun SMTP when `SMTP_PASSWORD` is set. Porkbun's SMTP settings are `smtp.porkbun.com`, port `587`, STARTTLS, with the full email address as the username.
@@ -42,6 +46,8 @@ Required before launch:
 ## Database
 
 Create or migrate the production tables in Supabase using the SQL from `db/schema.sql`.
+
+For photo uploads, also create a private Supabase Storage bucket named `order-photos` or set `SUPABASE_STORAGE_BUCKET` to the bucket you want to use.
 
 If using the older direct Postgres path instead of Supabase, set `DATABASE_URL` and run:
 
@@ -93,6 +99,7 @@ Before launch, manually test:
 
 - Create a story from `/create`.
 - Choose a digital order and confirm Stripe checkout opens.
+- Upload 1 to 3 child reference photos and confirm checkout only continues after they save successfully.
 - Complete a test payment in Stripe test mode.
 - Confirm `/checkout/success` marks the order paid.
 - Open the download link.

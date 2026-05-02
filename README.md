@@ -19,6 +19,8 @@ Copy `.env.example` to `.env.local` and fill in the values you need:
 NEXT_PUBLIC_APP_URL=http://localhost:3003
 NEXT_PUBLIC_SUPABASE_URL=
 NEXT_PUBLIC_SUPABASE_ANON_KEY=
+SUPABASE_SERVICE_ROLE_KEY=
+SUPABASE_STORAGE_BUCKET=order-photos
 DATABASE_URL=
 DATABASE_SSL=true
 STRIPE_SECRET_KEY=
@@ -39,6 +41,8 @@ SMTP_FROM_NAME=Little Legends Story
 When `STRIPE_SECRET_KEY` is empty, checkout runs in demo mode and the success page marks the order as `paid_demo`.
 
 When Stripe is configured, checkout creates a real Stripe Checkout Session. Paid orders are confirmed by the Stripe webhook, and the checkout success page also verifies the returned Stripe session as a fallback.
+
+When `SUPABASE_SERVICE_ROLE_KEY` is set, uploaded child reference photos are stored privately before checkout continues. In local development without that key, uploads fall back to the local `data/order-photos` folder.
 
 Set `ADMIN_PASSWORD` to enable the admin login screen on `/admin/login`. `POST /api/orders` stays public so checkout can save new orders; order management, enquiries, email logs, and admin pages require the admin session.
 
@@ -67,6 +71,7 @@ Development orders and email logs are stored in:
 - `data/orders.json`
 - `data/email-log.json`
 - `data/enquiries.json`
+- `data/order-photos/`
 
 These files are useful for local testing only. Replace this file storage with a database before production traffic.
 

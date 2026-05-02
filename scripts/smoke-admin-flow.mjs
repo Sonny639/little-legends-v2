@@ -6,6 +6,7 @@ import { fileURLToPath } from "node:url"
 import { createClient } from "@supabase/supabase-js"
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..")
+const localOrderPhotosRoot = path.join(root, "data", "order-photos")
 
 const loadLocalEnv = async () => {
   const envFile = path.join(root, ".env.local")
@@ -33,6 +34,7 @@ const skipCleanup = process.env.SMOKE_SKIP_CLEANUP === "1"
 const hasSupabaseCleanup = Boolean(process.env.NEXT_PUBLIC_SUPABASE_URL && process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY)
 const smokeId = `SMOKE-ADMIN-${Date.now()}`
 const smokeEmail = `${smokeId.toLowerCase()}@example.com`
+const photoBucket = process.env.SUPABASE_STORAGE_BUCKET || "order-photos"
 
 if (!isLocalApp && !allowLiveWrites) {
   throw new Error(
@@ -55,6 +57,15 @@ const supabase = createClient(process.env.NEXT_PUBLIC_SUPABASE_URL, process.env.
   },
 })
 
+const supabaseAdmin = process.env.SUPABASE_SERVICE_ROLE_KEY
+  ? createClient(process.env.NEXT_PUBLIC_SUPABASE_URL, process.env.SUPABASE_SERVICE_ROLE_KEY, {
+      auth: {
+        autoRefreshToken: false,
+        persistSession: false,
+      },
+    })
+  : null
+
 const wait = (ms) => new Promise((resolve) => setTimeout(resolve, ms))
 
 const cleanupSmokeData = async () => {
@@ -68,6 +79,23 @@ const cleanupSmokeData = async () => {
   const error = results.find((result) => result.error)?.error
 
   if (error) throw new Error(`Failed to clean Supabase admin smoke data: ${error.message}`)
+
+  if (supabaseAdmin) {
+    const { data, error: listError } = await supabaseAdmin.storage.from(photoBucket).list(smokeId)
+
+    if (listError && listError.message !== "The resource was not found") {
+      throw new Error(`Failed to list smoke photo storage: ${listError.message}`)
+    }
+
+    const storagePaths = (data || []).map((item) => `${smokeId}/${item.name}`)
+
+    if (storagePaths.length > 0) {
+      const { error: removeError } = await supabaseAdmin.storage.from(photoBucket).remove(storagePaths)
+      if (removeError) throw new Error(`Failed to clean smoke photo storage: ${removeError.message}`)
+    }
+  }
+
+  await fs.rm(path.join(localOrderPhotosRoot, smokeId), { recursive: true, force: true })
 
   return "supabase"
 }
@@ -91,6 +119,30 @@ const requestJson = async (requestPath, options = {}, acceptedStatuses = [200, 2
 
   return { response, data, text }
 }
+
+const requestMultipart = async (requestPath, formData, options = {}, acceptedStatuses = [200]) => {
+  const response = await fetch(`${appUrl}${requestPath}`, {
+    ...options,
+    method: options.method || "POST",
+    body: formData,
+    redirect: "manual",
+  })
+
+  const text = await response.text()
+  const data = text ? JSON.parse(text) : null
+
+  if (!acceptedStatuses.includes(response.status)) {
+    throw new Error(`${options.method || "POST"} ${requestPath} failed with ${response.status}: ${text}`)
+  }
+
+  return { response, data, text }
+}
+
+const createSmokePng = () =>
+  Buffer.from(
+    "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+/p9sAAAAASUVORK5CYII=",
+    "base64",
+  )
 
 const requestPage = async (requestPath, cookie = "") => {
   const response = await fetch(`${appUrl}${requestPath}`, {
@@ -221,6 +273,25 @@ try {
   const sessionCookie = login.headers.get("set-cookie")?.split(";")[0]
   if (!sessionCookie) throw new Error("Admin login did not set a session cookie.")
   console.log("OK admin login")
+
+  const photoForm = new FormData()
+  photoForm.set("orderId", smokeId)
+  photoForm.append("photos", new File([createSmokePng()], `${smokeId}.png`, { type: "image/png" }))
+
+  const photoUpload = await requestMultipart("/api/order-photos", photoForm, { method: "POST" }, [200])
+  if (!photoUpload.data.photos?.length) {
+    throw new Error("Smoke photo upload did not return stored photo metadata.")
+  }
+  console.log("OK smoke reference photo uploaded")
+
+  const photoRead = await requestJson(`/api/order-photos?orderId=${encodeURIComponent(smokeId)}`, {
+    headers: { Cookie: sessionCookie },
+  })
+  const savedPhoto = photoRead.data.photos?.[0]
+  if (!savedPhoto?.url || savedPhoto.name.length === 0) {
+    throw new Error(`Admin photo read did not return a preview URL: ${JSON.stringify(photoRead.data)}`)
+  }
+  console.log("OK admin photo API returned smoke reference photo")
 
   await requestJson("/api/orders", {
     method: "PATCH",

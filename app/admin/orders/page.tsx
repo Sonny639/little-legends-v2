@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react"
 import Link from "next/link"
-import { BookOpen, Download, Mail, PackageCheck, RefreshCw, Search, Trash2, Truck } from "lucide-react"
+import { BookOpen, Camera, Download, Mail, PackageCheck, RefreshCw, Search, Trash2, Truck } from "lucide-react"
 
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
@@ -51,6 +51,16 @@ type OrderRecord = {
   emailSentAt?: string
 }
 
+type OrderPhoto = {
+  name: string
+  size: number
+  mimeType: string
+  storagePath: string
+  uploadedAt: string
+  source: "supabase" | "local"
+  url?: string
+}
+
 const productLabel: Record<CheckoutProduct, string> = {
   digital: "Digital PDF",
   hardback: "Hardback Book",
@@ -89,6 +99,10 @@ export default function AdminOrdersPage() {
   const [statusFilter, setStatusFilter] = useState<FulfilmentStatus | "all">("all")
   const [isLoading, setIsLoading] = useState(true)
   const [adminMessage, setAdminMessage] = useState("")
+  const [expandedPhotoOrders, setExpandedPhotoOrders] = useState<Record<string, boolean>>({})
+  const [orderPhotos, setOrderPhotos] = useState<Record<string, OrderPhoto[]>>({})
+  const [photoLoading, setPhotoLoading] = useState<Record<string, boolean>>({})
+  const [photoErrors, setPhotoErrors] = useState<Record<string, string>>({})
 
   const loadOrders = async () => {
     setIsLoading(true)
@@ -309,6 +323,46 @@ export default function AdminOrdersPage() {
     }
   }
 
+  const toggleOrderPhotos = async (orderId: string) => {
+    const isOpen = Boolean(expandedPhotoOrders[orderId])
+
+    setExpandedPhotoOrders((current) => ({
+      ...current,
+      [orderId]: !isOpen,
+    }))
+
+    if (isOpen || orderPhotos[orderId] || photoLoading[orderId]) {
+      return
+    }
+
+    setPhotoLoading((current) => ({ ...current, [orderId]: true }))
+    setPhotoErrors((current) => ({ ...current, [orderId]: "" }))
+
+    try {
+      const response = await fetch(`/api/order-photos?orderId=${encodeURIComponent(orderId)}`, {
+        cache: "no-store",
+      })
+
+      const data = await response.json().catch(() => null)
+
+      if (!response.ok) {
+        throw new Error(data?.error || "Failed to load order photos")
+      }
+
+      setOrderPhotos((current) => ({
+        ...current,
+        [orderId]: Array.isArray(data?.photos) ? data.photos : [],
+      }))
+    } catch (error) {
+      setPhotoErrors((current) => ({
+        ...current,
+        [orderId]: error instanceof Error ? error.message : "Could not load order photos.",
+      }))
+    } finally {
+      setPhotoLoading((current) => ({ ...current, [orderId]: false }))
+    }
+  }
+
   return (
     <AdminShell>
       <div className="space-y-6">
@@ -506,12 +560,69 @@ export default function AdminOrdersPage() {
                         <p className="mt-1 text-sm font-semibold text-slate-700">Gender: {order.gender || "Not set"}</p>
                         <p className="mt-1 text-sm font-semibold text-slate-700">Reference photos selected: {order.photoCount ?? 0}</p>
                         {(order.photoCount ?? 0) > 0 && (
-                          <p className="mt-2 rounded-xl bg-amber-50 px-3 py-2 text-xs font-bold leading-5 text-amber-900">
-                            Preview references only. Request original photo files by email if needed for final artwork.
-                          </p>
+                          <div className="mt-2 space-y-2">
+                            <p className="rounded-xl bg-amber-50 px-3 py-2 text-xs font-bold leading-5 text-amber-900">
+                              Stored privately with the order for artwork reference.
+                            </p>
+                            <Button
+                              type="button"
+                              onClick={() => toggleOrderPhotos(order.id)}
+                              variant="outline"
+                              className="h-9 rounded-xl border-sky-100 bg-white px-3 text-xs font-black text-sky-700 hover:bg-sky-50"
+                            >
+                              <Camera className="h-4 w-4" />
+                              {expandedPhotoOrders[order.id] ? "Hide photos" : `View photos (${order.photoCount ?? 0})`}
+                            </Button>
+                          </div>
                         )}
                       </div>
                     </div>
+
+                    {expandedPhotoOrders[order.id] && (
+                      <div className="rounded-xl border-2 border-sky-100 bg-white p-4">
+                        <div className="mb-3 flex items-center gap-2 text-sm font-black text-sky-900">
+                          <Camera className="h-4 w-4" />
+                          Reference photos
+                        </div>
+                        {photoLoading[order.id] ? (
+                          <p className="text-sm font-semibold text-slate-700">Loading stored reference photos...</p>
+                        ) : photoErrors[order.id] ? (
+                          <p className="rounded-xl bg-rose-50 px-3 py-2 text-sm font-bold text-rose-700">{photoErrors[order.id]}</p>
+                        ) : (orderPhotos[order.id] || []).length === 0 ? (
+                          <p className="text-sm font-semibold text-slate-700">No stored photos were found for this order yet.</p>
+                        ) : (
+                          <div className="grid gap-3 sm:grid-cols-3">
+                            {(orderPhotos[order.id] || []).map((photo, index) => (
+                              <a
+                                key={`${order.id}-${photo.storagePath}`}
+                                href={photo.url}
+                                target="_blank"
+                                rel="noreferrer"
+                                className="group overflow-hidden rounded-2xl border-2 border-sky-100 bg-sky-50 shadow-sm transition hover:-translate-y-0.5 hover:border-sky-300"
+                              >
+                                {photo.url ? (
+                                  <img
+                                    src={photo.url}
+                                    alt={`Reference photo ${index + 1} for order ${order.id}`}
+                                    className="h-32 w-full object-cover"
+                                  />
+                                ) : (
+                                  <div className="grid h-32 place-items-center bg-sky-100 text-sky-700">
+                                    <Camera className="h-8 w-8" />
+                                  </div>
+                                )}
+                                <div className="space-y-1 px-3 py-2">
+                                  <p className="truncate text-xs font-black text-sky-900">Photo {index + 1}</p>
+                                  <p className="text-[11px] font-semibold text-slate-600">
+                                    {Math.max(1, Math.round(photo.size / 1024))} KB
+                                  </p>
+                                </div>
+                              </a>
+                            ))}
+                          </div>
+                        )}
+                      </div>
+                    )}
                   </div>
 
                   <div className="space-y-4">

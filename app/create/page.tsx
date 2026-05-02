@@ -13,6 +13,11 @@ import { checkoutProducts } from "@/lib/checkout"
 import { resolveFullStoryPages } from "@/lib/full-story"
 import { getStoryForCharacter, getStoryPathSummary, type StoryPathChoice } from "@/lib/stories"
 
+type UploadedPhoto = {
+  file: File
+  previewUrl: string
+}
+
 type Step = "welcome" | "gender" | "name" | "upload" | "character" | "story" | "checkout" | "full-story"
 type CheckoutProduct = "digital" | "hardback" | "upgrade"
 type PaymentStatus = "payment_pending" | "paid_demo" | "paid"
@@ -67,7 +72,7 @@ export default function Home() {
   const [childName, setChildName] = useState("")
   const [selectedLegendName, setSelectedLegendName] = useState("")
   const [suggestedNames, setSuggestedNames] = useState<string[]>([])
-  const [uploadedImages, setUploadedImages] = useState<string[]>([])
+  const [uploadedPhotos, setUploadedPhotos] = useState<UploadedPhoto[]>([])
   const [photoUploadMessage, setPhotoUploadMessage] = useState("")
   const [selectedCharacter, setSelectedCharacter] = useState<string | null>(null)
   const [storyPage, setStoryPage] = useState(1)
@@ -390,12 +395,15 @@ export default function Home() {
 
     const selectedFiles = Array.from(files)
     const imageFiles = selectedFiles.filter((file) => file.type.startsWith("image/"))
-    const remainingSlots = Math.max(0, 3 - uploadedImages.length)
+    const remainingSlots = Math.max(0, 3 - uploadedPhotos.length)
     const acceptedFiles = imageFiles.slice(0, remainingSlots)
-    const newImages = acceptedFiles.map((file) => URL.createObjectURL(file))
+    const newPhotos = acceptedFiles.map((file) => ({
+      file,
+      previewUrl: URL.createObjectURL(file),
+    }))
 
-    if (newImages.length > 0) {
-      setUploadedImages((prev) => [...prev, ...newImages].slice(0, 3))
+    if (newPhotos.length > 0) {
+      setUploadedPhotos((prev) => [...prev, ...newPhotos].slice(0, 3))
     }
 
     if (remainingSlots === 0) {
@@ -412,24 +420,24 @@ export default function Home() {
   }
 
   const removeUploadedImage = (imageIndex: number) => {
-    setUploadedImages((currentImages) => {
-      const imageToRemove = currentImages[imageIndex]
-      if (imageToRemove?.startsWith("blob:")) {
-        URL.revokeObjectURL(imageToRemove)
+    setUploadedPhotos((currentPhotos) => {
+      const photoToRemove = currentPhotos[imageIndex]
+      if (photoToRemove?.previewUrl.startsWith("blob:")) {
+        URL.revokeObjectURL(photoToRemove.previewUrl)
       }
 
-      return currentImages.filter((_, index) => index !== imageIndex)
+      return currentPhotos.filter((_, index) => index !== imageIndex)
     })
     setPhotoUploadMessage(imageIndex === 0 ? "Main face match removed. Add the clearest front-facing photo first." : "Photo removed.")
   }
 
   const clearUploadedImages = () => {
-    uploadedImages.forEach((image) => {
-      if (image.startsWith("blob:")) {
-        URL.revokeObjectURL(image)
+    uploadedPhotos.forEach((photo) => {
+      if (photo.previewUrl.startsWith("blob:")) {
+        URL.revokeObjectURL(photo.previewUrl)
       }
     })
-    setUploadedImages([])
+    setUploadedPhotos([])
     setPhotoUploadMessage("Photos cleared. Add the clearest face photo first.")
   }
 
@@ -907,7 +915,7 @@ export default function Home() {
   }
 
   const renderUpload = () => (
-    <div className={`space-y-6 text-center sm:space-y-8 ${uploadedImages.length > 0 ? "pb-28 sm:pb-24" : ""}`}>
+    <div className={`space-y-6 text-center sm:space-y-8 ${uploadedPhotos.length > 0 ? "pb-28 sm:pb-24" : ""}`}>
       <div className="space-y-2 sm:space-y-3">
         <Badge className="bg-amber-300 px-3 py-1 text-sky-950">Step 3 of 5</Badge>
         <h2 className="text-3xl font-black leading-tight text-sky-950 sm:text-5xl">Add photos for {selectedLegendName}</h2>
@@ -960,17 +968,17 @@ export default function Home() {
           Upload Photos
         </button>
         <p className="text-sm font-semibold text-slate-600">
-          {uploadedImages.length > 0 ? `${uploadedImages.length} of 3 photos selected for reference` : "Add the clearest face photo first."}
+          {uploadedPhotos.length > 0 ? `${uploadedPhotos.length} of 3 photos selected for reference` : "Add the clearest face photo first."}
         </p>
       </div>
 
       <div className="mx-auto grid max-w-md grid-cols-3 gap-3 sm:gap-4">
         {[1, 2, 3].map((index) => (
           <div key={index} className="relative">
-            {uploadedImages[index - 1] ? (
+            {uploadedPhotos[index - 1] ? (
               <>
                 <img
-                  src={uploadedImages[index - 1] || "/placeholder.svg"}
+                  src={uploadedPhotos[index - 1]?.previewUrl || "/placeholder.svg"}
                   alt={`Upload ${index}`}
                   className="h-28 w-full rounded-2xl border-4 border-emerald-500 object-cover shadow-sm sm:h-32"
                 />
@@ -1011,7 +1019,7 @@ export default function Home() {
             {photoUploadMessage}
           </p>
         )}
-        {uploadedImages.length > 0 && (
+        {uploadedPhotos.length > 0 && (
           <Button
             type="button"
             onClick={clearUploadedImages}
@@ -1024,13 +1032,13 @@ export default function Home() {
         )}
       </div>
 
-      {uploadedImages.length > 0 && (
+      {uploadedPhotos.length > 0 && (
         <div className="fixed inset-x-0 bottom-0 z-50 border-t-4 border-sky-950 bg-white/95 px-4 py-3 shadow-[0_-14px_35px_rgba(8,47,73,0.18)] backdrop-blur">
           <div className="mx-auto flex max-w-4xl flex-col items-center justify-between gap-3 sm:flex-row">
             <div className="text-center sm:text-left">
               <p className="text-xs font-black uppercase tracking-widest text-teal-700">Photos selected</p>
               <p className="text-lg font-black text-sky-950">
-                {uploadedImages.length} of 3 photo{uploadedImages.length === 1 ? "" : "s"} selected
+                {uploadedPhotos.length} of 3 photo{uploadedPhotos.length === 1 ? "" : "s"} selected
               </p>
             </div>
             <Button
@@ -1614,7 +1622,7 @@ export default function Home() {
     const currentPage = storyPages[storyPage] || storyPages[1]
     const isPreviewComplete = storyPage === 11
     const progress = isPreviewComplete ? 2 : Math.min(storyPage, 2)
-    const heroPhoto = uploadedImages[0]
+    const heroPhoto = uploadedPhotos[0]?.previewUrl
 
     if (isPreviewComplete) {
       return (
@@ -2083,7 +2091,7 @@ export default function Home() {
         storyTitle: story.title,
         storyId: story.characterId,
         gender: selectedGender,
-        photoCount: uploadedImages.length,
+        photoCount: uploadedPhotos.length,
         choices: storyPath,
         postage: requiresPostage
           ? {
@@ -2112,9 +2120,31 @@ export default function Home() {
         if (!orderResponse.ok) {
           throw new Error("Order could not be saved")
         }
+
+        if (uploadedPhotos.length > 0) {
+          const photoUploadForm = new FormData()
+          photoUploadForm.set("orderId", order.id)
+          uploadedPhotos.forEach((photo) => {
+            photoUploadForm.append("photos", photo.file)
+          })
+
+          const photoResponse = await fetch("/api/order-photos", {
+            method: "POST",
+            body: photoUploadForm,
+          })
+
+          if (!photoResponse.ok) {
+            const photoData = await photoResponse.json().catch(() => null)
+            throw new Error(photoData?.error || "Photos could not be saved")
+          }
+        }
       } catch (error) {
         console.error("Failed to save order to server store:", error)
-        setCheckoutError("We could not save the order yet. Please try again before going to payment.")
+        setCheckoutError(
+          error instanceof Error && error.message.includes("Photo storage is not configured")
+            ? "Photo uploads are not configured in production yet. Add the storage key before taking live photo orders."
+            : "We could not save the order yet. Please try again before going to payment.",
+        )
         setIsPreparingCheckout(false)
         return
       }
@@ -2224,7 +2254,7 @@ export default function Home() {
                     </div>
                     <p className="text-sm font-semibold leading-6 text-slate-700">
                       The confirmation email includes the download link and, for digital orders, a hard copy upgrade link.
-                      {uploadedImages.length > 0
+                      {uploadedPhotos.length > 0
                         ? " Because photos were selected, we may follow up by email for the original files before final artwork."
                         : ""}
                     </p>
@@ -2477,7 +2507,7 @@ export default function Home() {
               </div>
               <p className="text-sm font-semibold leading-6 text-slate-700">
                 Payment opens securely. We only keep the details needed for your receipt, story download, and postage.
-                {uploadedImages.length > 0 ? " Photo references may be collected by email using your order reference." : ""}
+                {uploadedPhotos.length > 0 ? " Reference photos are stored privately with your order before checkout continues." : ""}
               </p>
               <div className="mt-4 grid gap-2 text-xs font-black text-sky-900">
                 <div className="rounded-xl bg-white/80 px-3 py-2">Secure checkout</div>
