@@ -54,7 +54,7 @@ export default function ComingSoonPage() {
         <img
           src="/inspiration/mobile-homepage.png"
           alt="Little Legends Story coming soon: your child becomes the hero in personalised magical bedtime storybooks"
-          className="block h-auto w-full select-none"
+          className="block h-auto w-full select-none max-[380px]:h-[100svh] max-[380px]:object-fill"
           draggable={false}
         />
 
@@ -85,7 +85,14 @@ export default function ComingSoonPage() {
           >
             Join the list
           </button>
-          {status && <p className="sr-only" role="status">{status}</p>}
+          {status && (
+            <p
+              className="absolute left-1/2 top-[92%] w-[82%] -translate-x-1/2 rounded-full bg-[#130f2d]/82 px-3 py-2 text-center text-[clamp(0.7rem,3.3vw,0.95rem)] font-black text-amber-100 shadow-[0_0_22px_rgba(251,191,36,0.22)]"
+              role="status"
+            >
+              {status}
+            </p>
+          )}
         </form>
       </section>
 

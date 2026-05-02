@@ -3,6 +3,7 @@ import path from "path"
 
 import { hasDatabase, query } from "@/lib/db"
 import { type OrderRecord, updateOrderEmailSentAt } from "@/lib/orders"
+import { getSupabase, hasSupabase } from "@/lib/supabase"
 
 export type EmailLogEntry = {
   id: string
@@ -39,6 +40,16 @@ const rowToEmailLogEntry = (row: EmailLogRow): EmailLogEntry => ({
   provider: row.provider,
 })
 
+const emailLogEntryToRow = (entry: EmailLogEntry) => ({
+  id: entry.id,
+  created_at: entry.createdAt,
+  recipient: entry.to,
+  subject: entry.subject,
+  body: entry.body,
+  order_id: entry.orderId,
+  provider: entry.provider,
+})
+
 const isLocalUrl = (value: string) => /^https?:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/i.test(value)
 
 const appUrl = () => {
@@ -68,6 +79,14 @@ const ensureEmailLogFile = async () => {
 }
 
 const appendEmailLog = async (entry: EmailLogEntry) => {
+  if (hasSupabase()) {
+    const { error } = await getSupabase().from("email_logs").upsert(emailLogEntryToRow(entry), { onConflict: "id" })
+
+    if (error) throw new Error(`Failed to save Supabase email log: ${error.message}`)
+
+    return
+  }
+
   if (hasDatabase()) {
     await query(
       `
@@ -97,6 +116,14 @@ const appendEmailLog = async (entry: EmailLogEntry) => {
 }
 
 export const readEmailLog = async (): Promise<EmailLogEntry[]> => {
+  if (hasSupabase()) {
+    const { data, error } = await getSupabase().from("email_logs").select("*").order("created_at", { ascending: false })
+
+    if (error) throw new Error(`Failed to read Supabase email log: ${error.message}`)
+
+    return (data || []).map((row) => rowToEmailLogEntry(row as EmailLogRow))
+  }
+
   if (hasDatabase()) {
     const result = await query<EmailLogRow>("select * from email_logs order by created_at desc")
     return result.rows.map(rowToEmailLogEntry)

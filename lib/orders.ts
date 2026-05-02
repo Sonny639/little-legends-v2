@@ -2,6 +2,7 @@ import fs from "fs/promises"
 import path from "path"
 
 import { hasDatabase, query } from "@/lib/db"
+import { getSupabase, hasSupabase } from "@/lib/supabase"
 
 export type CheckoutProduct = "digital" | "hardback" | "upgrade"
 export type PaymentStatus = "payment_pending" | "paid_demo" | "paid"
@@ -95,6 +96,28 @@ const rowToOrder = (row: OrderRow): OrderRecord => ({
   emailSentAt: toIso(row.email_sent_at),
 })
 
+const orderToRow = (order: OrderRecord) => ({
+  id: order.id,
+  created_at: order.createdAt,
+  product: order.product,
+  total: order.total,
+  email: order.email,
+  phone: order.phone || null,
+  hero_name: order.heroName,
+  hero_type: order.heroType,
+  story_title: order.storyTitle,
+  story_id: order.storyId,
+  gender: order.gender,
+  photo_count: order.photoCount || 0,
+  choices: order.choices || [],
+  postage: order.postage || null,
+  status: order.status,
+  fulfilment_status: order.fulfilmentStatus || "new",
+  fulfilment_updated_at: order.fulfilmentUpdatedAt || order.createdAt,
+  download_url: order.downloadUrl || null,
+  email_sent_at: order.emailSentAt || null,
+})
+
 const ensureDataFile = async () => {
   await fs.mkdir(dataDirectory, { recursive: true })
 
@@ -106,6 +129,14 @@ const ensureDataFile = async () => {
 }
 
 export const readOrders = async (): Promise<OrderRecord[]> => {
+  if (hasSupabase()) {
+    const { data, error } = await getSupabase().from("orders").select("*").order("created_at", { ascending: false })
+
+    if (error) throw new Error(`Failed to read Supabase orders: ${error.message}`)
+
+    return (data || []).map((row) => rowToOrder(row as OrderRow))
+  }
+
   if (hasDatabase()) {
     const result = await query<OrderRow>("select * from orders order by created_at desc")
     return result.rows.map(rowToOrder)
@@ -125,6 +156,14 @@ export const saveOrder = async (order: OrderRecord) => {
     photoCount: order.photoCount || 0,
     fulfilmentStatus: order.fulfilmentStatus || "new",
     fulfilmentUpdatedAt: order.fulfilmentUpdatedAt || order.createdAt,
+  }
+
+  if (hasSupabase()) {
+    const { error } = await getSupabase().from("orders").upsert(orderToRow(normalisedOrder), { onConflict: "id" })
+
+    if (error) throw new Error(`Failed to save Supabase order: ${error.message}`)
+
+    return normalisedOrder
   }
 
   if (hasDatabase()) {
@@ -191,6 +230,19 @@ export const saveOrder = async (order: OrderRecord) => {
 }
 
 export const updateOrderFulfilmentStatus = async (orderId: string, fulfilmentStatus: FulfilmentStatus) => {
+  if (hasSupabase()) {
+    const { data, error } = await getSupabase()
+      .from("orders")
+      .update({ fulfilment_status: fulfilmentStatus, fulfilment_updated_at: new Date().toISOString() })
+      .eq("id", orderId)
+      .select("*")
+      .maybeSingle()
+
+    if (error) throw new Error(`Failed to update Supabase order fulfilment: ${error.message}`)
+
+    return data ? rowToOrder(data as OrderRow) : null
+  }
+
   if (hasDatabase()) {
     const result = await query<OrderRow>(
       "update orders set fulfilment_status = $2, fulfilment_updated_at = $3 where id = $1 returning *",
@@ -223,6 +275,19 @@ export const updateOrderFulfilmentStatus = async (orderId: string, fulfilmentSta
 }
 
 export const updateOrderPaymentStatus = async (orderId: string, status: PaymentStatus) => {
+  if (hasSupabase()) {
+    const { data, error } = await getSupabase()
+      .from("orders")
+      .update({ status })
+      .eq("id", orderId)
+      .select("*")
+      .maybeSingle()
+
+    if (error) throw new Error(`Failed to update Supabase order payment: ${error.message}`)
+
+    return data ? rowToOrder(data as OrderRow) : null
+  }
+
   if (hasDatabase()) {
     const result = await query<OrderRow>("update orders set status = $2 where id = $1 returning *", [orderId, status])
 
@@ -251,6 +316,19 @@ export const updateOrderPaymentStatus = async (orderId: string, status: PaymentS
 }
 
 export const updateOrderEmailSentAt = async (orderId: string, emailSentAt: string) => {
+  if (hasSupabase()) {
+    const { data, error } = await getSupabase()
+      .from("orders")
+      .update({ email_sent_at: emailSentAt })
+      .eq("id", orderId)
+      .select("*")
+      .maybeSingle()
+
+    if (error) throw new Error(`Failed to update Supabase order email status: ${error.message}`)
+
+    return data ? rowToOrder(data as OrderRow) : null
+  }
+
   if (hasDatabase()) {
     const result = await query<OrderRow>("update orders set email_sent_at = $2 where id = $1 returning *", [orderId, emailSentAt])
 
@@ -279,6 +357,14 @@ export const updateOrderEmailSentAt = async (orderId: string, emailSentAt: strin
 }
 
 export const clearOrders = async () => {
+  if (hasSupabase()) {
+    const { error } = await getSupabase().from("orders").delete().neq("id", "")
+
+    if (error) throw new Error(`Failed to clear Supabase orders: ${error.message}`)
+
+    return
+  }
+
   if (hasDatabase()) {
     await query("delete from orders")
     return

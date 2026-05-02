@@ -2,6 +2,7 @@ import fs from "fs/promises"
 import path from "path"
 
 import { hasDatabase, query } from "@/lib/db"
+import { getSupabase, hasSupabase } from "@/lib/supabase"
 
 export type EnquiryStatus = "new" | "replied" | "closed"
 
@@ -40,6 +41,16 @@ const rowToEnquiry = (row: EnquiryRow): EnquiryRecord => ({
   status: row.status,
 })
 
+const enquiryToRow = (enquiry: EnquiryRecord) => ({
+  id: enquiry.id,
+  created_at: enquiry.createdAt,
+  name: enquiry.name,
+  email: enquiry.email,
+  subject: enquiry.subject,
+  message: enquiry.message,
+  status: enquiry.status,
+})
+
 const ensureEnquiriesFile = async () => {
   await fs.mkdir(dataDirectory, { recursive: true })
 
@@ -51,6 +62,14 @@ const ensureEnquiriesFile = async () => {
 }
 
 export const readEnquiries = async (): Promise<EnquiryRecord[]> => {
+  if (hasSupabase()) {
+    const { data, error } = await getSupabase().from("enquiries").select("*").order("created_at", { ascending: false })
+
+    if (error) throw new Error(`Failed to read Supabase enquiries: ${error.message}`)
+
+    return (data || []).map((row) => rowToEnquiry(row as EnquiryRow))
+  }
+
   if (hasDatabase()) {
     const result = await query<EnquiryRow>("select * from enquiries order by created_at desc")
     return result.rows.map(rowToEnquiry)
@@ -71,6 +90,14 @@ export const saveEnquiry = async (enquiry: Omit<EnquiryRecord, "id" | "createdAt
     id: `enquiry_${Date.now()}`,
     createdAt,
     status: "new",
+  }
+
+  if (hasSupabase()) {
+    const { error } = await getSupabase().from("enquiries").insert(enquiryToRow(savedEnquiry))
+
+    if (error) throw new Error(`Failed to save Supabase enquiry: ${error.message}`)
+
+    return savedEnquiry
   }
 
   if (hasDatabase()) {
@@ -101,6 +128,19 @@ export const saveEnquiry = async (enquiry: Omit<EnquiryRecord, "id" | "createdAt
 }
 
 export const updateEnquiryStatus = async (enquiryId: string, status: EnquiryStatus) => {
+  if (hasSupabase()) {
+    const { data, error } = await getSupabase()
+      .from("enquiries")
+      .update({ status })
+      .eq("id", enquiryId)
+      .select("*")
+      .maybeSingle()
+
+    if (error) throw new Error(`Failed to update Supabase enquiry: ${error.message}`)
+
+    return data ? rowToEnquiry(data as EnquiryRow) : null
+  }
+
   if (hasDatabase()) {
     const result = await query<EnquiryRow>("update enquiries set status = $2 where id = $1 returning *", [enquiryId, status])
 

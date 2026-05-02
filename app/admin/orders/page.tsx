@@ -51,8 +51,6 @@ type OrderRecord = {
   emailSentAt?: string
 }
 
-const storageKey = "little-legends-orders"
-
 const productLabel: Record<CheckoutProduct, string> = {
   digital: "Digital PDF",
   hardback: "Hardback Book",
@@ -106,21 +104,8 @@ export default function AdminOrdersPage() {
         return
       }
     } catch {
-      const savedOrders = window.localStorage.getItem(storageKey)
-      if (!savedOrders) {
-        setOrders([])
-        setAdminMessage("Server orders are unavailable and there are no browser demo orders.")
-        return
-      }
-
-      try {
-        const parsedOrders = JSON.parse(savedOrders)
-        setOrders(Array.isArray(parsedOrders) ? parsedOrders : [])
-        setAdminMessage("Showing browser demo orders because the server order store is unavailable.")
-      } catch {
-        setOrders([])
-        setAdminMessage("Could not read browser demo orders.")
-      }
+      setOrders([])
+      setAdminMessage("Could not load orders from the server data store.")
     } finally {
       setIsLoading(false)
     }
@@ -239,14 +224,26 @@ export default function AdminOrdersPage() {
   }
 
   const clearOrders = async () => {
-    try {
-      await fetch("/api/orders", { method: "DELETE" })
-    } catch {
-      setAdminMessage("Server orders could not be cleared. Browser demo orders were cleared.")
-    }
+    const confirmed = window.confirm(
+      "Clear every order from the admin data store? This is only intended for test data and cannot be undone.",
+    )
 
-    window.localStorage.removeItem(storageKey)
-    setOrders([])
+    if (!confirmed) return
+
+    setAdminMessage("")
+
+    try {
+      const response = await fetch("/api/orders", { method: "DELETE" })
+
+      if (!response.ok) {
+        throw new Error("Failed to clear orders")
+      }
+
+      setOrders([])
+      setAdminMessage("Orders cleared.")
+    } catch {
+      setAdminMessage("Orders could not be cleared from the server data store.")
+    }
   }
 
   const updateFulfilmentStatus = async (orderId: string, fulfilmentStatus: FulfilmentStatus) => {

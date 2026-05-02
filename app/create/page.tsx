@@ -456,24 +456,24 @@ export default function Home() {
   }, [])
 
   const renderWelcome = () => (
-    <section className="relative isolate flex min-h-full items-center justify-center overflow-hidden rounded-[1.5rem] border border-white/80 bg-[#fff7ff] px-3 py-4 text-center shadow-[0_24px_80px_rgba(172,122,218,0.18)] sm:rounded-[2rem] sm:px-8 lg:py-5">
+    <section className="relative isolate flex min-h-[calc(100svh-4.25rem)] items-start justify-center overflow-hidden rounded-[1.5rem] border border-white/80 bg-[#fff7ff] px-3 py-3 text-center shadow-[0_24px_80px_rgba(172,122,218,0.18)] min-[390px]:py-4 sm:min-h-full sm:items-center sm:rounded-[2rem] sm:px-8 lg:py-5">
       <div className="absolute inset-0 -z-10 bg-[linear-gradient(180deg,#fffaff_0%,#f3ecff_42%,#e7f8ff_74%,#fff7d7_100%)]" />
       <div className="absolute inset-x-0 bottom-0 -z-10 h-44 bg-[radial-gradient(ellipse_at_center,rgba(255,221,117,0.58)_0%,rgba(255,221,117,0.28)_36%,transparent_68%)]" />
       <div className="absolute inset-0 -z-10 opacity-80 [background-image:radial-gradient(circle_at_10%_18%,rgba(255,198,229,0.95)_0_4px,transparent_5px),radial-gradient(circle_at_24%_72%,rgba(255,226,121,0.9)_0_3px,transparent_4px),radial-gradient(circle_at_82%_20%,rgba(153,213,255,0.95)_0_4px,transparent_5px),radial-gradient(circle_at_88%_68%,rgba(198,178,255,0.95)_0_3px,transparent_4px)]" />
 
       <div className="mx-auto flex w-full max-w-5xl flex-col items-center">
-        <div className="mb-2 inline-flex items-center gap-2 rounded-full bg-white/80 px-4 py-2 text-xs font-bold text-fuchsia-700 shadow-sm ring-1 ring-fuchsia-100 sm:mb-3 sm:text-sm">
+        <div className="mb-2 inline-flex items-center gap-2 rounded-full bg-white/80 px-3 py-1.5 text-[11px] font-bold text-fuchsia-700 shadow-sm ring-1 ring-fuchsia-100 min-[390px]:px-4 min-[390px]:py-2 sm:mb-3 sm:text-sm">
           <Sparkles className="h-4 w-4 text-amber-400" />
           A story where your child is the hero
         </div>
 
-        <div className="relative mb-3 w-full max-w-lg sm:mb-4">
+        <div className="relative mb-2 w-full max-w-lg sm:mb-4">
           <div className="absolute inset-x-8 bottom-0 h-16 rounded-full bg-fuchsia-200/50 blur-2xl" />
           <div className="relative overflow-hidden rounded-[2rem] border-4 border-white bg-white shadow-[0_22px_65px_rgba(169,113,219,0.26)]">
             <img
               src="/little-legends-reading-hero-family.png"
               alt="A family reading a magical storybook where the child becomes the hero"
-            className="h-36 w-full object-cover min-[390px]:h-40 sm:h-52 lg:h-60 xl:h-64"
+              className="h-[clamp(8rem,27svh,10.5rem)] w-full object-cover object-center min-[390px]:h-[clamp(9rem,28svh,12rem)] sm:h-52 lg:h-60 xl:h-64"
             />
             <div className="absolute inset-0 bg-[linear-gradient(180deg,transparent_58%,rgba(255,255,255,0.82)_100%)]" />
             <div className="absolute bottom-3 left-1/2 flex -translate-x-1/2 items-center gap-2 rounded-full bg-white/90 px-4 py-2 text-sm font-black text-fuchsia-700 shadow-md">
@@ -486,42 +486,44 @@ export default function Home() {
           <span className="absolute bottom-5 right-7 hidden text-3xl sm:block sm:text-4xl">✨</span>
         </div>
 
-        <h1 className="flex max-w-4xl items-center justify-center gap-2 text-balance text-4xl font-black leading-[0.95] text-[#6d35c4] sm:gap-3 sm:text-6xl lg:text-7xl xl:text-8xl">
-          <Heart className="h-8 w-8 shrink-0 fill-rose-400 text-rose-400 drop-shadow-sm sm:h-12 sm:w-12 lg:h-16 lg:w-16" />
+        <h1 className="flex max-w-4xl items-center justify-center gap-2 text-balance text-[2.35rem] font-black leading-[0.95] text-[#6d35c4] min-[390px]:text-[2.8rem] sm:gap-3 sm:text-6xl lg:text-7xl xl:text-8xl">
+          <Heart className="h-7 w-7 shrink-0 fill-rose-400 text-rose-400 drop-shadow-sm min-[390px]:h-8 min-[390px]:w-8 sm:h-12 sm:w-12 lg:h-16 lg:w-16" />
           Little Legends
         </h1>
 
-        <p className="mt-2 max-w-2xl text-pretty text-base font-semibold leading-6 text-[#6e5b85] sm:mt-3 sm:text-xl sm:leading-7 lg:text-2xl">
+        <p className="mt-1.5 max-w-2xl text-pretty text-sm font-semibold leading-5 text-[#6e5b85] min-[390px]:text-base min-[390px]:leading-6 sm:mt-3 sm:text-xl sm:leading-7 lg:text-2xl">
           Make a magical adventure starring your child, their photos, and the hero they dream of becoming.
         </p>
 
         <Button
           onClick={() => setCurrentStep("gender")}
-          className="mt-4 h-12 rounded-full bg-gradient-to-r from-fuchsia-500 via-violet-500 to-sky-500 px-8 text-base font-black text-white shadow-[0_18px_42px_rgba(158,91,214,0.34)] transition-all hover:-translate-y-1 hover:from-fuchsia-600 hover:via-violet-600 hover:to-sky-600 sm:mt-5 sm:h-14 sm:px-12 sm:text-lg"
+          className="mt-3 h-11 rounded-full bg-gradient-to-r from-fuchsia-500 via-violet-500 to-sky-500 px-7 text-sm font-black text-white shadow-[0_18px_42px_rgba(158,91,214,0.34)] transition-all hover:-translate-y-1 hover:from-fuchsia-600 hover:via-violet-600 hover:to-sky-600 min-[390px]:h-12 min-[390px]:px-8 min-[390px]:text-base sm:mt-5 sm:h-14 sm:px-12 sm:text-lg"
         >
-          <Wand2 className="h-6 w-6" />
+          <Wand2 className="h-5 w-5 sm:h-6 sm:w-6" />
           Start the Magic
         </Button>
 
-        <div className="mt-3 flex flex-wrap justify-center gap-2 text-xs font-bold text-[#7a6692] sm:mt-4 sm:gap-3 sm:text-sm">
-          <span className="rounded-full bg-white/75 px-4 py-2 shadow-sm">Choose a hero name</span>
-          <span className="rounded-full bg-white/75 px-4 py-2 shadow-sm">Add photos</span>
-          <span className="rounded-full bg-white/75 px-4 py-2 shadow-sm">Create a story</span>
-          <a href="/contact" className="rounded-full bg-white/75 px-4 py-2 text-sky-700 shadow-sm hover:bg-white">Contact us</a>
-          <a href="/privacy" className="rounded-full bg-white/75 px-4 py-2 text-sky-700 shadow-sm hover:bg-white">Privacy</a>
-          <a href="/terms" className="rounded-full bg-white/75 px-4 py-2 text-sky-700 shadow-sm hover:bg-white">Terms</a>
+        <div className="mt-2 flex flex-wrap justify-center gap-1.5 text-[11px] font-bold text-[#7a6692] min-[390px]:mt-3 sm:mt-4 sm:gap-3 sm:text-sm">
+          <span className="rounded-full bg-white/75 px-3 py-1.5 shadow-sm sm:px-4 sm:py-2">Choose a hero name</span>
+          <span className="rounded-full bg-white/75 px-3 py-1.5 shadow-sm sm:px-4 sm:py-2">Add photos</span>
+          <span className="rounded-full bg-white/75 px-3 py-1.5 shadow-sm sm:px-4 sm:py-2">Create a story</span>
+        </div>
+        <div className="mt-2 flex flex-wrap justify-center gap-3 text-[11px] font-black text-sky-700 sm:text-sm">
+          <a href="/contact" className="underline-offset-4 hover:underline">Contact</a>
+          <a href="/privacy" className="underline-offset-4 hover:underline">Privacy</a>
+          <a href="/terms" className="underline-offset-4 hover:underline">Terms</a>
         </div>
       </div>
     </section>
   )
 
   const renderGenderSelection = () => (
-    <div className="mx-auto max-w-4xl space-y-5 text-center sm:space-y-7">
+    <div className="mx-auto max-w-4xl space-y-4 text-center sm:space-y-7">
       <div className="space-y-2 sm:space-y-3">
         <Badge className="bg-amber-300 px-3 py-1 text-sky-950">Step 1 of 5</Badge>
-        <h2 className="text-3xl font-black leading-tight text-sky-950 sm:text-5xl">Who is the story for?</h2>
+        <h2 className="text-3xl font-black leading-tight text-sky-950 sm:text-5xl">Who is becoming the hero?</h2>
         <p className="mx-auto max-w-2xl text-sm font-semibold leading-6 text-slate-700 sm:text-lg sm:leading-7">
-          This helps us choose artwork and story language that feels right for your child.
+          A quick start so the preview feels personal from the first page.
         </p>
       </div>
       <div className="grid gap-3 sm:grid-cols-2 sm:gap-4">
@@ -529,29 +531,33 @@ export default function Home() {
           className={`storybook-focus cursor-pointer border-4 p-4 shadow-[8px_8px_0_rgba(8,47,73,0.12)] sm:p-6 ${selectedGender === "boy" ? "border-sky-950 bg-sky-50 ring-4 ring-amber-200" : "border-white bg-white/90"}`}
           onClick={() => setSelectedGender("boy")}
         >
-          <div className="space-y-3 text-center sm:space-y-4">
-            <div className="text-5xl sm:text-6xl">👦</div>
-            <p className="text-xl font-black text-sky-950 sm:text-2xl">Boy</p>
-            <p className="text-sm font-semibold leading-6 text-slate-600">Personalise the preview artwork and hero journey.</p>
+          <div className="space-y-2 text-center sm:space-y-4">
+            <div className="mx-auto grid h-14 w-14 place-items-center rounded-2xl bg-sky-100 text-sky-700 ring-4 ring-white sm:h-18 sm:w-18">
+              <User className="h-7 w-7 sm:h-9 sm:w-9" />
+            </div>
+            <p className="text-xl font-black text-sky-950 sm:text-2xl">A boy</p>
+            <p className="text-sm font-semibold leading-6 text-slate-600">Build a brave, magical story around him.</p>
           </div>
         </Card>
         <Card
           className={`storybook-focus cursor-pointer border-4 p-4 shadow-[8px_8px_0_rgba(8,47,73,0.12)] sm:p-6 ${selectedGender === "girl" ? "border-sky-950 bg-rose-50 ring-4 ring-amber-200" : "border-white bg-white/90"}`}
           onClick={() => setSelectedGender("girl")}
         >
-          <div className="space-y-3 text-center sm:space-y-4">
-            <div className="text-5xl sm:text-6xl">👧</div>
-            <p className="text-xl font-black text-sky-950 sm:text-2xl">Girl</p>
-            <p className="text-sm font-semibold leading-6 text-slate-600">Personalise the preview artwork and hero journey.</p>
+          <div className="space-y-2 text-center sm:space-y-4">
+            <div className="mx-auto grid h-14 w-14 place-items-center rounded-2xl bg-rose-100 text-rose-600 ring-4 ring-white sm:h-18 sm:w-18">
+              <Heart className="h-7 w-7 fill-rose-300 sm:h-9 sm:w-9" />
+            </div>
+            <p className="text-xl font-black text-sky-950 sm:text-2xl">A girl</p>
+            <p className="text-sm font-semibold leading-6 text-slate-600">Build a brave, magical story around her.</p>
           </div>
         </Card>
       </div>
       {selectedGender && (
         <Button
           onClick={() => setCurrentStep("name")}
-          className="h-12 rounded-full bg-gradient-to-r from-emerald-500 to-sky-500 px-8 text-base font-black text-white shadow-[0_14px_32px_rgba(14,165,233,0.22)] hover:from-emerald-600 hover:to-sky-600 sm:h-13 sm:text-lg"
+          className="h-12 w-full rounded-full bg-gradient-to-r from-emerald-500 to-sky-500 px-8 text-base font-black text-white shadow-[0_14px_32px_rgba(14,165,233,0.22)] hover:from-emerald-600 hover:to-sky-600 sm:h-13 sm:w-auto sm:text-lg"
         >
-          Next Step! 🎯
+          Continue
         </Button>
       )}
     </div>
@@ -1040,16 +1046,16 @@ export default function Home() {
   )
 
   const renderCharacterSelection = () => (
-    <div className="space-y-7 text-center">
-      <div className="space-y-3">
+    <div className="space-y-5 text-center sm:space-y-7">
+      <div className="space-y-2 sm:space-y-3">
         <Badge className="bg-amber-300 px-3 py-1 text-sky-950">Step 4 of 5</Badge>
-        <h2 className="text-4xl font-black leading-tight text-sky-950 sm:text-5xl">What kind of hero will {selectedLegendName} be?</h2>
-        <p className="mx-auto max-w-2xl text-base font-semibold leading-7 text-slate-700 sm:text-lg">
-          Choose the world they will step into. Browse two curated pages or search the launch hero set.
+        <h2 className="text-3xl font-black leading-tight text-sky-950 sm:text-5xl">What kind of hero will {selectedLegendName} be?</h2>
+        <p className="mx-auto max-w-2xl text-sm font-semibold leading-6 text-slate-700 sm:text-lg sm:leading-7">
+          Choose the story world they will step into.
         </p>
       </div>
 
-      <Card className="mx-auto max-w-md border-0 bg-white/90 p-4 shadow-[0_12px_35px_rgba(61,160,190,0.12)]">
+      <Card className="mx-auto max-w-md border-0 bg-white/90 p-3 shadow-[0_12px_35px_rgba(61,160,190,0.12)] sm:p-4">
         <div className="relative">
           <Search className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
           <Input
@@ -1090,19 +1096,19 @@ export default function Home() {
         </div>
       )}
 
-      <div className="mx-auto grid max-w-4xl grid-cols-2 gap-3 sm:gap-4 md:grid-cols-3">
+      <div className="mx-auto grid max-w-4xl grid-cols-2 gap-2.5 sm:gap-4 md:grid-cols-3">
         {getFilteredCharacters().map((character) => (
           <Card
             key={character.id}
-            className={`storybook-focus cursor-pointer border-4 p-4 shadow-[6px_6px_0_rgba(8,47,73,0.11)] sm:p-5 ${selectedCharacter === character.id ? "border-sky-950 bg-amber-50 ring-4 ring-amber-100" : "border-white bg-white/90"}`}
+            className={`storybook-focus cursor-pointer border-4 p-3 shadow-[6px_6px_0_rgba(8,47,73,0.11)] sm:p-5 ${selectedCharacter === character.id ? "border-sky-950 bg-amber-50 ring-4 ring-amber-100" : "border-white bg-white/90"}`}
             onClick={() => handleCharacterSelection(character.id)}
           >
-            <div className="space-y-3 text-center">
-              <div className="relative mx-auto flex h-16 w-16 items-center justify-center overflow-hidden rounded-2xl border-4 border-sky-950 bg-[#fffdf5] text-3xl font-black text-sky-950 shadow-[4px_4px_0_rgba(8,47,73,0.12)] ring-4 ring-white sm:h-20 sm:w-20 sm:text-4xl">
+            <div className="space-y-2 text-center sm:space-y-3">
+              <div className="relative mx-auto flex h-14 w-14 items-center justify-center overflow-hidden rounded-2xl border-4 border-sky-950 bg-[#fffdf5] text-lg font-black text-sky-950 shadow-[4px_4px_0_rgba(8,47,73,0.12)] ring-4 ring-white sm:h-20 sm:w-20 sm:text-3xl">
                 <span className={`absolute inset-x-2 bottom-1 h-2 rounded-full ${character.color}`} aria-hidden="true" />
-                <span className="relative drop-shadow-sm">{character.emoji || getHeroInitials(character.name)}</span>
+                <span className="relative drop-shadow-sm">{getHeroInitials(character.name)}</span>
               </div>
-              <p className="text-base font-black leading-tight text-sky-950 sm:text-xl">{character.name}</p>
+              <p className="min-h-10 text-sm font-black leading-tight text-sky-950 sm:text-xl">{character.name}</p>
               <Badge variant="secondary" className="text-xs capitalize">
                 {character.category}
               </Badge>
@@ -2094,8 +2100,6 @@ export default function Home() {
         fulfilmentUpdatedAt: createdAt,
       }
 
-      const existingOrders = JSON.parse(window.localStorage.getItem("little-legends-orders") || "[]")
-      window.localStorage.setItem("little-legends-orders", JSON.stringify([order, ...existingOrders]))
       try {
         const orderResponse = await fetch("/api/orders", {
           method: "POST",

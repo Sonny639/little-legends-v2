@@ -17,6 +17,8 @@ Copy `.env.example` to `.env.local` and fill in the values you need:
 
 ```bash
 NEXT_PUBLIC_APP_URL=http://localhost:3003
+NEXT_PUBLIC_SUPABASE_URL=
+NEXT_PUBLIC_SUPABASE_ANON_KEY=
 DATABASE_URL=
 DATABASE_SSL=true
 STRIPE_SECRET_KEY=
@@ -50,7 +52,7 @@ Set `ADMIN_PASSWORD` to enable the admin login screen on `/admin/login`. `POST /
 - `/admin/enquiries` - customer enquiry inbox.
 - Launch page email signups are saved into `/admin/enquiries` with the subject `Coming soon launch list`.
 - Contact page enquiries are saved into `/admin/enquiries` and, when SMTP env vars are set, emailed to `CONTACT_TO_EMAIL`.
-- `/admin/email-log` - local confirmation email log.
+- `/admin/email-log` - confirmation email log.
 - `/download/[orderId]` - locked until payment is confirmed, then renders the printable story.
 - `/artwork` - artwork manifest and prompt review.
 
@@ -70,7 +72,9 @@ These files are useful for local testing only. Replace this file storage with a 
 
 ## Database
 
-When `DATABASE_URL` is set, orders, enquiries, and email logs use Postgres instead of local JSON files. Supabase and Neon Postgres both work.
+When `NEXT_PUBLIC_SUPABASE_URL` and `NEXT_PUBLIC_SUPABASE_ANON_KEY` are set, orders, enquiries, and email logs use Supabase tables instead of local JSON files. The app uses the existing `orders`, `enquiries`, and `email_logs` tables from `db/schema.sql`.
+
+The older `DATABASE_URL` Postgres path remains as a fallback for non-Supabase deployments. Leave both Supabase and `DATABASE_URL` blank to keep using the local JSON fallback during development.
 
 Create the tables:
 
@@ -84,7 +88,7 @@ Import the current local JSON data:
 npm run db:import-json
 ```
 
-Leave `DATABASE_URL` blank to keep using the local JSON fallback during development.
+For Supabase production, make sure the schema in `db/schema.sql` has already been run in the Supabase SQL editor.
 
 ## Checks
 

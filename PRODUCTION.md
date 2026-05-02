@@ -8,6 +8,8 @@ Set these in the production host:
 
 ```bash
 NEXT_PUBLIC_APP_URL=https://littlelegendsstory.com
+NEXT_PUBLIC_SUPABASE_URL=
+NEXT_PUBLIC_SUPABASE_ANON_KEY=
 DATABASE_URL=
 DATABASE_SSL=true
 STRIPE_SECRET_KEY=
@@ -28,8 +30,8 @@ SMTP_FROM_NAME=Little Legends Story
 Required before launch:
 
 - `NEXT_PUBLIC_APP_URL` must be the real public URL.
-- `DATABASE_URL` must point to production Postgres.
-- Launch page signups are saved in `/admin/enquiries`; use production Postgres before collecting real emails.
+- `NEXT_PUBLIC_SUPABASE_URL` and `NEXT_PUBLIC_SUPABASE_ANON_KEY` must point to the production Supabase project.
+- Launch page signups are saved in `/admin/enquiries`; use production Supabase before collecting real emails.
 - Use `hello@littlelegendsstory.com` as the public contact/reply inbox.
 - Contact form notifications use Porkbun SMTP when `SMTP_PASSWORD` is set. Porkbun's SMTP settings are `smtp.porkbun.com`, port `587`, STARTTLS, with the full email address as the username.
 - Launch page signups are saved in admin only; they do not send email notifications while the landing page is temporary.
@@ -39,7 +41,9 @@ Required before launch:
 
 ## Database
 
-Create or migrate the production tables:
+Create or migrate the production tables in Supabase using the SQL from `db/schema.sql`.
+
+If using the older direct Postgres path instead of Supabase, set `DATABASE_URL` and run:
 
 ```bash
 npm run db:init

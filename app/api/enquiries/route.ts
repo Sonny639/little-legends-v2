@@ -45,14 +45,8 @@ export async function POST(request: Request) {
       })
 
       if (!notification.sent) {
-        return NextResponse.json(
-          {
-            enquiry,
-            error: "Enquiry saved but email notification was not sent",
-            detail: notification.reason,
-          },
-          { status: 503 },
-        )
+        console.warn("Enquiry saved but contact email notification was not sent:", notification.reason)
+        return NextResponse.json({ enquiry, notification }, { status: 202 })
       }
 
       return NextResponse.json({ enquiry, notification }, { status: 201 })
