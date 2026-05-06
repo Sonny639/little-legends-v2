@@ -531,6 +531,20 @@ export default function AdminOrdersPage() {
                           Download
                         </Link>
                       )}
+                      <Link
+                        href={`/api/orders/artwork-pack?orderId=${encodeURIComponent(order.id)}`}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="rounded-full bg-white px-3 py-1 text-xs font-black text-purple-700 underline"
+                      >
+                        Artwork JSON
+                      </Link>
+                      <Link
+                        href={`/api/orders/artwork-pack?orderId=${encodeURIComponent(order.id)}&format=csv`}
+                        className="rounded-full bg-white px-3 py-1 text-xs font-black text-purple-700 underline"
+                      >
+                        Artwork CSV
+                      </Link>
                     </div>
                     <div>
                       <p className="text-xs font-black uppercase tracking-widest text-sky-700">{formatDate(order.createdAt)}</p>
@@ -572,6 +586,20 @@ export default function AdminOrdersPage() {
                         <p className="text-sm font-semibold text-slate-700">ID: {order.storyId}</p>
                         <p className="mt-1 text-sm font-semibold text-slate-700">Gender: {order.gender || "Not set"}</p>
                         <p className="mt-1 text-sm font-semibold text-slate-700">Reference photos selected: {order.photoCount ?? 0}</p>
+                        <div className="mt-3 grid gap-2 sm:grid-cols-2">
+                          <Button asChild variant="outline" className="h-9 rounded-xl border-purple-100 bg-white px-3 text-xs font-black text-purple-700 hover:bg-purple-50">
+                            <Link href={`/api/orders/artwork-pack?orderId=${encodeURIComponent(order.id)}`} target="_blank" rel="noreferrer">
+                              <Download className="h-4 w-4" />
+                              Artwork JSON
+                            </Link>
+                          </Button>
+                          <Button asChild variant="outline" className="h-9 rounded-xl border-purple-100 bg-white px-3 text-xs font-black text-purple-700 hover:bg-purple-50">
+                            <Link href={`/api/orders/artwork-pack?orderId=${encodeURIComponent(order.id)}&format=csv`}>
+                              <Download className="h-4 w-4" />
+                              Artwork CSV
+                            </Link>
+                          </Button>
+                        </div>
                         {(order.photoCount ?? 0) > 0 && (
                           <div className="mt-2 space-y-2">
                             <p className="rounded-xl bg-amber-50 px-3 py-2 text-xs font-bold leading-5 text-amber-900">

@@ -235,7 +235,7 @@ try {
     throw new Error(`Expected Stripe checkout session, got: ${JSON.stringify(checkoutData)}`)
   }
 
-  if (!checkoutData.cancelUrl.includes(`/create?checkout=cancelled&orderId=${encodeURIComponent(smokeId)}`)) {
+  if (!checkoutData.cancelUrl.includes(`/checkout/cancel?orderId=${encodeURIComponent(smokeId)}`)) {
     throw new Error(`Checkout cancel URL is wrong: ${checkoutData.cancelUrl}`)
   }
 

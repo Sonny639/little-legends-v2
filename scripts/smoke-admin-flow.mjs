@@ -285,6 +285,9 @@ try {
   await requestJson(`/api/order-photos?orderId=${encodeURIComponent(smokeId)}`, {}, [401])
   console.log("OK photo preview API requires admin auth")
 
+  await requestJson(`/api/orders/artwork-pack?orderId=${encodeURIComponent(smokeId)}`, {}, [401])
+  console.log("OK order artwork pack requires admin auth")
+
   const photoForm = new FormData()
   photoForm.set("orderId", smokeId)
   photoForm.append("photos", new File([createSmokePng()], `${smokeId}.png`, { type: "image/png" }))
@@ -321,6 +324,27 @@ try {
     throw new Error(`Fulfilment update did not persist: ${JSON.stringify(fulfilmentUpdate.data)}`)
   }
   console.log("OK smoke fulfilment status updated")
+
+  const artworkPack = await requestJson(`/api/orders/artwork-pack?orderId=${encodeURIComponent(smokeId)}`, {
+    headers: { Cookie: sessionCookie },
+  })
+  const artworkCsv = await requestPage(`/api/orders/artwork-pack?orderId=${encodeURIComponent(smokeId)}&format=csv`, sessionCookie)
+
+  if (
+    artworkPack.data.order?.id !== smokeId ||
+    artworkPack.data.order?.storyId !== "wizard" ||
+    artworkPack.data.order?.storedReferencePhotoCount < 1 ||
+    !Array.isArray(artworkPack.data.pages) ||
+    artworkPack.data.pages.length === 0 ||
+    !artworkPack.data.pages[0]?.prompt?.includes("Admin Smoke")
+  ) {
+    throw new Error(`Order artwork pack did not include smoke story prompts: ${JSON.stringify(artworkPack.data)}`)
+  }
+
+  if (artworkCsv.status !== 200 || !artworkCsv.text.includes("outputFileName") || !artworkCsv.text.includes(smokeId)) {
+    throw new Error("Order artwork CSV did not render the smoke prompt pack.")
+  }
+  console.log("OK order artwork pack exports JSON and CSV")
 
   const checks = []
 

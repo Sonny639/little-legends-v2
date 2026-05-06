@@ -447,9 +447,9 @@ export default function Home() {
     const params = new URLSearchParams(window.location.search)
 
     if (params.get("checkout") === "cancelled") {
-      setCheckoutReturnMessage("Payment was cancelled. Nothing has been charged.")
-      setIsPreparingCheckout(false)
-      window.history.replaceState({}, "", window.location.pathname)
+      const orderId = params.get("orderId")
+      const cancelPath = orderId ? `/checkout/cancel?orderId=${encodeURIComponent(orderId)}` : "/checkout/cancel"
+      window.location.replace(cancelPath)
     }
   }, [])
 
@@ -1981,7 +1981,7 @@ export default function Home() {
           <div className="flex flex-col items-center justify-between gap-3 border-b-4 border-sky-950 pb-4 text-center md:flex-row md:text-left">
             <div>
               <Badge className="mb-2 bg-amber-300 px-3 py-1 text-sky-950">{currentPage.kicker}</Badge>
-              <h2 className="text-4xl font-black uppercase leading-tight text-sky-950 sm:text-5xl">{story.title}</h2>
+              <h2 className="text-3xl font-black uppercase leading-tight text-sky-950 sm:text-5xl">{story.title}</h2>
               <p className="mt-1 text-lg font-black text-rose-600">{story.lesson}</p>
             </div>
             <div className="rounded-2xl border-4 border-sky-950 bg-sky-100 px-5 py-3 text-center shadow-[5px_5px_0_rgba(8,47,73,0.18)]">
@@ -2000,7 +2000,7 @@ export default function Home() {
 
         <Card className="border-4 border-sky-950 bg-[#fffdf5] p-3 shadow-[12px_12px_0_rgba(8,47,73,0.2)] sm:p-5">
           <div className="grid gap-4 lg:grid-cols-[1.1fr_0.9fr]">
-            <div className="relative min-h-[430px] overflow-hidden rounded-2xl border-4 border-sky-950 bg-[radial-gradient(circle_at_18%_18%,rgba(255,255,255,0.85)_0_10%,transparent_11%),linear-gradient(135deg,#fef3c7_0%,#ffe4e6_45%,#bae6fd_100%)] bg-[length:32px_32px,auto] p-5">
+            <div className="relative min-h-[360px] overflow-hidden rounded-2xl border-4 border-sky-950 bg-[radial-gradient(circle_at_18%_18%,rgba(255,255,255,0.85)_0_10%,transparent_11%),linear-gradient(135deg,#fef3c7_0%,#ffe4e6_45%,#bae6fd_100%)] bg-[length:32px_32px,auto] p-4 sm:min-h-[430px] sm:p-5">
               {visiblePageArtwork && (
                 <img
                   src={visiblePageArtwork}
@@ -2018,16 +2018,16 @@ export default function Home() {
                 />
               )}
               {visiblePageArtwork && <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(255,255,255,0.04)_0%,rgba(255,255,255,0.18)_62%,rgba(255,255,255,0.72)_100%)]" />}
-              <div className="absolute right-5 top-5 rotate-6 rounded-lg border-4 border-sky-950 bg-yellow-300 px-4 py-2 text-3xl font-black text-sky-950 shadow-[5px_5px_0_rgba(8,47,73,0.18)] sm:text-4xl">
+              <div className="absolute right-3 top-3 rotate-6 rounded-lg border-4 border-sky-950 bg-yellow-300 px-3 py-1.5 text-xl font-black text-sky-950 shadow-[5px_5px_0_rgba(8,47,73,0.18)] sm:right-5 sm:top-5 sm:px-4 sm:py-2 sm:text-4xl">
                 {currentPage.sound}
               </div>
-              <div className="absolute left-5 top-5 max-w-[62%] rounded-2xl rounded-bl-sm border-4 border-sky-950 bg-white px-4 py-3 text-left text-base font-black leading-6 text-sky-950 shadow-[5px_5px_0_rgba(8,47,73,0.14)]">
+              <div className="absolute left-3 top-3 max-w-[58%] rounded-2xl rounded-bl-sm border-4 border-sky-950 bg-white px-3 py-2 text-left text-sm font-black leading-5 text-sky-950 shadow-[5px_5px_0_rgba(8,47,73,0.14)] sm:left-5 sm:top-5 sm:max-w-[62%] sm:px-4 sm:py-3 sm:text-base sm:leading-6">
                 {currentPage.speech[0]}
               </div>
               <div className="grid h-full place-items-center pt-20 text-center">
                 <div>
-                  <h3 className="mt-6 -rotate-1 bg-white px-4 py-2 text-3xl font-black uppercase text-sky-950 shadow-[5px_5px_0_rgba(8,47,73,0.12)]">{currentPage.title}</h3>
-                  <p className="mx-auto mt-5 max-w-md rounded-2xl border-4 border-sky-950 bg-white/90 px-5 py-4 text-lg font-bold leading-7 text-sky-900 shadow-[5px_5px_0_rgba(8,47,73,0.14)]">{currentPage.scene}</p>
+                  <h3 className="mt-6 -rotate-1 bg-white px-4 py-2 text-2xl font-black uppercase text-sky-950 shadow-[5px_5px_0_rgba(8,47,73,0.12)] sm:text-3xl">{currentPage.title}</h3>
+                  <p className="mx-auto mt-4 max-w-md rounded-2xl border-4 border-sky-950 bg-white/90 px-4 py-3 text-base font-bold leading-6 text-sky-900 shadow-[5px_5px_0_rgba(8,47,73,0.14)] sm:mt-5 sm:px-5 sm:py-4 sm:text-lg sm:leading-7">{currentPage.scene}</p>
                 </div>
               </div>
             </div>
@@ -2036,7 +2036,7 @@ export default function Home() {
               {currentPage.panels.map((panel, index) => (
                 <div
                   key={panel}
-                  className={`relative min-h-48 overflow-hidden rounded-2xl border-4 border-sky-950 bg-white shadow-[6px_6px_0_rgba(8,47,73,0.14)] ${index === 0 ? "rotate-[1deg]" : "rotate-[-1deg]"}`}
+                  className={`relative min-h-40 overflow-hidden rounded-2xl border-4 border-sky-950 bg-white shadow-[6px_6px_0_rgba(8,47,73,0.14)] sm:min-h-48 ${index === 0 ? "rotate-[1deg]" : "rotate-[-1deg]"}`}
                 >
                   {visiblePageArtwork && (
                     <img
@@ -2056,11 +2056,11 @@ export default function Home() {
                       compact
                     />
                   )}
-                  <p className="absolute inset-x-4 bottom-4 rounded-2xl border-2 border-sky-950 bg-white/92 px-4 py-3 text-base font-black leading-6 text-sky-950 shadow-[4px_4px_0_rgba(8,47,73,0.14)]">
+                  <p className="absolute inset-x-3 bottom-3 rounded-2xl border-2 border-sky-950 bg-white/92 px-3 py-2 text-sm font-black leading-5 text-sky-950 shadow-[4px_4px_0_rgba(8,47,73,0.14)] sm:inset-x-4 sm:bottom-4 sm:px-4 sm:py-3 sm:text-base sm:leading-6">
                     {panel}
                   </p>
                   {currentPage.speech[index + 1] && (
-                    <div className="absolute left-4 top-4 max-w-[82%] rounded-[1.5rem] rounded-bl-sm border-2 border-sky-900 bg-amber-50 px-4 py-3 text-base font-black text-sky-950 shadow-[4px_4px_0_rgba(8,47,73,0.14)]">
+                    <div className="absolute left-3 top-3 max-w-[82%] rounded-[1.5rem] rounded-bl-sm border-2 border-sky-900 bg-amber-50 px-3 py-2 text-sm font-black text-sky-950 shadow-[4px_4px_0_rgba(8,47,73,0.14)] sm:left-4 sm:top-4 sm:px-4 sm:py-3 sm:text-base">
                       "{currentPage.speech[index + 1]}"
                     </div>
                   )}
@@ -2082,7 +2082,7 @@ export default function Home() {
               <Button
                 key={choice.id}
                 onClick={() => handleStoryChoice(choice)}
-                className="min-h-14 rounded-2xl bg-gradient-to-r from-teal-500 to-sky-500 px-5 text-base font-black text-white hover:from-teal-600 hover:to-sky-600"
+                className="min-h-14 rounded-2xl bg-gradient-to-r from-teal-500 to-sky-500 px-4 text-sm font-black text-white hover:from-teal-600 hover:to-sky-600 sm:px-5 sm:text-base"
               >
                 {choice.text}
               </Button>
@@ -2607,7 +2607,7 @@ export default function Home() {
 
         <section className="book-page print-page overflow-hidden rounded-[2rem] border-4 border-sky-950 bg-[#fffdf5] shadow-[12px_12px_0_rgba(8,47,73,0.18)]">
           <div className="book-cover-grid grid gap-0 lg:grid-cols-[0.92fr_1.08fr]">
-            <div className="book-cover-hero relative isolate grid min-h-[430px] place-items-end overflow-hidden bg-[linear-gradient(135deg,#fef3c7_0%,#ccfbf1_50%,#dbeafe_100%)] p-6 text-center sm:p-8">
+            <div className="book-cover-hero relative isolate grid min-h-[360px] place-items-end overflow-hidden bg-[linear-gradient(135deg,#fef3c7_0%,#ccfbf1_50%,#dbeafe_100%)] p-5 text-center sm:min-h-[430px] sm:p-8">
               {visibleCoverArtwork && (
                 <img
                   src={visibleCoverArtwork}
@@ -2632,14 +2632,14 @@ export default function Home() {
                   <Sparkles className="h-4 w-4 text-amber-600" />
                   Little Legends Story
                 </div>
-                <h1 className="text-4xl font-black uppercase leading-tight text-sky-950 sm:text-6xl">{story.title}</h1>
+                <h1 className="text-3xl font-black uppercase leading-tight text-sky-950 sm:text-6xl">{story.title}</h1>
                 <p className="mx-auto mt-4 max-w-md text-base font-bold leading-7 text-slate-700 sm:text-lg">{story.subtitle}</p>
               </div>
             </div>
             <div className="book-cover-copy space-y-5 border-t-4 border-sky-950 bg-white p-8 lg:border-l-4 lg:border-t-0">
               <div>
                 <p className="text-xs font-black uppercase tracking-widest text-rose-500">Made especially for</p>
-                <h2 className="mt-2 text-4xl font-black leading-tight text-sky-950">{heroName}</h2>
+                <h2 className="mt-2 text-3xl font-black leading-tight text-sky-950 sm:text-4xl">{heroName}</h2>
                 <p className="mt-2 text-lg font-bold leading-7 text-slate-700">
                   A magical adventure starring {heroName} the {heroType}.
                 </p>
@@ -2683,15 +2683,15 @@ export default function Home() {
               <div className="mb-4 flex flex-col gap-3 border-b-4 border-sky-950 pb-4 sm:flex-row sm:items-end sm:justify-between">
                 <div>
                   <Badge className="mb-2 bg-amber-300 px-3 py-1 text-sky-950">Page {page.pageNumber}</Badge>
-                  <h2 className="text-3xl font-black uppercase leading-tight text-sky-950">{page.title}</h2>
+                  <h2 className="text-2xl font-black uppercase leading-tight text-sky-950 sm:text-3xl">{page.title}</h2>
                 </div>
-                <div className="rounded-xl border-4 border-sky-950 bg-yellow-300 px-4 py-2 text-2xl font-black text-sky-950 shadow-[4px_4px_0_rgba(8,47,73,0.14)]">
+                <div className="rounded-xl border-4 border-sky-950 bg-yellow-300 px-4 py-2 text-xl font-black text-sky-950 shadow-[4px_4px_0_rgba(8,47,73,0.14)] sm:text-2xl">
                   {page.sound}
                 </div>
               </div>
 
               <div className="book-page-body grid gap-4 lg:grid-cols-[1fr_0.85fr]">
-                <div className="book-art relative min-h-[430px] overflow-hidden rounded-2xl border-4 border-sky-950 bg-[radial-gradient(circle_at_18%_18%,rgba(255,255,255,0.85)_0_10%,transparent_11%),linear-gradient(135deg,#fef3c7_0%,#ffe4e6_45%,#bae6fd_100%)] bg-[length:32px_32px,auto] p-5">
+                <div className="book-art relative min-h-[360px] overflow-hidden rounded-2xl border-4 border-sky-950 bg-[radial-gradient(circle_at_18%_18%,rgba(255,255,255,0.85)_0_10%,transparent_11%),linear-gradient(135deg,#fef3c7_0%,#ffe4e6_45%,#bae6fd_100%)] bg-[length:32px_32px,auto] p-4 sm:min-h-[430px] sm:p-5">
                   {visiblePageArtwork && (
                     <img
                       src={visiblePageArtwork}
@@ -2787,7 +2787,7 @@ export default function Home() {
   }
 
   return (
-    <div className={`${currentStep === "welcome" ? "min-h-[100svh] overflow-x-hidden" : "min-h-screen"} storybook-app-bg`}>
+    <div className={`${currentStep === "welcome" ? "min-h-[100svh]" : "min-h-screen"} overflow-x-hidden storybook-app-bg`}>
       <div className={`container mx-auto px-3 sm:px-4 ${currentStep === "welcome" ? "flex min-h-[100svh] flex-col py-2 sm:py-3" : "py-5 sm:py-8"}`}>
         <div className={`flex items-center justify-between ${currentStep === "welcome" ? "mx-auto mb-3 w-full max-w-6xl shrink-0" : "mb-6"}`}>
           <button

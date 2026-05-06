@@ -71,7 +71,7 @@ export async function POST(request: Request) {
     const appUrl = getAppUrl(request)
     const stripeSuccessUrl = `${appUrl}/checkout/success?orderId=${encodeURIComponent(savedOrder.id)}&session_id={CHECKOUT_SESSION_ID}`
     const demoSuccessUrl = `${appUrl}/checkout/success?orderId=${encodeURIComponent(savedOrder.id)}`
-    const cancelUrl = `${appUrl}/create?checkout=cancelled&orderId=${encodeURIComponent(savedOrder.id)}`
+    const cancelUrl = `${appUrl}/checkout/cancel?orderId=${encodeURIComponent(savedOrder.id)}`
 
     if (stripe) {
       const session = await stripe.checkout.sessions.create({
