@@ -190,6 +190,41 @@ try {
   })
   console.log("OK smoke order saved")
 
+  await requestJson(
+    "/api/checkout",
+    {
+      method: "POST",
+      body: JSON.stringify({ order: { ...order, id: `${smokeId}-missing` } }),
+    },
+    [404],
+  )
+  console.log("OK checkout requires a saved order")
+
+  const tamperedCheckout = await requestJson("/api/checkout", {
+    method: "POST",
+    body: JSON.stringify({
+      order: {
+        ...order,
+        product: "hardback",
+        total: 14.99,
+        email: "tampered@example.com",
+        storyId: "tampered-story",
+      },
+    }),
+  })
+  const tamperedCheckoutData = tamperedCheckout.data.checkout
+  const tamperedSession = await stripe.checkout.sessions.retrieve(tamperedCheckoutData.sessionId)
+
+  if (
+    tamperedSession.amount_total !== 499 ||
+    tamperedSession.customer_email !== smokeEmail ||
+    tamperedSession.metadata?.product !== "digital" ||
+    tamperedSession.metadata?.storyId !== "wizard"
+  ) {
+    throw new Error("Checkout did not use the saved server-side order for tampered request data.")
+  }
+  console.log("OK checkout uses saved order details")
+
   const checkout = await requestJson("/api/checkout", {
     method: "POST",
     body: JSON.stringify({ order }),
@@ -228,6 +263,56 @@ try {
   }
   console.log("OK cancel page can show saved order")
 
+  const mismatchedEvent = {
+    id: `evt_${smokeId}_mismatch`,
+    object: "event",
+    api_version: "2025-02-24.acacia",
+    created: Math.floor(Date.now() / 1000),
+    livemode: false,
+    pending_webhooks: 1,
+    request: null,
+    type: "checkout.session.completed",
+    data: {
+      object: {
+        id: checkoutData.sessionId,
+        object: "checkout.session",
+        client_reference_id: smokeId,
+        metadata: {
+          orderId: smokeId,
+          product: "hardback",
+          storyId: "wizard",
+        },
+        payment_status: "paid",
+        amount_total: 100,
+        currency: "gbp",
+      },
+    },
+  }
+  const mismatchedPayload = JSON.stringify(mismatchedEvent)
+  const mismatchedSignature = Stripe.webhooks.generateTestHeaderString({
+    payload: mismatchedPayload,
+    secret: process.env.STRIPE_WEBHOOK_SECRET,
+  })
+
+  await requestJson(
+    "/api/stripe/webhook",
+    {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "stripe-signature": mismatchedSignature,
+      },
+      body: mismatchedPayload,
+    },
+    [400],
+  )
+  const { data: pendingOrder, error: pendingOrderError } = await supabase.from("orders").select("*").eq("id", smokeId).maybeSingle()
+  if (pendingOrderError) throw new Error(`Could not verify mismatched webhook result: ${pendingOrderError.message}`)
+  if (pendingOrder?.status !== "payment_pending") {
+    throw new Error(`Mismatched webhook should not mark order paid, got ${pendingOrder?.status}`)
+  }
+  console.log("OK Stripe webhook rejects mismatched session")
+
   const event = {
     id: `evt_${smokeId}`,
     object: "event",
@@ -248,6 +333,8 @@ try {
           storyId: "wizard",
         },
         payment_status: "paid",
+        amount_total: 499,
+        currency: "gbp",
       },
     },
   }
@@ -281,6 +368,16 @@ try {
     throw new Error("Success page did not show confirmed payment after webhook.")
   }
   console.log("OK success page shows paid order")
+
+  const downloadPage = await requestPage(`/download/${encodeURIComponent(smokeId)}`)
+  if (
+    downloadPage.response.status !== 200 ||
+    !downloadPage.text.includes("Little Legends Story") ||
+    !downloadPage.text.includes("Stripe Smoke")
+  ) {
+    throw new Error("Paid download page did not render the smoke story.")
+  }
+  console.log("OK paid download page renders story")
 
   console.log(`Cleanup target: ${await cleanupSmokeData()}`)
   console.log("Stripe smoke flow passed")

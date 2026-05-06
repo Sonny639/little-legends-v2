@@ -183,6 +183,56 @@ nextjs-portal {
   min-height: 0;
 }
 
+@media (max-width: 640px) {
+  .book-page {
+    border-width: 3px !important;
+    border-radius: 1.25rem !important;
+    box-shadow: 6px 6px 0 rgba(8, 47, 73, 0.12) !important;
+  }
+
+  .book-cover-hero {
+    min-height: 360px !important;
+    padding: 1rem !important;
+  }
+
+  .book-cover-title-card {
+    border-width: 3px !important;
+    border-radius: 1rem !important;
+    padding: 1rem !important;
+  }
+
+  .book-cover-copy {
+    padding: 1.25rem !important;
+  }
+
+  .book-art {
+    min-height: 300px !important;
+  }
+
+  .book-scene-text,
+  .book-panel {
+    border-width: 3px !important;
+    border-radius: 1rem !important;
+    padding: 1rem !important;
+  }
+
+  .book-scene-text p {
+    font-size: 1rem !important;
+    line-height: 1.65rem !important;
+  }
+
+  .book-panel p {
+    font-size: 0.95rem !important;
+    line-height: 1.55rem !important;
+  }
+
+  .book-ending-inner {
+    min-height: 420px !important;
+    border-width: 3px !important;
+    padding: 1rem !important;
+  }
+}
+
 @media (min-width: 1024px) {
   .book-page-body {
     min-height: 500px;
@@ -242,17 +292,22 @@ nextjs-portal {
   .book-page-body {
     display: grid !important;
     grid-template-columns: 1fr 0.85fr !important;
-    height: calc(180mm - 34mm) !important;
+    height: calc(180mm - 43mm) !important;
     align-items: stretch !important;
+  }
+
+  .book-cover-hero,
+  .book-cover-copy {
+    min-height: calc(180mm - 10mm) !important;
+  }
+
+  .book-cover-title-card {
+    box-shadow: none !important;
   }
 
   .book-art {
     min-height: 0 !important;
     height: 100% !important;
-  }
-
-  .book-face-zone {
-    display: none !important;
   }
 
   .book-copy-column {
@@ -277,5 +332,9 @@ nextjs-portal {
     flex-direction: column !important;
     justify-content: center !important;
     box-shadow: none !important;
+  }
+
+  .book-ending-inner {
+    min-height: calc(180mm - 10mm) !important;
   }
 }

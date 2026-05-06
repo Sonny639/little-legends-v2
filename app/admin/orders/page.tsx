@@ -90,6 +90,7 @@ const formatDate = (value: string) =>
   }).format(new Date(value))
 
 const money = new Intl.NumberFormat("en-GB", { style: "currency", currency: "GBP" })
+const canClearOrders = process.env.NODE_ENV !== "production"
 
 const csvEscape = (value: string | number | null | undefined) => `"${String(value ?? "").replaceAll('"', '""')}"`
 
@@ -127,6 +128,16 @@ export default function AdminOrdersPage() {
 
   useEffect(() => {
     loadOrders()
+  }, [])
+
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search)
+    const orderQuery = params.get("order") || params.get("q")
+
+    if (orderQuery) {
+      setQuery(orderQuery)
+      setStatusFilter("all")
+    }
   }, [])
 
   const filteredOrders = useMemo(() => {
@@ -398,16 +409,18 @@ export default function AdminOrdersPage() {
                 <Download className="h-4 w-4" />
                 Export CSV
               </Button>
-              <Button
-                type="button"
-                onClick={clearOrders}
-                disabled={orders.length === 0}
-                variant="outline"
-                className="h-11 rounded-xl border-rose-100 bg-white px-5 font-black text-rose-600 hover:bg-rose-50"
-              >
-                <Trash2 className="h-4 w-4" />
-                Clear
-              </Button>
+              {canClearOrders && (
+                <Button
+                  type="button"
+                  onClick={clearOrders}
+                  disabled={orders.length === 0}
+                  variant="outline"
+                  className="h-11 rounded-xl border-rose-100 bg-white px-5 font-black text-rose-600 hover:bg-rose-50"
+                >
+                  <Trash2 className="h-4 w-4" />
+                  Clear
+                </Button>
+              )}
             </div>
           </div>
         </div>

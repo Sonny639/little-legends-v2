@@ -1,0 +1,26 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 900" role="img" aria-label="A child dinosaur expert in a friendly fossil valley">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#1c1917"/><stop offset=".45" stop-color="#166534"/><stop offset="1" stop-color="#f59e0b"/></linearGradient>
+    <radialGradient id="glow" cx=".48" cy=".42" r=".52"><stop stop-color="#fef3c7"/><stop offset=".4" stop-color="#bef264" stop-opacity=".6"/><stop offset="1" stop-color="#bef264" stop-opacity="0"/></radialGradient>
+  </defs>
+  <rect width="1200" height="900" fill="url(#bg)"/><rect width="1200" height="900" fill="url(#glow)"/>
+  <path d="M0 640 C170 560 350 654 542 588 C720 528 930 590 1200 502 L1200 900 L0 900Z" fill="#292524" opacity=".55"/>
+  <g fill="#bbf7d0" opacity=".55">
+    <path d="M120 660 C146 570 202 520 260 476 C225 560 224 622 250 700Z"/><path d="M974 676 C946 580 892 536 832 492 C868 572 868 632 842 706Z"/>
+  </g>
+  <g transform="translate(422 260)">
+    <path d="M168 150 C86 210 58 326 98 448 L238 448 C278 326 250 210 168 150Z" fill="#f59e0b" stroke="#082f49" stroke-width="10"/>
+    <circle cx="168" cy="82" r="70" fill="#fed7aa" stroke="#082f49" stroke-width="9"/>
+    <path d="M104 56 C134 18 204 16 234 58 C196 40 148 40 104 56Z" fill="#7c2d12"/>
+    <circle cx="143" cy="80" r="8" fill="#082f49"/><circle cx="194" cy="80" r="8" fill="#082f49"/>
+    <path d="M142 114 Q168 136 196 114" fill="none" stroke="#082f49" stroke-width="8" stroke-linecap="round"/>
+    <path d="M108 260 H228 L246 324 H90Z" fill="#fde68a" stroke="#082f49" stroke-width="8"/>
+  </g>
+  <g transform="translate(720 540)" stroke="#082f49" stroke-width="8">
+    <path d="M0 108 C34 28 122 18 176 64 C220 102 198 162 128 164 L56 164 C14 164 -18 144 0 108Z" fill="#86efac"/>
+    <circle cx="142" cy="68" r="7" fill="#082f49"/><path d="M152 98 Q172 112 194 100" fill="none" stroke="#082f49" stroke-width="7" stroke-linecap="round"/>
+    <path d="M28 78 C-22 54 -42 20 -62 0" fill="none" stroke="#86efac" stroke-width="24" stroke-linecap="round"/>
+  </g>
+  <g fill="#fde68a" stroke="#082f49" stroke-width="7"><ellipse cx="226" cy="724" rx="70" ry="30"/><ellipse cx="332" cy="770" rx="54" ry="24"/></g>
+  <path d="M292 704 C430 618 764 620 916 704" fill="none" stroke="#fde68a" stroke-width="14" stroke-linecap="round" opacity=".78"/>
+</svg>

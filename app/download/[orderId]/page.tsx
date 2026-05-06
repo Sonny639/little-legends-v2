@@ -1,9 +1,13 @@
+import fs from "fs"
+import path from "path"
+
 import Link from "next/link"
-import { ArrowLeft, BookOpen, Download, Lock, Mail, Sparkles } from "lucide-react"
+import { ArrowLeft, BookOpen, Heart, Lock, Sparkles, Star } from "lucide-react"
 
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
+import { StoryArtPlaceholder } from "@/components/story-art-placeholder"
 import { resolveFullStoryPages } from "@/lib/full-story"
 import { readOrders } from "@/lib/orders"
 import { getStoryForCharacter, getStoryPathSummary, type StoryChoice, type StoryPathChoice } from "@/lib/stories"
@@ -17,11 +21,25 @@ type DownloadPageProps = {
 
 const isPaid = (status: string) => status === "paid" || status === "paid_demo"
 const pathTags: StoryChoice["pathTag"][] = ["brave", "kind", "clever", "teamwork"]
+const publicDirectory = path.join(process.cwd(), "public")
+
+const publicAssetExists = (assetPath?: string) => {
+  if (!assetPath) return false
+  return fs.existsSync(path.join(publicDirectory, assetPath.replace(/^\//, "")))
+}
 
 const normaliseChoices = (choices: { pageId: string; choiceId: string; pathTag?: string; text: string }[]) =>
   choices.filter((choice): choice is StoryPathChoice =>
     Boolean(choice.pathTag && pathTags.includes(choice.pathTag as StoryChoice["pathTag"])),
   )
+
+const getHeroInitials = (name?: string) =>
+  (name || "Hero")
+    .split(" ")
+    .map((word) => word[0])
+    .join("")
+    .slice(0, 2)
+    .toUpperCase()
 
 export default async function DownloadPage({ params }: DownloadPageProps) {
   const { orderId } = await params
@@ -104,6 +122,10 @@ export default async function DownloadPage({ params }: DownloadPageProps) {
   const storyPages = resolveFullStoryPages(story, storyChoices)
   const artworkGender = order.gender === "girl" ? "girl" : "boy"
   const pathSummary = getStoryPathSummary(storyChoices)
+  const coverArtworkPath = storyPages[0]?.artwork?.[artworkGender]
+  const coverArtwork = publicAssetExists(coverArtworkPath) ? coverArtworkPath : null
+  const heroMark = getHeroInitials(order.heroName)
+  const qualityTags = ["Personalised", story.readingAge, `${storyPages.length} story pages`]
 
   return (
     <main className="storybook-app-bg min-h-screen px-4 py-6 sm:py-8">
@@ -131,17 +153,42 @@ export default async function DownloadPage({ params }: DownloadPageProps) {
 
         <section className="book-page print-page overflow-hidden rounded-[2rem] border-4 border-sky-950 bg-[#fffdf5] shadow-[12px_12px_0_rgba(8,47,73,0.18)]">
           <div className="book-cover-grid grid gap-0 lg:grid-cols-[0.92fr_1.08fr]">
-            <div className="grid min-h-[420px] place-items-center bg-[linear-gradient(135deg,#fef3c7_0%,#ccfbf1_50%,#dbeafe_100%)] p-8 text-center">
-              <div>
-                <div className="mx-auto grid h-28 w-28 place-items-center rounded-full bg-sky-400 text-6xl shadow-xl ring-4 ring-white">
-                  <Download className="h-14 w-14 text-white" />
+            <div className="book-cover-hero relative isolate grid min-h-[430px] place-items-end overflow-hidden bg-[linear-gradient(135deg,#fef3c7_0%,#ccfbf1_50%,#dbeafe_100%)] p-6 text-center sm:p-8">
+              {coverArtwork && (
+                <img
+                  src={coverArtwork}
+                  alt={`${story.title} cover artwork`}
+                  className="absolute inset-0 -z-10 h-full w-full object-cover"
+                />
+              )}
+              {!coverArtwork && (
+                <div className="absolute inset-0 -z-10">
+                  <StoryArtPlaceholder
+                    heroType={order.heroType}
+                    heroName={order.heroName}
+                    initials={heroMark}
+                    pageTitle={story.title}
+                  />
                 </div>
-                <h2 className="mt-6 text-4xl font-black uppercase leading-tight text-sky-950 sm:text-6xl">{story.title}</h2>
-                <p className="mx-auto mt-4 max-w-md text-lg font-bold leading-7 text-slate-700">{story.subtitle}</p>
+              )}
+              <div className="absolute inset-0 -z-10 bg-[linear-gradient(180deg,rgba(8,47,73,0.06)_0%,rgba(8,47,73,0.08)_42%,rgba(8,47,73,0.82)_100%)]" />
+              <div className="book-cover-title-card w-full rounded-[1.5rem] border-4 border-white/80 bg-white/92 p-5 shadow-[0_18px_45px_rgba(8,47,73,0.24)] backdrop-blur-sm">
+                <div className="mx-auto mb-4 inline-flex items-center gap-2 rounded-full bg-amber-200 px-4 py-2 text-xs font-black uppercase text-sky-950">
+                  <Sparkles className="h-4 w-4 text-amber-600" />
+                  Little Legends Story
+                </div>
+                <h2 className="text-4xl font-black uppercase leading-tight text-sky-950 sm:text-6xl">{story.title}</h2>
+                <p className="mx-auto mt-4 max-w-md text-base font-bold leading-7 text-slate-700 sm:text-lg">{story.subtitle}</p>
               </div>
             </div>
-            <div className="space-y-4 border-t-4 border-sky-950 bg-white p-8 lg:border-l-4 lg:border-t-0">
-              <h2 className="text-2xl font-black text-sky-950">Created for {order.heroName}</h2>
+            <div className="book-cover-copy space-y-5 border-t-4 border-sky-950 bg-white p-8 lg:border-l-4 lg:border-t-0">
+              <div>
+                <p className="text-xs font-black uppercase tracking-widest text-rose-500">Made especially for</p>
+                <h2 className="mt-2 text-4xl font-black leading-tight text-sky-950">{order.heroName}</h2>
+                <p className="mt-2 text-lg font-bold leading-7 text-slate-700">
+                  A magical adventure starring {order.heroName} the {order.heroType}.
+                </p>
+              </div>
               <div className="grid gap-3 sm:grid-cols-2">
                 <div className="rounded-xl border-2 border-sky-100 bg-sky-50 p-4 text-sm font-bold leading-6 text-slate-700">
                   <Sparkles className="mb-2 h-5 w-5 text-sky-700" />
@@ -152,20 +199,24 @@ export default async function DownloadPage({ params }: DownloadPageProps) {
                   {pathSummary}
                 </div>
               </div>
-              <div className="rounded-xl border-2 border-sky-100 bg-[#fffdf5] p-4 text-sm font-semibold leading-6 text-slate-600">
-                <div className="mb-2 flex items-center gap-2 font-black text-sky-950">
-                  <Mail className="h-4 w-4" />
-                  Order details
-                </div>
-                <p>Email: {order.email}</p>
-                <p>Reference: {order.id}</p>
+              <div className="flex flex-wrap gap-2">
+                {qualityTags.map((tag) => (
+                  <span key={tag} className="rounded-full border-2 border-sky-100 bg-[#fffdf5] px-3 py-1.5 text-xs font-black uppercase tracking-wide text-sky-800">
+                    {tag}
+                  </span>
+                ))}
+              </div>
+              <div className="no-print rounded-xl border-2 border-sky-100 bg-[#fffdf5] p-4 text-sm font-semibold leading-6 text-slate-600">
+                <p className="font-black text-sky-950">Order reference</p>
+                <p>{order.id}</p>
               </div>
             </div>
           </div>
         </section>
 
         {storyPages.map((page) => {
-          const pageArtwork = page.artwork?.[artworkGender]
+          const pageArtworkPath = page.artwork?.[artworkGender]
+          const pageArtwork = publicAssetExists(pageArtworkPath) ? pageArtworkPath : null
 
           return (
             <section
@@ -191,6 +242,15 @@ export default async function DownloadPage({ params }: DownloadPageProps) {
                       className="absolute inset-0 h-full w-full object-cover"
                     />
                   )}
+                  {!pageArtwork && (
+                    <StoryArtPlaceholder
+                      heroType={order.heroType}
+                      heroName={order.heroName}
+                      initials={heroMark}
+                      pageTitle={page.title}
+                      showFaceZone
+                    />
+                  )}
                   {pageArtwork && <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(255,255,255,0.04)_0%,rgba(255,255,255,0.18)_62%,rgba(255,255,255,0.72)_100%)]" />}
                   <div className="relative grid h-full min-h-[390px] place-items-center text-center" />
                 </div>
@@ -207,7 +267,7 @@ export default async function DownloadPage({ params }: DownloadPageProps) {
                     {page.panels.map((panel, index) => (
                       <div key={`${page.id}-${panel}`} className="book-panel rounded-2xl border-4 border-sky-950 bg-white p-4 shadow-[5px_5px_0_rgba(8,47,73,0.12)]">
                         <div className="mb-2 inline-flex border-2 border-sky-950 bg-amber-200 px-3 py-1 text-xs font-black uppercase text-sky-950">
-                          Beat {index + 1}
+                          Moment {index + 1}
                         </div>
                         <p className="text-base font-bold leading-7 text-slate-700">{panel}</p>
                         {page.speech[index] && (
@@ -220,9 +280,38 @@ export default async function DownloadPage({ params }: DownloadPageProps) {
                   </div>
                 </div>
               </div>
+              <div className="mt-4 flex items-center justify-between border-t-2 border-sky-100 pt-3 text-xs font-black uppercase tracking-wide text-sky-800">
+                <span>Little Legends Story</span>
+                <span>Page {page.pageNumber}</span>
+              </div>
             </section>
           )
         })}
+
+        <section className="book-page print-page overflow-hidden rounded-[2rem] border-4 border-sky-950 bg-[#fffdf5] p-6 text-center shadow-[10px_10px_0_rgba(8,47,73,0.16)] sm:p-8">
+          <div className="book-ending-inner grid min-h-[520px] place-items-center rounded-[1.5rem] border-4 border-sky-950 bg-[linear-gradient(135deg,#fff7ed_0%,#ecfeff_52%,#fef3c7_100%)] p-6">
+            <div className="mx-auto max-w-2xl">
+              <div className="mx-auto grid h-24 w-24 place-items-center rounded-full border-4 border-white bg-rose-100 text-rose-500 shadow-xl">
+                <Heart className="h-12 w-12 fill-rose-400" />
+              </div>
+              <p className="mt-6 text-xs font-black uppercase tracking-[0.24em] text-rose-500">The end</p>
+              <h2 className="mt-3 text-4xl font-black uppercase leading-tight text-sky-950 sm:text-6xl">
+                {order.heroName} stayed brave, kind, and full of wonder.
+              </h2>
+              <p className="mx-auto mt-5 max-w-xl text-lg font-bold leading-8 text-slate-700">
+                This story was made to be read aloud, kept close, and returned to whenever bedtime needs a little more magic.
+              </p>
+              <div className="mx-auto mt-8 grid max-w-md gap-3 sm:grid-cols-3">
+                {["Brave", "Kind", "Clever"].map((word) => (
+                  <div key={word} className="rounded-2xl border-2 border-sky-100 bg-white/86 px-4 py-3 text-sm font-black text-sky-900">
+                    <Star className="mx-auto mb-2 h-5 w-5 fill-amber-300 text-amber-400" />
+                    {word}
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        </section>
       </div>
     </main>
   )

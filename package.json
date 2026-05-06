@@ -12,7 +12,8 @@
     "smoke:order": "node scripts/smoke-order-flow.mjs",
     "smoke:mvp": "node scripts/smoke-mvp-flow.mjs",
     "smoke:admin": "node scripts/smoke-admin-flow.mjs",
-    "smoke:stripe": "node scripts/smoke-stripe-flow.mjs"
+    "smoke:stripe": "node scripts/smoke-stripe-flow.mjs",
+    "smoke:all": "npm run smoke:mvp && npm run smoke:admin && npm run smoke:stripe"
   },
   "dependencies": {
     "@radix-ui/react-label": "^2.1.7",

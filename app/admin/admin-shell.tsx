@@ -1,12 +1,13 @@
 "use client"
 
 import Link from "next/link"
-import { BookOpen, Inbox, LayoutDashboard, LogOut, Mail, PackageCheck } from "lucide-react"
+import { BookOpen, Image, Inbox, LayoutDashboard, LogOut, Mail, PackageCheck } from "lucide-react"
 
 const navItems = [
   { href: "/admin", label: "Dashboard", icon: LayoutDashboard },
   { href: "/admin/orders", label: "Orders", icon: BookOpen },
   { href: "/admin/print-queue", label: "Print queue", icon: PackageCheck },
+  { href: "/artwork", label: "Artwork", icon: Image },
   { href: "/admin/enquiries", label: "Enquiries", icon: Inbox },
   { href: "/admin/email-log", label: "Email log", icon: Mail },
 ]

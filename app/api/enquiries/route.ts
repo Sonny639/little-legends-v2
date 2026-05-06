@@ -2,8 +2,18 @@ import { NextResponse } from "next/server"
 
 import { sendContactEmail } from "@/lib/contact-email"
 import { readEnquiries, saveEnquiry, updateEnquiryStatus, type EnquiryStatus } from "@/lib/enquiries"
+import { checkRateLimit, getClientIp, rateLimitResponseHeaders } from "@/lib/rate-limit"
 
 const enquiryStatuses: EnquiryStatus[] = ["new", "replied", "closed"]
+const maxNameLength = 120
+const maxEmailLength = 254
+const maxSubjectLength = 160
+const maxMessageLength = 3000
+
+const cleanText = (value: string, maxLength: number) => value.trim().replace(/\s+/g, " ").slice(0, maxLength)
+const cleanMessage = (value: string) => value.trim().slice(0, maxMessageLength)
+
+const isValidEmail = (email: string) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)
 
 export async function GET() {
   try {
@@ -17,31 +27,58 @@ export async function GET() {
 
 export async function POST(request: Request) {
   try {
-    const { name, email, subject, message, source } = await request.json()
+    const { name, email, subject, message, source, company, website } = await request.json()
 
     if (
       typeof name !== "string" ||
       typeof email !== "string" ||
       typeof subject !== "string" ||
       typeof message !== "string" ||
-      !email.includes("@")
+      typeof source !== "undefined" && typeof source !== "string"
     ) {
       return NextResponse.json({ error: "Invalid enquiry" }, { status: 400 })
     }
 
+    if ((typeof company === "string" && company.trim()) || (typeof website === "string" && website.trim())) {
+      return NextResponse.json({ ok: true }, { status: 202 })
+    }
+
+    const cleanedName = cleanText(name, maxNameLength)
+    const cleanedEmail = email.trim().toLowerCase().slice(0, maxEmailLength)
+    const cleanedSubject = cleanText(subject, maxSubjectLength)
+    const cleanedMessage = cleanMessage(message)
+
+    if (!cleanedName || !isValidEmail(cleanedEmail) || !cleanedSubject || cleanedMessage.length < 2) {
+      return NextResponse.json({ error: "Invalid enquiry" }, { status: 400 })
+    }
+
+    const clientIp = getClientIp(request)
+    const rateLimit = checkRateLimit({
+      key: `enquiry:${clientIp}:${cleanedEmail}`,
+      limit: 6,
+      windowMs: 60 * 60 * 1000,
+    })
+
+    if (!rateLimit.ok) {
+      return NextResponse.json(
+        { error: "Too many enquiries. Please try again shortly." },
+        { status: 429, headers: rateLimitResponseHeaders(rateLimit.resetAt) },
+      )
+    }
+
     const enquiry = await saveEnquiry({
-      name: name.trim(),
-      email: email.trim(),
-      subject: subject.trim(),
-      message: message.trim(),
+      name: cleanedName,
+      email: cleanedEmail,
+      subject: cleanedSubject,
+      message: cleanedMessage,
     })
 
     if (source === "contact") {
       const notification = await sendContactEmail({
-        name: name.trim(),
-        email: email.trim(),
-        subject: subject.trim(),
-        message: message.trim(),
+        name: cleanedName,
+        email: cleanedEmail,
+        subject: cleanedSubject,
+        message: cleanedMessage,
       })
 
       if (!notification.sent) {

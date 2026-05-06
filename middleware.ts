@@ -9,7 +9,10 @@ const isProtectedPath = (request: NextRequest) => {
 
   if (pathname === "/admin/login") return false
   if (pathname.startsWith("/admin")) return true
+  if (pathname === "/artwork") return true
   if (pathname === "/api/admin/login" || pathname === "/api/admin/logout") return false
+  if (pathname === "/api/artwork-manifest" || pathname === "/api/artwork-prompts.csv") return true
+  if (pathname === "/api/order-photos" && request.method === "GET") return true
   if (pathname === "/api/orders/email") return true
   if (pathname === "/api/orders" && protectedOrderMethods.has(request.method)) return true
   if (pathname === "/api/enquiries" && protectedEnquiryMethods.has(request.method)) return true
@@ -19,7 +22,24 @@ const isProtectedPath = (request: NextRequest) => {
 }
 
 export async function middleware(request: NextRequest) {
-  if (!isAdminAuthEnabled() || !isProtectedPath(request)) {
+  const protectedPath = isProtectedPath(request)
+
+  if (!protectedPath) {
+    return NextResponse.next()
+  }
+
+  if (!isAdminAuthEnabled()) {
+    if (process.env.NODE_ENV === "production") {
+      if (request.nextUrl.pathname.startsWith("/api/")) {
+        return NextResponse.json({ error: "Admin authentication is not configured" }, { status: 503 })
+      }
+
+      return new NextResponse("Admin authentication is not configured.", {
+        status: 503,
+        headers: { "Content-Type": "text/plain; charset=utf-8" },
+      })
+    }
+
     return NextResponse.next()
   }
 
@@ -42,5 +62,15 @@ export async function middleware(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/admin/:path*", "/api/orders", "/api/orders/email", "/api/enquiries", "/api/email-log"],
+  matcher: [
+    "/admin/:path*",
+    "/artwork",
+    "/api/artwork-manifest",
+    "/api/artwork-prompts.csv",
+    "/api/order-photos",
+    "/api/orders",
+    "/api/orders/email",
+    "/api/enquiries",
+    "/api/email-log",
+  ],
 }

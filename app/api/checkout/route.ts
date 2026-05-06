@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server"
 
 import { checkoutProducts } from "@/lib/checkout"
-import { type OrderRecord } from "@/lib/orders"
+import { readOrders, type OrderRecord } from "@/lib/orders"
 import { stripe } from "@/lib/stripe"
 
 const isCheckoutOrder = (value: unknown): value is OrderRecord => {
@@ -55,28 +55,35 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "Invalid checkout order" }, { status: 400 })
     }
 
-    const product = checkoutProducts[order.product]
+    const savedOrders = await readOrders()
+    const savedOrder = savedOrders.find((candidate) => candidate.id === order.id)
 
-    if (!product || order.total !== product.price) {
-      return NextResponse.json({ error: "Invalid checkout product total" }, { status: 400 })
+    if (!savedOrder) {
+      return NextResponse.json({ error: "Order must be saved before checkout" }, { status: 404 })
+    }
+
+    const product = checkoutProducts[savedOrder.product]
+
+    if (!product) {
+      return NextResponse.json({ error: "Invalid checkout product" }, { status: 400 })
     }
 
     const appUrl = getAppUrl(request)
-    const stripeSuccessUrl = `${appUrl}/checkout/success?orderId=${encodeURIComponent(order.id)}&session_id={CHECKOUT_SESSION_ID}`
-    const demoSuccessUrl = `${appUrl}/checkout/success?orderId=${encodeURIComponent(order.id)}`
-    const cancelUrl = `${appUrl}/create?checkout=cancelled&orderId=${encodeURIComponent(order.id)}`
+    const stripeSuccessUrl = `${appUrl}/checkout/success?orderId=${encodeURIComponent(savedOrder.id)}&session_id={CHECKOUT_SESSION_ID}`
+    const demoSuccessUrl = `${appUrl}/checkout/success?orderId=${encodeURIComponent(savedOrder.id)}`
+    const cancelUrl = `${appUrl}/create?checkout=cancelled&orderId=${encodeURIComponent(savedOrder.id)}`
 
     if (stripe) {
       const session = await stripe.checkout.sessions.create({
         mode: "payment",
-        customer_email: order.email,
+        customer_email: savedOrder.email,
         success_url: stripeSuccessUrl,
         cancel_url: cancelUrl,
-        client_reference_id: order.id,
+        client_reference_id: savedOrder.id,
         metadata: {
-          orderId: order.id,
-          product: order.product,
-          storyId: order.storyId,
+          orderId: savedOrder.id,
+          product: savedOrder.product,
+          storyId: savedOrder.storyId,
         },
         line_items: [
           {
@@ -98,7 +105,7 @@ export async function POST(request: Request) {
           id: session.id,
           sessionId: session.id,
           mode: "stripe",
-          orderId: order.id,
+          orderId: savedOrder.id,
           amountSubtotal: session.amount_subtotal,
           amountTotal: session.amount_total,
           currency: session.currency,
@@ -111,10 +118,10 @@ export async function POST(request: Request) {
 
     return NextResponse.json({
       checkout: {
-        id: `mock_checkout_${order.id}`,
-        sessionId: `mock_checkout_${order.id}`,
+        id: `mock_checkout_${savedOrder.id}`,
+        sessionId: `mock_checkout_${savedOrder.id}`,
         mode: "demo",
-        orderId: order.id,
+        orderId: savedOrder.id,
         amountSubtotal: product.unitAmountPence,
         amountTotal: product.unitAmountPence,
         currency: product.currency,

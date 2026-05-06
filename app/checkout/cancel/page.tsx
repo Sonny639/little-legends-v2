@@ -1,5 +1,5 @@
 import Link from "next/link"
-import { ArrowLeft, ClipboardList, XCircle } from "lucide-react"
+import { ArrowLeft, Mail, XCircle } from "lucide-react"
 
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
@@ -75,9 +75,9 @@ export default async function CheckoutCancelPage({ searchParams }: CheckoutCance
                 variant="outline"
                 className="h-11 rounded-xl border-sky-200 bg-white px-5 font-black text-sky-700"
               >
-                <Link href="/admin/orders">
-                  <ClipboardList className="h-4 w-4" />
-                  Order status
+                <Link href="/contact">
+                  <Mail className="h-4 w-4" />
+                  Help
                 </Link>
               </Button>
             </div>

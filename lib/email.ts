@@ -1,6 +1,8 @@
 import fs from "fs/promises"
 import path from "path"
 
+import nodemailer from "nodemailer"
+
 import { hasDatabase, query } from "@/lib/db"
 import { type OrderRecord, updateOrderEmailSentAt } from "@/lib/orders"
 import { getSupabase, hasSupabase } from "@/lib/supabase"
@@ -12,7 +14,7 @@ export type EmailLogEntry = {
   subject: string
   body: string
   orderId: string
-  provider: "log"
+  provider: "log" | "smtp"
 }
 
 const dataDirectory = path.join(process.cwd(), "data")
@@ -25,7 +27,7 @@ type EmailLogRow = {
   subject: string
   body: string
   order_id: string
-  provider: "log"
+  provider: "log" | "smtp"
 }
 
 const toIso = (value: Date | string) => (value instanceof Date ? value.toISOString() : new Date(value).toISOString())
@@ -67,6 +69,45 @@ const appUrl = () => {
 }
 
 export const getOrderDownloadUrl = (orderId: string) => `${appUrl()}/download/${encodeURIComponent(orderId)}`
+
+const smtpPort = () => Number(process.env.SMTP_PORT || 587)
+
+const hasSmtpConfig = () =>
+  Boolean(process.env.SMTP_HOST && process.env.SMTP_USER && process.env.SMTP_PASSWORD)
+
+const isTestRecipient = (email: string) => /@(example\.com|example\.test|test\.local)$/i.test(email)
+
+const sendSmtpEmail = async ({ to, subject, body }: { to: string; subject: string; body: string }) => {
+  if (!hasSmtpConfig()) return false
+  if (isTestRecipient(to)) return false
+
+  const port = smtpPort()
+  const fromEmail = process.env.SMTP_FROM_EMAIL || process.env.SMTP_USER || "hello@littlelegendsstory.com"
+  const fromName = process.env.SMTP_FROM_NAME || "Little Legends Story"
+
+  const transporter = nodemailer.createTransport({
+    host: process.env.SMTP_HOST,
+    port,
+    secure: port === 465,
+    auth: {
+      user: process.env.SMTP_USER,
+      pass: process.env.SMTP_PASSWORD,
+    },
+    connectionTimeout: 5000,
+    greetingTimeout: 5000,
+    socketTimeout: 8000,
+  })
+
+  await transporter.sendMail({
+    from: `"${fromName}" <${fromEmail}>`,
+    to,
+    replyTo: process.env.CONTACT_TO_EMAIL || fromEmail,
+    subject,
+    text: body,
+  })
+
+  return true
+}
 
 const ensureEmailLogFile = async () => {
   await fs.mkdir(dataDirectory, { recursive: true })
@@ -147,7 +188,7 @@ export const sendOrderConfirmationEmail = async (order: OrderRecord) => {
       ? [
           ``,
           `Photo note: ${photoCount} reference photo${photoCount === 1 ? " was" : "s were"} selected during checkout.`,
-          `For early access orders, we may reply to ask for the original photo file${photoCount === 1 ? "" : "s"} before final artwork is prepared.`,
+          `The reference photo${photoCount === 1 ? " is" : "s are"} stored privately with your order for the personalised artwork stage.`,
         ]
       : []
   const body = [
@@ -171,6 +212,14 @@ export const sendOrderConfirmationEmail = async (order: OrderRecord) => {
     ``,
     `Little Legends`,
   ].join("\n")
+  let provider: EmailLogEntry["provider"] = "log"
+
+  try {
+    provider = (await sendSmtpEmail({ to: order.email, subject, body })) ? "smtp" : "log"
+  } catch (error) {
+    console.warn("Order confirmation email could not be sent via SMTP; saved to email log only:", error)
+    provider = "log"
+  }
 
   await appendEmailLog({
     id: `email_${Date.now()}`,
@@ -179,13 +228,13 @@ export const sendOrderConfirmationEmail = async (order: OrderRecord) => {
     subject,
     body,
     orderId: order.id,
-    provider: "log",
+    provider,
   })
 
   await updateOrderEmailSentAt(order.id, createdAt)
 
   return {
-    provider: "log" as const,
+    provider,
     sentAt: createdAt,
     to: order.email,
     subject,

@@ -1,5 +1,5 @@
 import Link from "next/link"
-import { CheckCircle2, ClipboardList, Download } from "lucide-react"
+import { CheckCircle2, Download, Mail } from "lucide-react"
 
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
@@ -7,6 +7,7 @@ import { Card } from "@/components/ui/card"
 import { sendOrderConfirmationEmail } from "@/lib/email"
 import { readOrders, updateOrderPaymentStatus } from "@/lib/orders"
 import { stripe } from "@/lib/stripe"
+import { getStripeSessionOrderIssue } from "@/lib/stripe-order-validation"
 
 type CheckoutSuccessPageProps = {
   searchParams: Promise<{
@@ -31,10 +32,14 @@ export default async function CheckoutSuccessPage({ searchParams }: CheckoutSucc
   if (orderId && sessionId && stripe) {
     try {
       const session = await stripe.checkout.sessions.retrieve(sessionId)
-      const sessionOrderId = session.metadata?.orderId || session.client_reference_id
+      const orders = await readOrders()
+      const savedOrder = orders.find((candidate) => candidate.id === orderId)
+      const sessionIssue = savedOrder ? getStripeSessionOrderIssue(session, savedOrder) : "Order not found"
 
-      if (sessionOrderId === orderId && session.payment_status === "paid") {
+      if (!sessionIssue) {
         order = await updateOrderPaymentStatus(orderId, "paid")
+      } else {
+        orderIssue = sessionIssue
       }
     } catch (error) {
       orderIssue = error instanceof Error ? error.message : "Payment confirmation is temporarily unavailable."
@@ -117,9 +122,9 @@ export default async function CheckoutSuccessPage({ searchParams }: CheckoutSucc
                 variant="outline"
                 className="h-11 rounded-xl border-sky-200 bg-white px-5 font-black text-sky-700"
               >
-                <Link href="/admin/orders">
-                  <ClipboardList className="h-4 w-4" />
-                  Order status
+                <Link href="/contact">
+                  <Mail className="h-4 w-4" />
+                  Help
                 </Link>
               </Button>
               {visibleOrder && isPaid && (

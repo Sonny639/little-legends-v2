@@ -2,8 +2,9 @@ import { NextResponse } from "next/server"
 import Stripe from "stripe"
 
 import { sendOrderConfirmationEmail } from "@/lib/email"
-import { updateOrderPaymentStatus } from "@/lib/orders"
+import { readOrders, updateOrderPaymentStatus } from "@/lib/orders"
 import { stripe, stripeWebhookSecret } from "@/lib/stripe"
+import { getStripeSessionOrderIssue } from "@/lib/stripe-order-validation"
 
 export const runtime = "nodejs"
 
@@ -36,6 +37,19 @@ export async function POST(request: Request) {
 
     if (!orderId) {
       return NextResponse.json({ error: "Stripe session is missing orderId" }, { status: 400 })
+    }
+
+    const orders = await readOrders()
+    const savedOrder = orders.find((order) => order.id === orderId)
+
+    if (!savedOrder) {
+      return NextResponse.json({ error: "Order not found" }, { status: 404 })
+    }
+
+    const sessionIssue = getStripeSessionOrderIssue(session, savedOrder)
+
+    if (sessionIssue) {
+      return NextResponse.json({ error: sessionIssue }, { status: 400 })
     }
 
     const updatedOrder = await updateOrderPaymentStatus(orderId, "paid")

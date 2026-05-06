@@ -60,17 +60,60 @@ const choice = (
   pathTag,
 })
 
-const artwork = (characterId: string, page: number) => ({
-  boy: `/stories/${characterId}/${characterId}-boy-page-${page}.png`,
-  girl: `/stories/${characterId}/${characterId}-girl-page-${page}.png`,
-})
+const launchPreviewArtworkIds = new Set(["superhero", "wizard", "fairy", "princess", "dinosaur-expert"])
+
+const artwork = (characterId: string, page: number) => {
+  if (launchPreviewArtworkIds.has(characterId) && page <= 3) {
+    const previewPath = `/stories/launch-preview/${characterId}.svg`
+
+    return {
+      boy: previewPath,
+      girl: previewPath,
+    }
+  }
+
+  return {
+    boy: `/stories/${characterId}/${characterId}-boy-page-${page}.png`,
+    girl: `/stories/${characterId}/${characterId}-girl-page-${page}.png`,
+  }
+}
+
+const visualDirectionForHero = (heroType: string) => {
+  const normalisedHeroType = heroType.toLowerCase()
+
+  if (normalisedHeroType.includes("superhero")) {
+    return "Visual direction: cosy bedtime city rescue, bright child-safe cape and hero suit, promise-star glow, no mask or helmet covering the face."
+  }
+
+  if (normalisedHeroType.includes("wizard")) {
+    return "Visual direction: moonlit magical library, warm robe or cloak, kindness wand, glowing spellbook, soft silver and gold magic around the child."
+  }
+
+  if (normalisedHeroType.includes("fairy")) {
+    return "Visual direction: enchanted fairy meadow, gentle translucent wings, sparkle seed pouch, glow flowers, warm petal light, premium bedtime garden atmosphere."
+  }
+
+  if (normalisedHeroType.includes("princess")) {
+    return "Visual direction: starlight castle, child-friendly royal outfit, gentle crown, warm gold and rose light, leadership and kindness rather than glamour."
+  }
+
+  if (normalisedHeroType.includes("football")) {
+    return "Visual direction: bright friendly football stadium, child in football kit, muddy boots, teamwork energy, ball visible but never covering the face."
+  }
+
+  if (normalisedHeroType.includes("dinosaur")) {
+    return "Visual direction: friendly fossil valley, child explorer outfit, fossil finder, warm ferns, gentle baby dinosaur details, adventurous but never scary."
+  }
+
+  return "Visual direction: premium magical children's storybook illustration with warm bedtime emotion, expressive child hero, and a clear sense of wonder."
+}
 
 const imageBrief = (heroName: string, heroType: string, pageTitle: string, scene: string) =>
-  `Front-facing child as ${heroName} the ${heroType}. Page scene: ${pageTitle}. ${scene} ${
+  `Front-facing child as ${heroName} the ${heroType}. Page scene: ${pageTitle}. ${scene} ${visualDirectionForHero(heroType)} ${
     heroType.toLowerCase().includes("bitcoin")
       ? "Outfit requirement: bright orange Bitcoin superhero suit with a round Bitcoin chest emblem, gold utility belt, lightning cape, and friendly futuristic saver-hero details."
       : ""
-  } Match the child's visible skin tone and facial features from the reference photo. Keep the child's face large, clear, expressive, and unobstructed in the upper centre third of the image. Leave the lower third and side margins free for layout breathing room. No text, speech bubbles, hands, props, masks, helmets, shadows, or foreground objects covering the face. Bright premium children's storybook style.`
+  } Scene alignment requirement: the illustration must clearly match this page's title and story moment, not a generic character pose. Match the child's visible skin tone and facial features from the reference photo. Keep the child's face large, clear, expressive, and unobstructed in the upper centre third of the image. Leave the lower third and side margins free for layout breathing room. No text, speech bubbles, hands, props, masks, helmets, shadows, or foreground objects covering the face. Bright premium children's storybook style.`
 
 const footballerArtwork = (page: number) => {
   if (page === 12) {
@@ -81,8 +124,8 @@ const footballerArtwork = (page: number) => {
   }
 
   return {
-    boy: `/stories/footballer/footballer-boy-page-${Math.min(page, 3)}.png`,
-    girl: `/stories/footballer/footballer-girl-page-${Math.min(page, 3)}.png`,
+    boy: `/stories/footballer/footballer-boy-page-${page}.png`,
+    girl: `/stories/footballer/footballer-girl-page-${page}.png`,
   }
 }
 
@@ -179,6 +222,33 @@ type StarterStoryTheme = {
   bedtimeScene: string
   finalTitle: string
   finalScene: string
+  pageCopy?: Record<string, Partial<Pick<StoryPage, "title" | "scene" | "panels" | "speech" | "sound">>>
+}
+
+const applyStarterPageCopy = (
+  pages: Record<string, StoryPage>,
+  pageCopy?: StarterStoryTheme["pageCopy"],
+): Record<string, StoryPage> => {
+  if (!pageCopy) return pages
+
+  return Object.fromEntries(
+    Object.entries(pages).map(([pageId, page]) => {
+      const copy = pageCopy[pageId]
+
+      return [
+        pageId,
+        copy
+          ? {
+              ...page,
+              ...copy,
+              panels: copy.panels || page.panels,
+              speech: copy.speech || page.speech,
+              sound: copy.sound || page.sound,
+            }
+          : page,
+      ]
+    }),
+  )
 }
 
 type ModernStoryThemeSeed = {
@@ -248,15 +318,15 @@ const modernStoryTheme =
 const starterStoryThemes: Record<string, (heroName: string, heroType: string) => StarterStoryTheme> = {
   wizard: (heroName, heroType) => ({
     title: `${heroName} and the Moonbeam Spell`,
-    subtitle: `${heroName} the ${heroType} learns that the strongest magic is patient, kind, and carefully chosen.`,
+    subtitle: `${heroName} the ${heroType} discovers that the brightest magic begins with a gentle voice and a brave heart.`,
     lesson: "Patience, kindness, and using power wisely",
     headline: "Unlock the full magical spellbook adventure",
-    body: `The full story follows ${heroName} through Moonbeam Library, a muddled spell, and a glowing rescue where kind words become real magic.`,
+    body: `The full story follows ${heroName} through Moonbeam Library, a runaway spellbook, and a rescue where calm words turn tangled magic into wonder.`,
     callTitle: "The Spellbook Calls",
-    callScene: `A runaway spellbook flutters over Moonbeam Library and writes ${heroName}'s name in silver stars.`,
+    callScene: `A runaway spellbook flutters over Moonbeam Library, opens by itself, and writes ${heroName}'s name in silver stars.`,
     destination: "Moonbeam Library",
     troubleTitle: "Trouble in the Moonbeam Library",
-    troubleScene: "The library shelves are spinning because a Tangle Spell mixed every magic word into a silly soup.",
+    troubleScene: "The library shelves spin in slow circles because a Tangle Spell has knotted every magic word into a shimmering soup.",
     troubleBeing: "Tangle Spell",
     helper: "a shy baby dragon with smoky sneezes",
     tool: "kindness wand",
@@ -264,30 +334,138 @@ const starterStoryThemes: Record<string, (heroName: string, heroType: string) =>
     clueTwo: "above the cupcake spell shelf",
     clueThree: "around the moonlit reading rug",
     sceneFiveTitle: "The Whispering Dictionary",
-    sceneFive: "A tiny correct word is trapped between two pages of a dictionary that only opens for gentle voices.",
+    sceneFive: "A tiny correct word shivers between two dictionary pages, waiting for someone gentle enough to hear it.",
     sceneSixTitle: "The Cupcake Spell Shelf",
-    sceneSix: "A rhyme bubble floats above the cupcake spells, making the sprinkles chant in muddled magic.",
+    sceneSix: "A rhyme bubble floats above the cupcake spells, making the sprinkles chant muddled magic in squeaky little voices.",
     sceneSevenTitle: "The Reading Rug Chase",
-    sceneSeven: "The final magic word bounces across the moonlit rug, leaving silver footprints behind.",
+    sceneSeven: `The final magic word bounces across the moonlit rug, leaving silver footprints that glow when ${heroName} stays calm.`,
     transformationTitle: "The First Kind Spell",
-    transformationScene: "When the spell words return, the Tangle Spell glows softly and tries its first kind spell.",
+    transformationScene: "When the spell words return, the Tangle Spell glows softly and whispers its first kind spell without wobbling.",
     testQuestion: "The spellbook asks: should magic be loud, fast, or kind?",
     paradeScene: "Moonbeam Library throws a quiet sparkle parade, with floating bookmarks instead of fireworks.",
     bedtimeScene: "As evening arrives, the spellbook becomes a bedtime star above the window.",
     finalTitle: "The Magic Words Come Home",
-    finalScene: `${heroName} helps the Tangle Spell find kind words, and Moonbeam Library shines brighter than ever.`,
+    finalScene: `${heroName} helps the Tangle Spell choose kind words, and Moonbeam Library shines like a room full of bedtime wishes.`,
+    pageCopy: {
+      start: {
+        panels: [
+          `${heroName} is almost ready for bed when a soft tap-tap-tap sounds from the window, like moonlight knocking politely.`,
+          `Outside, Moonbeam Library has unfolded in the garden, its towers made from books and its door glowing with ${heroName}'s name.`,
+        ],
+        speech: ["A library made of moonlight?", "I will be careful with the magic."],
+        sound: "TAP-TAP!",
+      },
+      fountain: {
+        title: "The Library Has Lost Its Hush",
+        panels: [
+          `Inside, ladders slide by themselves, bookmarks flutter like birds, and every whispered word tangles into silver string.`,
+          `${heroName} sees the Tangle Spell trembling behind a dictionary and understands this is not misbehaving magic. It is scared magic.`,
+        ],
+        speech: ["I won't shout.", "Scared magic needs kind words."],
+        sound: "WHIRR!",
+      },
+      "cloud-story": {
+        title: "The Spell That Felt Too Small",
+        panels: [
+          `The Tangle Spell explains that every big spell in the library knew how to shine, but it only knew how to knot things up.`,
+          `${heroName} kneels beside the shy baby dragon and says that small magic can still help in a very important way.`,
+        ],
+        speech: ["Small magic matters.", "Let's find your true spell."],
+        sound: "SNIFFLE!",
+      },
+      "map-maker": {
+        title: "The Kindness Wand Wakes",
+        panels: [
+          `When ${heroName} holds the kindness wand, it does not flash or bang. It warms like a hand held safely in the dark.`,
+          `Three silver words float onto the map: Listen, Try, Together. Each one points to a corner of Moonbeam Library.`,
+        ],
+        speech: ["This magic feels gentle.", "We follow the kind words first."],
+        sound: "HUMMM!",
+      },
+      "library-laugh": {
+        title: "The Word That Waited",
+        panels: [
+          `In the whispering dictionary, the word Listen is folded so small it looks like a silver moth.`,
+          `${heroName} waits without grabbing, and the word lands softly on the kindness wand by itself.`,
+        ],
+        speech: ["I can wait.", "Listening is a spell too."],
+        sound: "WHISPER!",
+      },
+      "bakery-bubble": {
+        title: "The Cupcake Rhyme",
+        panels: [
+          `On the cupcake spell shelf, sprinkles chant the wrong rhyme until every cake grows a tiny hat.`,
+          `${heroName} giggles, then gently says the word Try, and the rhyme settles into warm cinnamon sparkle.`,
+        ],
+        speech: ["Trying again can be funny.", "Let's say it kindly."],
+        sound: "POOF!",
+      },
+      "playground-chase": {
+        title: "The Reading Rug Runaround",
+        panels: [
+          `The final word, Together, races around the moonlit rug, looping past pillows, ladders, and sleepy ink pots.`,
+          `${heroName} asks the baby dragon to help, and the little dragon's smoky sneeze makes a perfect silver circle.`,
+        ],
+        speech: ["Together, little dragon!", "We can guide it home."],
+        sound: "ACHOO!",
+      },
+      "cloud-smile": {
+        title: "A Spell Learns To Shine",
+        panels: [
+          `${heroName} places the three kind words beside the Tangle Spell, and the knots loosen into little ribbons of light.`,
+          `The spellbook opens to a new page that reads: The strongest magic is the sort that helps everyone feel safe.`,
+        ],
+        speech: ["You were not wrong magic.", "You were learning magic."],
+        sound: "SHIMMER!",
+      },
+      "comet-test": {
+        title: "The Spellbook's Question",
+        panels: [
+          `The spellbook lifts one blank page and asks ${heroName} what magic should do when someone feels tangled inside.`,
+          `${heroName} thinks of the shy dragon, the Tangle Spell, and every silver word that came home because nobody rushed.`,
+        ],
+        speech: ["Magic should help.", "Kind is the strongest answer."],
+        sound: "HMMM!",
+      },
+      "town-parade": {
+        title: "The Bookmark Parade",
+        panels: [
+          `Moonbeam Library celebrates with floating bookmarks, candle-soft stars, and tiny cheers that never wake the sleepy shelves.`,
+          `${heroName} makes sure the Tangle Spell gets the biggest bookmark, because learning to use kind words was brave.`,
+        ],
+        speech: ["This cheer is yours too.", "We learned together."],
+        sound: "FLIP-FLIP!",
+      },
+      "bedtime-star": {
+        title: "The Window Star",
+        panels: [
+          `When Moonbeam Library folds itself back into the garden, one silver word stays glowing above ${heroName}'s window.`,
+          `${heroName} feels the calm sort of proud that comes after helping someone find their gentle magic.`,
+        ],
+        speech: ["Listen. Try. Together.", "Goodnight, kind magic."],
+        sound: "TWINKLE!",
+      },
+      "full-ending": {
+        panels: [
+          `Moonbeam Library settles back into the night, calmer and brighter because ${heroName} chose patience over panic.`,
+          `At bedtime, one silver ribbon curls beside the pillow, ready to remind ${heroName} that kind words can untangle almost anything.`,
+        ],
+        speech: ["Goodnight, Moonbeam Library.", "I know the spell now."],
+        sound: "TWINKLE!",
+      },
+    },
   }),
   fairy: (heroName, heroType) => ({
     title: `${heroName} and the Glow Garden`,
-    subtitle: `${heroName} the ${heroType} brings colour back to a garden by listening before sprinkling sparkle.`,
+    subtitle: `${heroName} the ${heroType} brings colour back to a sleeping garden by listening before sprinkling sparkle.`,
     lesson: "Gentleness, confidence, and caring for nature",
     headline: "Unlock the full fairy garden adventure",
-    body: `The full story follows ${heroName} through Fairy Meadow, missing colours, and a rescue where every creature gets its glow back.`,
+    body: `The full story follows ${heroName} through Fairy Meadow, missing colours, and a rescue where every tiny creature remembers how to shine.`,
     callTitle: "The Glow Flower Calls",
-    callScene: `A glow flower blinks over Fairy Meadow and sends a trail of petals to ${heroName}.`,
+    callScene: `A glow flower blinks over Fairy Meadow and sends a trail of warm petals floating straight to ${heroName}.`,
     destination: "Fairy Meadow",
     troubleTitle: "Trouble in Fairy Meadow",
-    troubleScene: "The glow flowers have forgotten their colours because Dull Dust covered every petal with a grey sigh.",
+    troubleScene: "The glow flowers have forgotten their colours because Dull Dust has covered every petal with a sleepy grey sigh.",
     troubleBeing: "Dull Dust",
     helper: "a tiny bee wearing a brave little backpack",
     tool: "sparkle seed pouch",
@@ -295,18 +473,126 @@ const starterStoryThemes: Record<string, (heroName: string, heroType: string) =>
     clueTwo: "above the honey cake stall",
     clueThree: "around the mushroom playground",
     sceneFiveTitle: "The Petal Library",
-    sceneFive: "A pink giggle of colour is tucked inside a petal book that opens only for careful hands.",
+    sceneFive: "A pink giggle of colour is tucked inside a petal book that opens only for careful hands and quiet hope.",
     sceneSixTitle: "The Honey Cake Stall",
-    sceneSix: "A yellow glow bubble floats above honey cakes, making sugar stars dance.",
+    sceneSix: "A yellow glow bubble floats above honey cakes, making sugar stars dance across the sleepy stall.",
     sceneSevenTitle: "The Mushroom Playground",
-    sceneSeven: "The biggest glow races around mushroom steps and leafy slides.",
+    sceneSeven: `The biggest glow races around mushroom steps and leafy slides, waiting for ${heroName} to guide it home.`,
     transformationTitle: "The First Flower Glow",
-    transformationScene: "When the colours return, Dull Dust turns into soft silver glitter and tries a tiny smile.",
+    transformationScene: "When the colours return, Dull Dust turns into soft silver glitter and admits it only wanted to feel noticed.",
     testQuestion: "The glow flower asks: should magic sparkle for one person or help everyone bloom?",
     paradeScene: "Fairy Meadow throws a tiny petal parade with bubbles instead of fireworks.",
     bedtimeScene: "As evening arrives, the glow flower becomes a bedtime star above the window.",
     finalTitle: "The Garden Glows Again",
-    finalScene: `${heroName} helps Dull Dust share its worry, and Fairy Meadow blooms in every colour.`,
+    finalScene: `${heroName} helps Dull Dust share its worry, and Fairy Meadow blooms in colours bright enough for dreams.`,
+    pageCopy: {
+      start: {
+        panels: [
+          `A petal lands on ${heroName}'s pillow, warm as a tiny lantern and dusted with sleepy gold.`,
+          `When ${heroName} follows it, the bedroom wall opens into Fairy Meadow, where every flower is waiting in the dark.`,
+        ],
+        speech: ["The flowers need help.", "I can be gentle."],
+        sound: "FLUTTER!",
+      },
+      fountain: {
+        title: "The Meadow Without Colour",
+        panels: [
+          `Fairy Meadow should be humming with pinks, blues, yellows, and greens, but the petals hang pale and quiet.`,
+          `${heroName} notices Dull Dust hiding under a leaf, not laughing at the flowers, just looking worried it will be swept away.`,
+        ],
+        speech: ["You can come out.", "We can fix colour without rushing."],
+        sound: "HUSH!",
+      },
+      "cloud-story": {
+        title: "Why Dull Dust Hid The Glow",
+        panels: [
+          `Dull Dust whispers that sparkly things always get chosen first, and plain things are brushed into corners.`,
+          `${heroName} holds out the sparkle seed pouch and promises the meadow will need every kind of glow, even the quiet kind.`,
+        ],
+        speech: ["Quiet can be beautiful.", "Let's grow together."],
+        sound: "PIP!",
+      },
+      "map-maker": {
+        title: "Three Seeds Of Colour",
+        panels: [
+          `${heroName} shakes the sparkle seed pouch once, and three seeds float up: Rose, Honey, and Fern.`,
+          `The tiny bee points the way with its backpack lantern, buzzing softly so nobody startles the sleepy flowers.`,
+        ],
+        speech: ["Rose, Honey, Fern.", "One colour at a time."],
+        sound: "BUZZ!",
+      },
+      "library-laugh": {
+        title: "The Rose Petal Page",
+        panels: [
+          `Inside the petal library, a rose-coloured glow hides between two pages that smell faintly of summer rain.`,
+          `${heroName} opens the book with careful hands, and the first colour curls out like a sleepy ribbon.`,
+        ],
+        speech: ["Softly does it.", "Hello, Rose."],
+        sound: "RUSTLE!",
+      },
+      "bakery-bubble": {
+        title: "The Honey Glow",
+        panels: [
+          `At the honey cake stall, a yellow glow bubble wobbles above the cakes, too shy to land on a grey petal.`,
+          `${heroName} asks the tiny bee to hum a brave little tune, and Honey floats down warm and golden.`,
+        ],
+        speech: ["Your hum helps.", "Honey has come home."],
+        sound: "HMMM-BUZZ!",
+      },
+      "playground-chase": {
+        title: "The Fern Slide Trail",
+        panels: [
+          `The last colour, Fern, darts around mushroom steps and leafy slides, leaving green sparkles wherever it almost lands.`,
+          `${heroName} makes a quiet path with the meadow creatures so Fern can feel invited instead of chased.`,
+        ],
+        speech: ["We guide, not grab.", "This way, Fern."],
+        sound: "BOING!",
+      },
+      "cloud-smile": {
+        title: "The Quiet Glitter",
+        panels: [
+          `When the colours return, ${heroName} sprinkles a little silver dust around each bright petal so Dull Dust belongs too.`,
+          `The meadow does not become less colourful. It becomes deeper, softer, and more magical than before.`,
+        ],
+        speech: ["You belong in the garden.", "Every glow has a place."],
+        sound: "GLOW!",
+      },
+      "comet-test": {
+        title: "The Glow Flower's Question",
+        panels: [
+          `The oldest glow flower bends toward ${heroName} and asks what a garden should do with someone who feels plain.`,
+          `${heroName} looks at the bright petals and silver dust together, and the answer feels warm in their chest.`,
+        ],
+        speech: ["Make room for them.", "Every kind of shine matters."],
+        sound: "GLOW-HUM!",
+      },
+      "town-parade": {
+        title: "The Petal Parade",
+        panels: [
+          `Fairy Meadow celebrates with fireflies, petal drums, honey lanterns, and bubbles that glow in every colour ${heroName} rescued.`,
+          `${heroName} walks beside Dull Dust so the silver glitter can shimmer proudly with the roses, honey cakes, and fern leaves.`,
+        ],
+        speech: ["We all made it beautiful.", "Silver belongs too."],
+        sound: "POP-POP!",
+      },
+      "bedtime-star": {
+        title: "The Glow Beside The Pillow",
+        panels: [
+          `When Fairy Meadow fades gently back through the wall, one glow flower stays beside ${heroName}'s pillow.`,
+          `Its petals shine rose, honey, fern, and silver, quiet enough for sleep and bright enough for dreams.`,
+        ],
+        speech: ["Goodnight, colours.", "I will remember every glow."],
+        sound: "TWINKLE!",
+      },
+      "full-ending": {
+        panels: [
+          `Fairy Meadow shines in layers of colour, with bright petals, quiet silver dust, and firefly lights swaying together.`,
+          `${heroName} carries one sleepy glow flower home, where it becomes a night-light made from courage and care.`,
+        ],
+        speech: ["Goodnight, little meadow.", "I helped everyone bloom."],
+        sound: "SHINE!",
+      },
+    },
   }),
   astronaut: (heroName, heroType) => ({
     title: `${heroName} and the Star Rescue`,
@@ -341,15 +627,15 @@ const starterStoryThemes: Record<string, (heroName: string, heroType: string) =>
   }),
   princess: (heroName, heroType) => ({
     title: `${heroName} and the Starlight Crown`,
-    subtitle: `${heroName} the ${heroType} learns that a true royal heart listens, shares, and helps others shine.`,
+    subtitle: `${heroName} the ${heroType} learns that a true royal heart listens first and helps everyone feel important.`,
     lesson: "Leadership, kindness, and sharing the spotlight",
     headline: "Unlock the full royal starlight adventure",
-    body: `The full story follows ${heroName} through Starlight Castle, a worried crown, and a celebration where everyone feels important.`,
+    body: `The full story follows ${heroName} through Starlight Castle, a worried crown, and a celebration where every small voice matters.`,
     callTitle: "The Crown Calls",
-    callScene: `A starlight crown twinkles above the castle garden and writes ${heroName}'s name in gold.`,
+    callScene: `A starlight crown twinkles above the castle garden and writes ${heroName}'s name in gold across the evening sky.`,
     destination: "Starlight Castle",
     troubleTitle: "Trouble at Starlight Castle",
-    troubleScene: "The royal wishes are trapped in bubbles because the Crown of Feelings is scared of choosing only one person to shine.",
+    troubleScene: "The royal wishes are trapped in bubbles because the Crown of Feelings is scared that only one person will be allowed to shine.",
     troubleBeing: "Crown of Feelings",
     helper: "a page with a wobbly tray of invitations",
     tool: "wish compass",
@@ -357,18 +643,126 @@ const starterStoryThemes: Record<string, (heroName: string, heroType: string) =>
     clueTwo: "above the celebration cake table",
     clueThree: "around the castle playground",
     sceneFiveTitle: "The Royal Story Room",
-    sceneFive: "A tiny wish is tucked inside a very serious royal book.",
+    sceneFive: "A tiny wish is tucked inside a very serious royal book, waiting for a leader who reads with care.",
     sceneSixTitle: "The Celebration Cake Table",
-    sceneSix: "A wish bubble floats above the cakes, making sugar pearls dance.",
+    sceneSix: "A wish bubble floats above the cakes, making sugar pearls dance like little palace stars.",
     sceneSevenTitle: "The Castle Playground",
-    sceneSeven: "The biggest wish bounces around the castle slides and ribbon swings.",
+    sceneSeven: "The biggest wish bounces around the castle slides and ribbon swings, hoping nobody gets left out.",
     transformationTitle: "The First Crown Smile",
-    transformationScene: "When the wishes return, the crown learns that everyone can have a turn to shine.",
+    transformationScene: "When the wishes return, the crown learns that a shared spotlight can make the whole castle brighter.",
     testQuestion: "The crown asks: should leaders be loud, fancy, or kind?",
     paradeScene: "Starlight Castle throws a gentle royal parade where every helper gets a cheer.",
     bedtimeScene: "As evening arrives, the crown becomes a bedtime star above the window.",
     finalTitle: "The Castle Shines Together",
-    finalScene: `${heroName} helps the crown share its worries, and every royal wish finds a happy home.`,
+    finalScene: `${heroName} helps the crown share its worries, and every royal wish finds a happy home under the starlight.`,
+    pageCopy: {
+      start: {
+        panels: [
+          `Just as the stars appear, a tiny golden crown rolls across ${heroName}'s floor and stops beside the slippers.`,
+          `Through the window, Starlight Castle glows on the hill, but its tallest tower is blinking as if it might cry.`,
+        ],
+        speech: ["A crown came to find me.", "I'll listen before I lead."],
+        sound: "TING!",
+      },
+      fountain: {
+        title: "The Wishes In The Bubbles",
+        panels: [
+          `In the castle garden, hundreds of wish bubbles float above the roses, each one holding a tiny hopeful voice.`,
+          `${heroName} sees the Crown of Feelings tucked beneath a velvet cushion, afraid that shining means leaving others in shadow.`,
+        ],
+        speech: ["A true crown listens.", "No wish gets left behind."],
+        sound: "POP!",
+      },
+      "cloud-story": {
+        title: "The Crown's Small Worry",
+        panels: [
+          `The crown admits it has heard plenty of speeches and parades, but not enough thank-yous or quiet voices.`,
+          `${heroName} asks the page to set down the wobbly tray, because royal work starts better when everyone feels steady.`,
+        ],
+        speech: ["Tell me the small voices.", "We can make room."],
+        sound: "WOBBLE!",
+      },
+      "map-maker": {
+        title: "The Wish Compass Turns",
+        panels: [
+          `The wish compass spins past the ballroom and points instead to hidden places where quiet hopes have been waiting.`,
+          `${heroName} draws a royal route that includes the story room, cake table, and playground, because every corner of the castle matters.`,
+        ],
+        speech: ["Leadership is noticing.", "The map includes everyone."],
+        sound: "CLICK!",
+      },
+      "library-laugh": {
+        title: "The Story Room Wish",
+        panels: [
+          `Inside the royal story room, a tiny wish is tucked between pages about brave queens, helpful pages, and children who spoke up kindly.`,
+          `${heroName} reads slowly until the wish floats out and whispers, "Please let quiet voices count too."`,
+        ],
+        speech: ["Quiet voices count.", "I heard your wish."],
+        sound: "PAGE!",
+      },
+      "bakery-bubble": {
+        title: "The Cake Table Wish",
+        panels: [
+          `Above the celebration cakes, a wish bubble bobs between sugar pearls, too nervous to join the party.`,
+          `${heroName} asks the page to steady the tray, then invites the bubble down with a smile instead of a royal command.`,
+        ],
+        speech: ["No commands needed.", "You can join when you are ready."],
+        sound: "PLINK!",
+      },
+      "playground-chase": {
+        title: "The Ribbon Swing Wish",
+        panels: [
+          `The biggest wish bounces around castle slides and ribbon swings, carrying the hope that nobody gets left out of the games.`,
+          `${heroName} makes a circle on the grass so every child, helper, and shy little wish has a place to land.`,
+        ],
+        speech: ["Make the circle wider.", "Everyone fits here."],
+        sound: "SWISH!",
+      },
+      "cloud-smile": {
+        title: "The Crown Learns To Share",
+        panels: [
+          `${heroName} places the rescued wishes around the Crown of Feelings, and each one adds a different kind of sparkle.`,
+          `The crown sees that sharing the spotlight does not make it dimmer. It makes the whole castle glow.`,
+        ],
+        speech: ["Your shine can be shared.", "Look how bright we are together."],
+        sound: "GLOW!",
+      },
+      "comet-test": {
+        title: "The Crown's Royal Question",
+        panels: [
+          `The Crown of Feelings asks ${heroName} what a leader should do when the room is full of louder voices.`,
+          `${heroName} remembers the story room, the cake table, the playground, and every small wish that needed space.`,
+        ],
+        speech: ["A leader listens for the quietest voice.", "Kindness is royal too."],
+        sound: "HMMM!",
+      },
+      "town-parade": {
+        title: "A Parade For Every Helper",
+        panels: [
+          `${heroName} walks beside the gardeners, bakers, pages, guards, and children instead of waving from far away.`,
+          `The Crown of Feelings shines brightest when it sees that being royal can mean making other people feel important.`,
+        ],
+        speech: ["This cheer is for all of us.", "The castle shines together."],
+        sound: "HOORAY!",
+      },
+      "bedtime-star": {
+        title: "The Castle Star",
+        panels: [
+          `When the royal parade quiets, Starlight Castle sends one soft gold star to rest above ${heroName}'s window.`,
+          `It glows with every wish that found a home, gentle enough for sleep and grand enough for dreams.`,
+        ],
+        speech: ["Goodnight, Starlight Castle.", "I will remember to listen."],
+        sound: "TWINKLE!",
+      },
+      "full-ending": {
+        panels: [
+          `At the final celebration, ${heroName} places the crown on a cushion in the middle so everyone can add one kind wish.`,
+          `By bedtime, the castle star glows above the window, reminding ${heroName} that the best leaders make room for every heart.`,
+        ],
+        speech: ["Every wish matters.", "That is how castles shine."],
+        sound: "SPARKLE!",
+      },
+    },
   }),
   "dragon-trainer": (heroName, heroType) => ({
     title: `${heroName} and the Dragon's Brave Roar`,
@@ -558,15 +952,15 @@ const starterStoryThemes: Record<string, (heroName: string, heroType: string) =>
   }),
   "dinosaur-expert": (heroName, heroType) => ({
     title: `${heroName} and the Dino Egg Rescue`,
-    subtitle: `${heroName} the ${heroType} follows fossil clues and learns that big discoveries need gentle hands.`,
+    subtitle: `${heroName} the ${heroType} follows fossil clues and learns that big discoveries need gentle hands and patient eyes.`,
     lesson: "Curiosity, patience, and caring for nature",
     headline: "Unlock the full dinosaur rescue",
-    body: `The full story follows ${heroName} through Fossil Valley, a missing egg, and a rescue where careful thinking protects the dinosaurs.`,
+    body: `The full story follows ${heroName} through Fossil Valley, a missing egg, and a rescue where careful thinking keeps tiny dinosaurs safe.`,
     callTitle: "The Fossil Calls",
-    callScene: `A golden fossil glows in Fossil Valley and points a trail of footprints toward ${heroName}.`,
+    callScene: `A golden fossil glows in Fossil Valley and points a trail of tiny, urgent footprints toward ${heroName}.`,
     destination: "Fossil Valley",
     troubleTitle: "Trouble in Fossil Valley",
-    troubleScene: "A dino egg has rolled away because the Rumble Hill shook when everyone rushed too fast.",
+    troubleScene: "A dino egg has rolled away because Rumble Hill shook when everyone rushed too fast through the valley.",
     troubleBeing: "Rumble Hill",
     helper: "a tiny triceratops with muddy knees",
     tool: "fossil finder",
@@ -574,18 +968,126 @@ const starterStoryThemes: Record<string, (heroName: string, heroType: string) =>
     clueTwo: "above the leaf snack pile",
     clueThree: "around the dino playground",
     sceneFiveTitle: "The Fossil Record Cave",
-    sceneFive: "A footprint clue is pressed into stone between two ancient leaf prints.",
+    sceneFive: "A footprint clue is pressed into stone between two ancient leaf prints, soft enough to need careful eyes.",
     sceneSixTitle: "The Leaf Snack Pile",
-    sceneSix: "A clue bubble floats above leafy snacks, making fern crumbs dance.",
+    sceneSix: "A clue bubble floats above leafy snacks, making fern crumbs dance beside tiny tooth marks.",
     sceneSevenTitle: "The Dino Playground",
-    sceneSeven: "The final footprint races around log bridges and soft mud slides.",
+    sceneSeven: `The final footprint races around log bridges and soft mud slides, leading ${heroName} closer to the nest.`,
     transformationTitle: "The First Gentle Rumble",
-    transformationScene: "When the clues return, Rumble Hill settles down and the egg nest glows warmly.",
+    transformationScene: "When the clues return, Rumble Hill settles down and the egg nest glows with warm speckled light.",
     testQuestion: "The fossil asks: should explorers rush or protect what they find?",
     paradeScene: "Fossil Valley throws a stomp-soft parade so the tiny egg can rest.",
     bedtimeScene: "As evening arrives, the fossil becomes a bedtime star above the window.",
     finalTitle: "The Dino Egg Comes Home",
-    finalScene: `${heroName} helps Rumble Hill calm down, and the dino egg returns safely to its nest.`,
+    finalScene: `${heroName} helps Rumble Hill calm down, and the dino egg returns safely to its nest beneath the fern trees.`,
+    pageCopy: {
+      start: {
+        panels: [
+          `${heroName} finds a glowing fossil beside the bed, warm with tiny footprints that appear one by one across the floor.`,
+          `The footprints lead to Fossil Valley, where fern trees sway under golden sunset and a worried chirp echoes through the leaves.`,
+        ],
+        speech: ["Those footprints are a clue.", "I'll be careful."],
+        sound: "CHIRP!",
+      },
+      fountain: {
+        title: "The Egg That Rolled Away",
+        panels: [
+          `A baby dinosaur nest sits beneath the fern trees, but one speckled egg is missing from the soft moss.`,
+          `${heroName} spots Rumble Hill shaking in the distance and knows the valley needs calm feet, quiet eyes, and a clever plan.`,
+        ],
+        speech: ["No rushing near an egg.", "We follow the clues gently."],
+        sound: "RUMBLE!",
+      },
+      "cloud-story": {
+        title: "Rumble Hill Did Not Mean To Shake",
+        panels: [
+          `Rumble Hill explains that every explorer stomped past too quickly, and all the noise made the stones jump with worry.`,
+          `${heroName} pats the tiny triceratops on its muddy back and shows everyone how to step softly like falling leaves.`,
+        ],
+        speech: ["The hill was worried.", "Soft steps, everyone."],
+        sound: "THUD-SHH!",
+      },
+      "map-maker": {
+        title: "The Fossil Finder Map",
+        panels: [
+          `The fossil finder glows whenever ${heroName} looks closely instead of quickly, tracing careful circles in the warm dust.`,
+          `A footprint, a fern crumb, and a tiny shell mark the trail from the nest toward the safest hollow in the valley.`,
+        ],
+        speech: ["Slow looking finds more.", "The egg left a gentle trail."],
+        sound: "BEEP!",
+      },
+      "library-laugh": {
+        title: "The Footprint In Stone",
+        panels: [
+          `Inside the fossil record cave, ${heroName} finds a tiny footprint pressed into soft stone beside an ancient fern shape.`,
+          `The tiny triceratops wants to rush ahead, but ${heroName} shows how careful eyes can protect delicate clues.`,
+        ],
+        speech: ["Look closely.", "This clue is fragile."],
+        sound: "TAP!",
+      },
+      "bakery-bubble": {
+        title: "The Leaf Snack Clue",
+        panels: [
+          `Near the leaf snack pile, fern crumbs dance in a little bubble beside two tiny tooth marks.`,
+          `${heroName} notices the egg did not roll alone; a baby dinosaur must have tried to follow and got worried too.`,
+        ],
+        speech: ["The baby was scared.", "We help the egg and the little one."],
+        sound: "CRUNCH!",
+      },
+      "playground-chase": {
+        title: "The Mud Slide Clue",
+        panels: [
+          `The last footprint is half-hidden beside a mud slide, where the egg must have rolled without cracking its spotted shell.`,
+          `${heroName} asks the bigger dinosaurs to wait back, then builds a soft fern path with the tiny triceratops.`,
+        ],
+        speech: ["Give the egg space.", "Fern path first."],
+        sound: "SQUELCH!",
+      },
+      "cloud-smile": {
+        title: "Rumble Hill Settles",
+        panels: [
+          `${heroName} follows the fern path to a warm hollow where the egg rests safely in a patch of moss.`,
+          `Rumble Hill takes one slow breath, then another, until the stones stop jumping and the valley grows peaceful.`,
+        ],
+        speech: ["Slow breaths, big hill.", "The egg is safe."],
+        sound: "RUMMM...",
+      },
+      "comet-test": {
+        title: "The Fossil's Question",
+        panels: [
+          `The golden fossil glows and asks ${heroName} what explorers should do when a discovery feels exciting and important.`,
+          `${heroName} thinks of the fragile footprint, the worried baby dinosaur, and the egg that needed gentle hands.`,
+        ],
+        speech: ["Protect it first.", "Discovery needs care."],
+        sound: "HMMM!",
+      },
+      "town-parade": {
+        title: "The Stomp-Soft Parade",
+        panels: [
+          `Fossil Valley celebrates with a stomp-soft parade, where every dinosaur lifts its feet carefully so the egg can rest.`,
+          `${heroName} leads from the front, showing that being an expert means noticing small things and keeping them safe.`,
+        ],
+        speech: ["Soft steps, everyone.", "Tiny things matter."],
+        sound: "STOMP-SOFT!",
+      },
+      "bedtime-star": {
+        title: "The Fossil Night-Light",
+        panels: [
+          `As evening settles over the fern trees, the golden fossil sends one warm glow back home with ${heroName}.`,
+          `Beside the bed, it shines like a tiny nest light, full of careful thinking and brave kindness.`,
+        ],
+        speech: ["Goodnight, Fossil Valley.", "I used gentle hands."],
+        sound: "TWINKLE!",
+      },
+      "full-ending": {
+        panels: [
+          `${heroName} carries the egg the last little way on a bed of ferns, while Rumble Hill keeps perfectly still.`,
+          `When the egg nest glows again, Fossil Valley cheers in whisper-soft roars so the smallest dinosaur can sleep.`,
+        ],
+        speech: ["Home safe.", "Big discoveries need gentle hands."],
+        sound: "SOFT ROAR!",
+      },
+    },
   }),
   "pop-star": (heroName, heroType) => ({
     title: `${heroName} and the Song of Shine`,
@@ -1647,13 +2149,13 @@ function createSuperheroStory(heroName: string, heroType: string): CharacterStor
   return {
     characterId: "superhero",
     title: `${heroName} and the Sky-High Promise`,
-    subtitle: `${heroName} the ${heroType} learns that real power means helping people feel safe, seen, and brave.`,
+    subtitle: `${heroName} the ${heroType} discovers that the bravest heroes make people feel safe, seen, and less alone.`,
     readingAge: "Ages 3 to 8",
     lesson: "Courage, kindness, and teamwork",
     previewPageLimit: 3,
     purchaseSummary: {
       headline: "Unlock the full superhero book",
-      body: `The full adventure continues with the promise tower rescue, the mystery of the worried cloud, and a warm ending where ${heroName}'s choices decide how the city celebrates.`,
+      body: `The full adventure continues through Promise Tower, a worried little cloud, and a moonlit rescue where ${heroName} learns that the strongest heroes protect hearts as carefully as cities.`,
       includes: [
         "A complete 12-page personalised story",
         "Choice-based story path remembered from the preview",
@@ -1665,11 +2167,11 @@ function createSuperheroStory(heroName: string, heroType: string): CharacterStor
         id: "start",
         kicker: "Page 1",
         title: "A Promise in the Sky",
-        scene: `Just before bedtime, a silver promise star flickers above the rooftops and writes ${heroName}'s name in the clouds.`,
+        scene: `Just before bedtime, a silver promise star flickers above the rooftops and writes ${heroName}'s name softly in the clouds.`,
         artwork: artwork("superhero", 1),
         panels: [
-          `${heroName} sees the star tremble like it is trying very hard not to cry.`,
-          `The city is quiet, but one little window glows at the top of Promise Tower.`,
+          `${heroName} is tucked into the cosy hush before sleep when the star trembles, bright and worried, like it is trying very hard not to cry.`,
+          `Across the sleepy city, one little window glows at the top of Promise Tower like a tiny call for help that only a kind hero would notice.`,
         ],
         speech: ["Someone needs help.", "I can be brave and gentle at the same time."],
         sound: "WHOOSH!",
@@ -1682,11 +2184,11 @@ function createSuperheroStory(heroName: string, heroType: string): CharacterStor
         id: "tower",
         kicker: "Page 2",
         title: "The Fastest Flight",
-        scene: `${heroName} shoots into the night, cape bright, heart thumping, eyes fixed on Promise Tower.`,
+        scene: `${heroName} rises into the night, cape bright, heart thumping, and remembers that fast can still be gentle.`,
         artwork: artwork("superhero", 2),
         panels: [
-          `Wind rushes past, but ${heroName} listens for the smallest sound of worry.`,
-          `At the glowing window, a tiny cloud is stuck inside a jar labelled BIG FEELINGS.`,
+          `Wind rushes past the rooftops, but ${heroName} listens for the smallest sound of worry instead of only chasing the loudest danger.`,
+          `At the glowing window, a tiny cloud is stuck inside a glass jar labelled BIG FEELINGS, pressing foggy hands against the side.`,
         ],
         speech: ["Hold on. I am here.", "Big feelings are easier when we share them."],
         sound: "ZAAAP!",
@@ -1699,11 +2201,11 @@ function createSuperheroStory(heroName: string, heroType: string): CharacterStor
         id: "kindness-kit",
         kicker: "Page 2",
         title: "The Kindness Kit",
-        scene: `${heroName} packs a soft torch, brave stickers, a tiny snack, and a note that says: You matter.`,
+        scene: `${heroName} packs a soft torch, brave stickers, a tiny snack, and a note that says: You matter, even on hard days.`,
         artwork: artwork("superhero", 2),
         panels: [
-          `The kit glows brighter with every caring thought.`,
-          `A trail of silver sparks points the way to Promise Tower.`,
+          `The kit glows brighter with every caring thought ${heroName} tucks inside, until it feels like carrying a pocket full of warm stars.`,
+          `A trail of silver sparks curls from the window and points the way to Promise Tower.`,
         ],
         speech: ["Helping starts with listening.", "I am ready now."],
         sound: "PING!",
@@ -1716,11 +2218,11 @@ function createSuperheroStory(heroName: string, heroType: string): CharacterStor
         id: "cloud",
         kicker: "Page 3",
         title: "The Worried Cloud",
-        scene: `The little cloud whispers that it swallowed the city's promises because it was scared everyone would forget them.`,
+        scene: `The little cloud whispers that it swallowed the city's promises because it was scared everyone would forget what mattered.`,
         artwork: artwork("superhero", 3),
         panels: [
-          `${heroName} does not shout. The cloud is not naughty; it is worried.`,
-          `Below the tower, children look up, hoping their promises will come back.`,
+          `${heroName} does not shout or shake the jar. The cloud is not bad; it is frightened and full of feelings it could not name.`,
+          `Below the tower, children look up from bedroom windows, hoping their promises will come back before morning.`,
         ],
         speech: ["I will help you fix this.", "Nobody has to feel worried alone."],
         sound: "GASP!",
@@ -1736,8 +2238,8 @@ function createSuperheroStory(heroName: string, heroType: string): CharacterStor
         scene: `${heroName} draws a map of every promise and matches each one to the person who made it.`,
         artwork: artwork("superhero", 4),
         panels: [
-          `The cloud puffs out one promise at a time, each glowing like a tiny lantern.`,
-          `Every lantern floats back to the right window.`,
+          `The cloud puffs out one promise at a time, and each promise glows like a tiny lantern with someone's hope inside.`,
+          `${heroName} checks every name twice so each lantern floats back to the right window.`,
         ],
         speech: ["One small step at a time.", "Look, it is working!"],
         sound: "CLICK!",
@@ -1753,8 +2255,8 @@ function createSuperheroStory(heroName: string, heroType: string): CharacterStor
         scene: `${heroName} asks every child to remember one promise and send it up with a brave smile.`,
         artwork: artwork("superhero", 4),
         panels: [
-          `One child promises to try again. Another promises to share. Another promises to say sorry.`,
-          `The worried cloud grows lighter as the city works together.`,
+          `One child promises to try again. Another promises to share. Another promises to say sorry even when their cheeks feel hot.`,
+          `The worried cloud grows lighter as the city works together, and ${heroName} sees teamwork turning fear into courage.`,
         ],
         speech: ["We can all help.", "A promise is stronger when we keep it together."],
         sound: "KAPOW!",
@@ -1770,8 +2272,8 @@ function createSuperheroStory(heroName: string, heroType: string): CharacterStor
         scene: `A bridge made from moonbeams appears between Promise Tower and the sleepy city streets.`,
         artwork: artwork("superhero", 5),
         panels: [
-          `${heroName} steps onto the glowing bridge and keeps looking straight ahead with a calm, brave face.`,
-          `The little cloud floats beside ${heroName}, learning that being sorry can also be strong.`,
+          `${heroName} steps onto the glowing bridge and keeps looking straight ahead with a calm, brave face, even though the moonbeams wobble underfoot.`,
+          `The little cloud floats beside ${heroName}, learning that being sorry can be a strong and shining thing.`,
         ],
         speech: ["We will put every promise back.", "I can be brave while I make things right."],
         sound: "SHIMMER!",
@@ -1855,8 +2357,8 @@ function createSuperheroStory(heroName: string, heroType: string): CharacterStor
         scene: `Everyone gathers in the square while ${heroName} and the cloud bring the promises home.`,
         artwork: artwork("superhero", 10),
         panels: [
-          `The cloud says sorry, and the city listens instead of shouting.`,
-          `${heroName} reminds everyone that big feelings need words, hugs, and time.`,
+          `The cloud says sorry in a voice as small as a raindrop, and the city listens instead of shouting.`,
+          `${heroName} reminds everyone that big feelings need words, hugs, space, and time.`,
         ],
         speech: ["We can learn from this.", "A kind city helps people do better."],
         sound: "MURMUR!",
@@ -1872,8 +2374,8 @@ function createSuperheroStory(heroName: string, heroType: string): CharacterStor
         scene: `Promise Tower shines brighter than ever, with one new window glowing just for ${heroName}.`,
         artwork: artwork("superhero", 11),
         panels: [
-          `${heroName} stands front and centre as the city gives a gentle hero cheer.`,
-          `The little cloud becomes a soft sky helper who reminds people to talk about their feelings.`,
+          `${heroName} stands front and centre for one gentle hero cheer, then waves the cloud forward to share it.`,
+          `The little cloud becomes a soft sky helper who reminds people to talk about their feelings before they become storms.`,
         ],
         speech: ["Every promise found its home.", "And every feeling found a friend."],
         sound: "HURRAY!",
@@ -1889,8 +2391,8 @@ function createSuperheroStory(heroName: string, heroType: string): CharacterStor
         scene: `Promise Tower shines gold, and ${heroName} learns that a true hero protects hearts, not just cities.`,
         artwork: artwork("superhero", 12),
         panels: [
-          `The cloud becomes the city's gentle reminder to talk about big feelings.`,
-          `${heroName} flies home under a sky full of promises, proud and peaceful.`,
+          `The cloud becomes the city's gentle reminder to talk about big feelings before they grow too heavy to carry alone.`,
+          `${heroName} flies home under a sky full of promises, proud in a quiet way, peaceful, and ready for sleep.`,
         ],
         speech: ["I kept my promise.", "Kindness is a superpower."],
         sound: "TA-DA!",
@@ -2161,13 +2663,13 @@ function createFootballerStory(heroName: string, heroType: string): CharacterSto
   return {
     characterId: "footballer",
     title: `${heroName} and the Friendship Final`,
-    subtitle: `${heroName} the ${heroType} plays the biggest match of the season and learns that great players lift the whole team.`,
+    subtitle: `${heroName} the ${heroType} plays the biggest match of the season and learns that great players help every teammate feel brave.`,
     readingAge: "Ages 3 to 9",
     lesson: "Teamwork, confidence, resilience, and fair play",
     previewPageLimit: 3,
     purchaseSummary: {
       headline: "Unlock the full football final",
-      body: `The full match continues through a missed shot, a half-time wobble, and a last-minute choice where ${heroName} can win by helping the whole team believe again.`,
+      body: `The full match continues through bright floodlights, a missed chance, a half-time wobble, and a last-minute choice where ${heroName} helps the whole team believe again.`,
       includes: [
         "A complete football story with match tension and teamwork",
         "Choices after every page that shape the style of play",
@@ -2179,14 +2681,14 @@ function createFootballerStory(heroName: string, heroType: string): CharacterSto
         id: "start",
         kicker: "Page 1",
         title: "Kick-Off at Wonder Stadium",
-        scene: `Wonder Stadium is packed for the Friendship Final, and ${heroName}'s team needs one more brave player.`,
+        scene: `Wonder Stadium is packed for the Friendship Final, and ${heroName}'s team needs one more brave player who can keep a kind head under bright lights.`,
         artwork: {
           boy: "/stories/footballer/footballer-boy-page-1.png",
           girl: "/stories/footballer/footballer-girl-page-1.png",
         },
         panels: [
-          `${heroName} steps onto the grass and hears the crowd clap like rolling thunder.`,
-          `Across the pitch, the Grumble Goalie guards the net with a very serious frown.`,
+          `${heroName} steps onto the grass, feels a flutter in their tummy, and hears the crowd clap like rolling thunder under the floodlights.`,
+          `Across the pitch, the Grumble Goalie guards the net with a very serious frown, but ${heroName} remembers that courage can start with one steady breath.`,
         ],
         speech: ["I feel nervous, but I am ready.", "Teams are strongest together."],
         sound: "PEEP!",
@@ -2199,14 +2701,14 @@ function createFootballerStory(heroName: string, heroType: string): CharacterSto
         id: "first-chance",
         kicker: "Page 2",
         title: "The First Big Chance",
-        scene: `${heroName} reaches the penalty box just as the ball bounces high into the air.`,
+        scene: `${heroName} reaches the penalty box just as the ball bounces high into the air and the whole stadium seems to hold its breath.`,
         artwork: {
           boy: "/stories/footballer/footballer-boy-page-2.png",
           girl: "/stories/footballer/footballer-girl-page-2.png",
         },
         panels: [
-          `The shot looks possible, but a teammate is standing in an even better spot.`,
-          `The Grumble Goalie shouts, trying to make everyone rush.`,
+          `The shot looks possible, but a teammate is standing in an even better spot with hopeful eyes and muddy socks.`,
+          `The Grumble Goalie shouts, trying to make everyone rush, so ${heroName} lets the noise pass by like wind.`,
         ],
         speech: ["Think before you kick.", "A smart pass can be powerful too."],
         sound: "THUMP!",
@@ -2219,14 +2721,14 @@ function createFootballerStory(heroName: string, heroType: string): CharacterSto
         id: "half-time",
         kicker: "Page 3",
         title: "The Half-Time Wobble",
-        scene: `The score is still level, and one teammate feels sad after missing the ball.`,
+        scene: `The score is still level, and one teammate feels sad after missing the ball in front of everyone.`,
         artwork: {
           boy: "/stories/footballer/footballer-boy-page-3.png",
           girl: "/stories/footballer/footballer-girl-page-3.png",
         },
         panels: [
-          `${heroName} remembers that a match is not over after one mistake.`,
-          `The coach points to the team badge and asks everyone what kind of team they want to be.`,
+          `${heroName} remembers that a match is not over after one mistake, and neither is a brave heart.`,
+          `The coach points to the team badge and asks everyone what kind of team they want to be when things feel hard.`,
         ],
         speech: ["Mistakes are part of learning.", "We can try again together."],
         sound: "HUFF!",
@@ -2243,7 +2745,7 @@ function createFootballerStory(heroName: string, heroType: string): CharacterSto
         artwork: footballerArtwork(4),
         panels: [
           `The other team presses high, but ${heroName} stays calm and looks up before touching the ball.`,
-          `A teammate points into space and trusts ${heroName} to notice.`,
+          `A teammate points into space and trusts ${heroName} to notice, which makes the pitch feel wider and friendlier.`,
         ],
         speech: ["Look up. Breathe. Play together.", "I see the run!"],
         sound: "PEEP!",
@@ -2259,8 +2761,8 @@ function createFootballerStory(heroName: string, heroType: string): CharacterSto
         scene: `Rain starts to sparkle under the floodlights, and the ball skids faster than anyone expects.`,
         artwork: footballerArtwork(5),
         panels: [
-          `${heroName} slides in front-on, arms wide for balance, and keeps the ball in play.`,
-          `The crowd gasps as the Grumble Goalie finally looks worried.`,
+          `${heroName} adjusts their feet, slides carefully, and keeps the ball in play without crashing into anyone.`,
+          `The crowd gasps as the Grumble Goalie finally looks worried, and ${heroName}'s team starts to believe again.`,
         ],
         speech: ["I can adjust.", "Slippery grass needs steady feet."],
         sound: "SKID!",
@@ -2277,7 +2779,7 @@ function createFootballerStory(heroName: string, heroType: string): CharacterSto
         artwork: footballerArtwork(6),
         panels: [
           `${heroName} explains that the Goalie jumps early whenever someone looks at the top corner.`,
-          `The team listens, nods, and starts smiling because a new idea is forming.`,
+          `The team listens, nods, and starts smiling because a new idea is forming, and every player has a part to play.`,
         ],
         speech: ["We can pass around the pressure.", "Everyone gets a touch."],
         sound: "HUDDLE!",
@@ -2293,8 +2795,8 @@ function createFootballerStory(heroName: string, heroType: string): CharacterSto
         scene: `A corner kick swings into the box, curling like a comet toward ${heroName}.`,
         artwork: footballerArtwork(7),
         panels: [
-          `${heroName} could shoot, but two teammates are ready for a clever routine.`,
-          `The Grumble Goalie waves big gloves and tries to distract everyone.`,
+          `${heroName} could shoot, but two teammates are ready for the clever routine they practised when nobody was watching.`,
+          `The Grumble Goalie waves big gloves and tries to distract everyone, but the team keeps its eyes on each other.`,
         ],
         speech: ["Trust the routine.", "We practised this together."],
         sound: "WHIP!",
@@ -2311,7 +2813,7 @@ function createFootballerStory(heroName: string, heroType: string): CharacterSto
         artwork: footballerArtwork(8),
         panels: [
           `A teammate drops their shoulders, sure they have spoiled the chance.`,
-          `${heroName} claps immediately, because nearly scoring means the plan is working.`,
+          `${heroName} claps immediately, because nearly scoring means the plan is working and nobody should feel alone after a miss.`,
         ],
         speech: ["That was so close!", "Keep going. The next one can work."],
         sound: "BONK!",
@@ -2327,8 +2829,8 @@ function createFootballerStory(heroName: string, heroType: string): CharacterSto
         scene: `The scoreboard blinks: one minute left. The Friendship Final needs one calm, kind, clever choice.`,
         artwork: footballerArtwork(9),
         panels: [
-          `${heroName} receives the ball in the centre with defenders rushing in from both sides.`,
-          `The crowd gets loud, but ${heroName} hears the teammate calling softly on the wing.`,
+          `${heroName} receives the ball in the centre with defenders rushing in from both sides and the clock blinking fast.`,
+          `The crowd gets loud, but ${heroName} hears the teammate calling softly on the wing, a small voice inside a big moment.`,
         ],
         speech: ["I do not have to do this alone.", "One more pass."],
         sound: "TICK!",
@@ -2341,11 +2843,11 @@ function createFootballerStory(heroName: string, heroType: string): CharacterSto
         id: "everyone-touches",
         kicker: "Page 10",
         title: "Everyone Touches the Ball",
-        scene: `The ball moves from player to player, faster and happier than the other team can follow.`,
+        scene: `The ball moves from player to player, faster and happier than the other team can follow, like the team is sharing one big heartbeat.`,
         artwork: footballerArtwork(10),
         panels: [
           `The youngest teammate taps it forward and beams when ${heroName} cheers their name.`,
-          `The Grumble Goalie spins around, unsure where the final shot will come from.`,
+          `The Grumble Goalie spins around, unsure where the final shot will come from, because kindness has made the whole team brave.`,
         ],
         speech: ["Great touch!", "This is our goal, all of us."],
         sound: "TAP-TAP!",
@@ -2362,7 +2864,7 @@ function createFootballerStory(heroName: string, heroType: string): CharacterSto
         artwork: footballerArtwork(11),
         panels: [
           `The net ripples, the whistle blows, and Wonder Stadium bursts into happy noise.`,
-          `${heroName} turns straight to the team before celebrating, because every player helped.`,
+          `${heroName} turns straight to the team before celebrating, because every player helped build the moment with trust.`,
         ],
         speech: ["We did it!", "Come on, team!"],
         sound: "GOOOAL!",
@@ -2375,14 +2877,14 @@ function createFootballerStory(heroName: string, heroType: string): CharacterSto
         id: "full-ending",
         kicker: "Page 12",
         title: "The Goal Everyone Built",
-        scene: `${heroName} leads one final team move, and every player touches the ball before it rolls into the net.`,
+        scene: `${heroName} leads one final team move, and every player touches the ball before it rolls into the net like a shared promise.`,
         artwork: footballerArtwork(12),
         panels: [
-          `Even the Grumble Goalie smiles when ${heroName} offers a handshake.`,
-          `The trophy shines for the whole team, not just one player.`,
+          `Even the Grumble Goalie smiles when ${heroName} offers a handshake and says, "Good game."`,
+          `The trophy shines for the whole team, not just one player, and that makes it feel even brighter on the way home.`,
         ],
         speech: ["We won by playing together.", "Fair play feels brilliant."],
-        sound: "GOOOAL!",
+        sound: "CHEER!",
         choices: [choice("read-again", "Read the adventure again", "start", "brave")],
       },
     },
@@ -2412,7 +2914,7 @@ function createStarterStory(characterId: string, heroName: string, heroType: str
         "A warm lesson parents can feel good about",
       ],
     },
-    pages: {
+    pages: applyStarterPageCopy({
       start: {
         id: "start",
         kicker: "Page 1",
@@ -2420,10 +2922,10 @@ function createStarterStory(characterId: string, heroName: string, heroType: str
         scene: theme?.callScene || `A rainbow comet zooms over Story City and twinkles directly above ${heroName}.`,
         artwork: artwork(characterId, 1),
         panels: [
-          `${heroName} spots a trail of sparkles leading toward ${theme?.destination || "Giggle Fountain"}.`,
-          `The comet hums softly, as if it is asking for a kind and brave helper.`,
+          `${heroName} notices the first sparkle is trembling, as if the adventure has been waiting for exactly the right helper.`,
+          `The trail glows toward ${theme?.destination || "Giggle Fountain"}, bright enough to make the room feel like bedtime magic.`,
         ],
-        speech: ["That comet needs me.", "I can do this."],
+        speech: ["I can help.", "Brave can be gentle too."],
         sound: "KRA-KOOM!",
         choices: [
           choice("go-boldly", "Follow the comet bravely", "fountain", "brave"),
@@ -2437,8 +2939,8 @@ function createStarterStory(characterId: string, heroName: string, heroType: str
         scene: theme?.troubleScene || `The fountain has stopped giggling because a Grumble Cloud swallowed every laugh in town.`,
         artwork: artwork(characterId, 2),
         panels: [
-          `Nobody is hurt, but everyone looks unsure about what to do next.`,
-          `${heroName} notices the ${theme?.troubleBeing || "Grumble Cloud"} looks lonely, not mean.`,
+          `Nobody is hurt, but the quiet feels heavy, like everyone is holding their breath.`,
+          `${heroName} notices the ${theme?.troubleBeing || "Grumble Cloud"} looks lonely, not mean, and decides to listen before acting.`,
         ],
         speech: ["Let's listen first.", "Big problems can have gentle answers."],
         sound: "GASP!",
@@ -2454,10 +2956,10 @@ function createStarterStory(characterId: string, heroName: string, heroType: str
         scene: `The ${theme?.troubleBeing || "Grumble Cloud"} explains that the trouble started because it felt worried and left out.`,
         artwork: artwork(characterId, 3),
         panels: [
-          `${heroName} stands front-on, listens carefully, and keeps a gentle face even though the problem is big.`,
-          `${theme?.helper || "A small helper"} watches closely while ${heroName} works out what to do next.`,
+          `${heroName} listens without rushing, which makes the big problem feel smaller and safer to solve.`,
+          `${theme?.helper || "A small helper"} edges closer, trusting ${heroName} because the answer feels kind.`,
         ],
-        speech: ["Everyone wants to belong.", "We can fix this together."],
+        speech: ["Everyone wants to belong.", "We can mend this together."],
         sound: "SNIFF!",
         choices: [
           choice("invite-cloud", "Invite the cloud to help", "map-maker", "kind"),
@@ -2472,9 +2974,9 @@ function createStarterStory(characterId: string, heroName: string, heroType: str
         artwork: artwork(characterId, 4),
         panels: [
           `One clue sparkles ${theme?.clueOne || "near the library"}, one hides ${theme?.clueTwo || "by the bakery"}, and one bounces ${theme?.clueThree || "near the playground"}.`,
-          `The comet circles above ${heroName}, lighting the safest path forward.`,
+          `${heroName} marks each clue with care, turning a muddle of worry into a plan everyone can follow.`,
         ],
-        speech: ["A map makes a big job smaller.", "Let's find one laugh at a time."],
+        speech: ["A map makes a big job smaller.", "One clue at a time."],
         sound: "SCRIBBLE!",
         choices: [
           choice("library-first", "Search the library first", "library-laugh", "clever"),
@@ -2488,8 +2990,8 @@ function createStarterStory(characterId: string, heroName: string, heroType: str
         scene: theme?.sceneFive || `Inside the library, a tiny giggle is trapped between two pages of a very serious book.`,
         artwork: artwork(characterId, 5),
         panels: [
-          `${heroName} opens the book slowly so the giggle does not get frightened.`,
-          `The librarian smiles when the giggle pops out wearing paper glasses.`,
+          `${heroName} opens the hiding place slowly, careful not to frighten the tiny clue.`,
+          `When the clue slips free, the whole room seems to breathe out at once.`,
         ],
         speech: ["Gentle does it.", "Even serious places can have joy."],
         sound: "HEE!",
@@ -2505,8 +3007,8 @@ function createStarterStory(characterId: string, heroName: string, heroType: str
         scene: theme?.sceneSix || `At the bakery, a laugh bubble is floating above the cupcakes, making the sprinkles dance.`,
         artwork: artwork(characterId, 6),
         panels: [
-          `${heroName} reaches up while the baker steadies the step stool.`,
-          `The Grumble Cloud tries a tiny smile when flour lands on its nose.`,
+          `${heroName} reaches up while the helper keeps everything steady and safe.`,
+          `The ${theme?.troubleBeing || "Grumble Cloud"} tries a tiny smile when the clue twinkles close enough to catch.`,
         ],
         speech: ["Teamwork keeps us steady.", "That was almost funny, wasn't it?"],
         sound: "POP!",
@@ -2522,8 +3024,8 @@ function createStarterStory(characterId: string, heroName: string, heroType: str
         scene: theme?.sceneSeven || `The biggest laugh zooms around the playground, bouncing from slide to swing to climbing frame.`,
         artwork: artwork(characterId, 7),
         panels: [
-          `${heroName} runs straight toward the camera with the laugh shining just ahead.`,
-          `Children cheer and make a tunnel with their arms so the laugh can be guided home.`,
+          `${heroName} follows the final clue with steady feet and a face full of brave focus.`,
+          `Friends cheer softly and make a safe path so the clue can be guided home, not grabbed.`,
         ],
         speech: ["This way, everyone!", "We can guide it, not grab it."],
         sound: "BOING!",
@@ -2539,8 +3041,8 @@ function createStarterStory(characterId: string, heroName: string, heroType: str
         scene: theme?.transformationScene || `When the laughs return to the fountain, the Grumble Cloud feels a smile wriggle onto its face.`,
         artwork: artwork(characterId, 8),
         panels: [
-          `${heroName} notices the cloud is trying hard and gives it time.`,
-          `The fountain makes one small giggle, then another, then a bubbly chuckle.`,
+          `${heroName} notices how hard the ${theme?.troubleBeing || "Grumble Cloud"} is trying and gives it the gift of time.`,
+          `One small glow returns, then another, until the whole place starts to feel lighter.`,
         ],
         speech: ["You are doing it.", "Small smiles count too."],
         sound: "GLUG!",
@@ -2573,8 +3075,8 @@ function createStarterStory(characterId: string, heroName: string, heroType: str
         scene: theme?.paradeScene || `Story City throws the smallest, sweetest parade, with bubbles instead of fireworks so nobody gets scared.`,
         artwork: artwork(characterId, 10),
         panels: [
-          `${heroName} walks at the front while the Grumble Cloud floats proudly beside the comet.`,
-          `Every bubble carries a thank-you from someone ${heroName} helped.`,
+          `${heroName} walks at the front, but makes sure the helper and the ${theme?.troubleBeing || "Grumble Cloud"} are celebrated too.`,
+          `Every bubble carries a thank-you from someone who feels braver because ${heroName} cared.`,
         ],
         speech: ["Thank you, everyone.", "The cloud helped too."],
         sound: "POP-POP!",
@@ -2590,8 +3092,8 @@ function createStarterStory(characterId: string, heroName: string, heroType: str
         scene: theme?.bedtimeScene || `As evening arrives, the comet becomes a bedtime star above ${heroName}'s window.`,
         artwork: artwork(characterId, 11),
         panels: [
-          `${heroName} looks front-on from the window, proud, calm, and ready for sleep.`,
-          `The Grumble Cloud is now a Giggle Cloud, tucked into the soft purple sky.`,
+          `${heroName} looks out from the window, proud in the quiet way that comes after doing something kind.`,
+          `The adventure settles into the soft sky, close enough to remember and gentle enough for sleep.`,
         ],
         speech: ["I was brave today.", "And I was kind."],
         sound: "TWINKLE!",
@@ -2607,13 +3109,13 @@ function createStarterStory(characterId: string, heroName: string, heroType: str
         scene: theme?.finalScene || `${heroName} helps the Grumble Cloud share its feelings, and the fountain bubbles with happy giggles again.`,
         artwork: artwork(characterId, 12),
         panels: [
-          `The town cheers because ${heroName} solved the problem with courage and care.`,
-          `The comet bursts into tiny stars, each carrying a kind wish.`,
+          `Everyone cheers because ${heroName} solved the problem with courage, care, and a listening heart.`,
+          `The final sparkle becomes a tiny bedtime wish, ready to shine whenever ${heroName} needs it.`,
         ],
         speech: ["We fixed it together.", "Every legend helps others shine."],
         sound: "TA-DA!",
         choices: [choice("read-again", "Read the adventure again", "start", "brave")],
       },
-    },
+    }, theme?.pageCopy),
   }
 }

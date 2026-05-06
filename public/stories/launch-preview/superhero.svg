@@ -1,0 +1,40 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 900" role="img" aria-label="A child superhero follows a glowing promise star over a cosy bedtime city">
+  <defs>
+    <linearGradient id="sky" x1="0" y1="0" x2="1" y2="1">
+      <stop stop-color="#13103d"/>
+      <stop offset=".48" stop-color="#363087"/>
+      <stop offset="1" stop-color="#ec4899"/>
+    </linearGradient>
+    <radialGradient id="glow" cx=".52" cy=".34" r=".46">
+      <stop stop-color="#fef3c7"/>
+      <stop offset=".42" stop-color="#fbbf24" stop-opacity=".72"/>
+      <stop offset="1" stop-color="#fbbf24" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+  <rect width="1200" height="900" fill="url(#sky)"/>
+  <rect width="1200" height="900" fill="url(#glow)"/>
+  <g fill="#fef3c7">
+    <circle cx="154" cy="118" r="5"/><circle cx="248" cy="188" r="4"/><circle cx="950" cy="112" r="6"/><circle cx="1038" cy="210" r="4"/><circle cx="760" cy="86" r="5"/>
+  </g>
+  <path d="M0 620 C170 565 260 650 420 600 C610 540 720 600 900 530 C1035 478 1110 500 1200 455 L1200 900 L0 900Z" fill="#0f172a" opacity=".48"/>
+  <g transform="translate(90 515)" fill="#172554">
+    <rect x="0" y="70" width="92" height="210" rx="8"/><rect x="116" y="10" width="120" height="270" rx="8"/><rect x="265" y="92" width="84" height="188" rx="8"/>
+    <rect x="782" y="44" width="118" height="236" rx="8"/><rect x="930" y="8" width="96" height="272" rx="8"/>
+  </g>
+  <g fill="#fde68a" opacity=".86">
+    <rect x="126" y="622" width="18" height="28" rx="3"/><rect x="246" y="580" width="20" height="28" rx="3"/><rect x="306" y="650" width="18" height="28" rx="3"/><rect x="903" y="612" width="19" height="28" rx="3"/><rect x="1028" y="570" width="19" height="28" rx="3"/>
+  </g>
+  <path d="M560 160 l22 46 50 7 -36 35 9 50 -45 -24 -45 24 9 -50 -36 -35 50 -7Z" fill="#fde68a" stroke="#fff7ed" stroke-width="10" filter="drop-shadow(0 0 28px #fbbf24)"/>
+  <g transform="translate(438 280)">
+    <path d="M170 146 C92 198 62 303 102 430 L239 430 C285 307 256 197 170 146Z" fill="#ef4444" stroke="#082f49" stroke-width="10"/>
+    <path d="M112 194 C36 248 12 342 64 464 L128 414 C105 320 124 245 181 196Z" fill="#38bdf8" stroke="#082f49" stroke-width="8"/>
+    <path d="M230 194 C310 250 336 342 282 464 L218 414 C242 320 222 245 164 196Z" fill="#38bdf8" stroke="#082f49" stroke-width="8"/>
+    <circle cx="170" cy="78" r="70" fill="#fed7aa" stroke="#082f49" stroke-width="9"/>
+    <path d="M114 48 C140 8 205 4 230 52 C198 34 150 37 114 48Z" fill="#7c2d12"/>
+    <circle cx="145" cy="78" r="8" fill="#082f49"/><circle cx="196" cy="78" r="8" fill="#082f49"/>
+    <path d="M143 112 Q170 134 198 112" fill="none" stroke="#082f49" stroke-width="8" stroke-linecap="round"/>
+    <path d="M118 254 Q170 306 224 254" fill="#fde68a" stroke="#082f49" stroke-width="8"/>
+    <circle cx="170" cy="280" r="28" fill="#f59e0b"/>
+  </g>
+  <path d="M300 760 C460 685 690 700 905 760" fill="none" stroke="#fde68a" stroke-width="16" stroke-linecap="round" opacity=".72"/>
+</svg>

@@ -1,6 +1,6 @@
 # Little Legends
 
-Personalised children's story builder with checkout, admin fulfilment, confirmation email logging, and paid download pages.
+Personalised children's story builder with checkout, admin fulfilment, SMTP-backed confirmation emails, and paid download pages.
 
 ## Run Locally
 
@@ -42,9 +42,9 @@ When `STRIPE_SECRET_KEY` is empty, checkout runs in demo mode and the success pa
 
 When Stripe is configured, checkout creates a real Stripe Checkout Session. Paid orders are confirmed by the Stripe webhook, and the checkout success page also verifies the returned Stripe session as a fallback.
 
-When `SUPABASE_SERVICE_ROLE_KEY` is set, uploaded child reference photos are stored privately before checkout continues. In local development without that key, uploads fall back to the local `data/order-photos` folder.
+When `SUPABASE_SERVICE_ROLE_KEY` is set, uploaded child reference photos are stored privately before checkout continues. Admin photo previews use short-lived signed links and require the admin session. In local development without that key, uploads fall back to the local `data/order-photos` folder.
 
-Set `ADMIN_PASSWORD` to enable the admin login screen on `/admin/login`. `POST /api/orders` stays public so checkout can save new orders; order management, enquiries, email logs, and admin pages require the admin session.
+Set `ADMIN_PASSWORD` to enable the admin login screen on `/admin/login`. `POST /api/orders` stays public so checkout can save new orders; order management, enquiries, email logs, artwork planning tools, and admin pages require the admin session. In production, protected routes fail closed if `ADMIN_PASSWORD` is missing.
 
 ## Main Routes
 
@@ -52,13 +52,13 @@ Set `ADMIN_PASSWORD` to enable the admin login screen on `/admin/login`. `POST /
 - `/create` - story builder, customisation, preview, and checkout. This route is marked `noindex` while the public launch page is live.
 - `/admin/orders` - order list, fulfilment status updates, CSV export, and confirmation email resend.
 - `/admin` - admin dashboard for paid orders, revenue, print queue, enquiries, and email logs.
-- `/admin/print-queue` - paid hardback and upgrade orders for printer fulfilment.
+- `/admin/print-queue` - paid hardback and upgrade orders with quick printer fulfilment status updates.
 - `/admin/enquiries` - customer enquiry inbox.
 - Launch page email signups are saved into `/admin/enquiries` with the subject `Coming soon launch list`.
 - Contact page enquiries are saved into `/admin/enquiries` and, when SMTP env vars are set, emailed to `CONTACT_TO_EMAIL`.
-- `/admin/email-log` - confirmation email log.
+- `/admin/email-log` - confirmation email log. Order confirmations are sent by SMTP when configured and still logged for support.
 - `/download/[orderId]` - locked until payment is confirmed, then renders the printable story.
-- `/artwork` - artwork manifest and prompt review.
+- `/artwork` - protected artwork manifest and prompt review.
 
 ## Design Priority
 

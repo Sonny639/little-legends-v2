@@ -33,7 +33,9 @@ export default async function AdminEmailLogPage() {
       <Card className="border-4 border-sky-950 bg-white p-5 shadow-[8px_8px_0_rgba(8,47,73,0.14)]">
         <Badge className="mb-2 bg-sky-100 px-3 py-1 text-sky-800">Email log</Badge>
         <h2 className="text-3xl font-black text-sky-950">Email log</h2>
-        <p className="mt-1 text-sm font-bold text-slate-700">Confirmation emails are logged here until a real email provider is connected.</p>
+        <p className="mt-1 text-sm font-bold text-slate-700">
+          Confirmation emails are sent by SMTP when configured, and every attempt is kept here for support and fulfilment checks.
+        </p>
       </Card>
 
       <div className="grid gap-4">

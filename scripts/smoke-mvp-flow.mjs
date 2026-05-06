@@ -1,5 +1,6 @@
 import fs from "node:fs/promises"
 import path from "node:path"
+import { spawn } from "node:child_process"
 import { fileURLToPath } from "node:url"
 
 import { createClient } from "@supabase/supabase-js"
@@ -33,6 +34,8 @@ const allowLiveWrites = process.env.SMOKE_ALLOW_LIVE_WRITES === "1"
 const skipCleanup = process.env.SMOKE_SKIP_CLEANUP === "1"
 const hasSupabaseCleanup = Boolean(process.env.NEXT_PUBLIC_SUPABASE_URL && process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY)
 const smokeId = `SMOKE-${Date.now()}`
+const tamperedSmokeId = `${smokeId}-TAMPER`
+const smokeOrderIds = [smokeId, tamperedSmokeId]
 const smokeEmail = `${smokeId.toLowerCase()}@example.com`
 const hasStripe = Boolean(process.env.STRIPE_SECRET_KEY)
 
@@ -47,6 +50,8 @@ if (!isLocalApp && !skipCleanup && !hasSupabaseCleanup) {
     "Live smoke testing needs local Supabase env vars for cleanup. Add NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_ANON_KEY locally, or set SMOKE_SKIP_CLEANUP=1 to intentionally leave smoke records for manual removal.",
   )
 }
+
+const wait = (ms) => new Promise((resolve) => setTimeout(resolve, ms))
 
 const requestJson = async (requestPath, options = {}, acceptedStatuses = [200, 201]) => {
   const response = await fetch(`${appUrl}${requestPath}`, {
@@ -77,6 +82,26 @@ const requestPage = async (requestPath) => {
   return response.status
 }
 
+const getAdminCookie = async () => {
+  if (!process.env.ADMIN_PASSWORD) return ""
+
+  const response = await fetch(`${appUrl}/api/admin/login`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      username: process.env.ADMIN_USERNAME || "admin",
+      password: process.env.ADMIN_PASSWORD,
+    }),
+    redirect: "manual",
+  })
+
+  if (!response.ok) {
+    throw new Error(`Admin login failed with ${response.status}: ${await response.text()}`)
+  }
+
+  return response.headers.get("set-cookie")?.split(";")[0] || ""
+}
+
 const removeFromJsonFile = async (filePath, predicate) => {
   try {
     const fileContents = await fs.readFile(filePath, "utf8")
@@ -104,8 +129,8 @@ const cleanupSmokeData = async () => {
     })
 
     const results = await Promise.all([
-      supabase.from("email_logs").delete().eq("order_id", smokeId),
-      supabase.from("orders").delete().eq("id", smokeId),
+      supabase.from("email_logs").delete().in("order_id", smokeOrderIds),
+      supabase.from("orders").delete().in("id", smokeOrderIds),
       supabase.from("enquiries").delete().eq("email", smokeEmail),
     ])
     const error = results.find((result) => result.error)?.error
@@ -115,10 +140,49 @@ const cleanupSmokeData = async () => {
     return "supabase"
   }
 
-  await removeFromJsonFile(localOrdersFile, (order) => order.id === smokeId)
+  await removeFromJsonFile(localOrdersFile, (order) => smokeOrderIds.includes(order.id))
   await removeFromJsonFile(localEnquiriesFile, (enquiry) => enquiry.email === smokeEmail)
 
   return "local-json"
+}
+
+const startLocalServer = async () => {
+  if (!isLocalApp || process.env.SMOKE_SKIP_SERVER === "1") return null
+
+  try {
+    const response = await fetch(`${appUrl}/`, { signal: AbortSignal.timeout(1000) })
+    if (response.ok) return null
+  } catch {
+    // Start a local server below.
+  }
+
+  const url = new URL(appUrl)
+  const port = url.port || "3003"
+  const server = spawn(process.execPath, ["node_modules/next/dist/bin/next", "dev", "--turbo", "-p", port], {
+    cwd: root,
+    env: process.env,
+    stdio: ["ignore", "pipe", "pipe"],
+  })
+  let logs = ""
+
+  server.stdout.on("data", (data) => {
+    logs += data.toString()
+  })
+  server.stderr.on("data", (data) => {
+    logs += data.toString()
+  })
+
+  for (let attempt = 0; attempt < 90; attempt += 1) {
+    try {
+      const response = await fetch(`${appUrl}/`, { signal: AbortSignal.timeout(1000) })
+      if (response.ok) return server
+    } catch {
+      await wait(500)
+    }
+  }
+
+  server.kill()
+  throw new Error(`Local server did not become ready. ${logs}`)
 }
 
 const order = {
@@ -146,71 +210,187 @@ const order = {
   fulfilmentUpdatedAt: new Date().toISOString(),
 }
 
-console.log(`Smoke testing ${appUrl}`)
-console.log(`Smoke id ${smokeId}`)
-console.log(`Cleanup target: ${await cleanupSmokeData()}`)
+const server = await startLocalServer()
 
-await requestPage("/")
-console.log("OK homepage")
+try {
+  console.log(`Smoke testing ${appUrl}`)
+  console.log(`Smoke id ${smokeId}`)
+  console.log(`Cleanup target: ${await cleanupSmokeData()}`)
 
-await requestPage("/create")
-console.log("OK create page")
+  await requestPage("/")
+  console.log("OK homepage")
 
-await requestPage("/contact")
-console.log("OK contact page")
+  await requestPage("/create")
+  console.log("OK create page")
 
-await requestJson("/api/enquiries", {
-  method: "POST",
-  body: JSON.stringify({
-    name: "Smoke launch signup",
-    email: smokeEmail,
-    subject: "Smoke launch list",
-    message: `Smoke launch signup ${smokeId}`,
-  }),
-})
-console.log("OK launch signup saved")
+  await requestPage("/contact")
+  console.log("OK contact page")
 
-await requestJson(
-  "/api/enquiries",
-  {
+  const adminCookie = await getAdminCookie()
+  const adminHeaders = adminCookie ? { Cookie: adminCookie } : {}
+
+  const artworkPrompts = await requestJson("/api/artwork-manifest?prompts=1&story=wizard", {
+    headers: adminHeaders,
+  })
+  const wizardPrompt = Array.isArray(artworkPrompts)
+    ? artworkPrompts.find((item) => item.storyId === "wizard" && item.prompt?.includes("moonlit magical library"))
+    : null
+
+  if (!wizardPrompt) {
+    throw new Error("Artwork prompt pack did not include the wizard visual direction.")
+  }
+  console.log("OK artwork prompt pack includes priority hero visual direction")
+
+  const priorityPrompts = await requestJson("/api/artwork-manifest?prompts=1&priority=1", {
+    headers: adminHeaders,
+  })
+  const priorityStoryIds = new Set(Array.isArray(priorityPrompts) ? priorityPrompts.map((item) => item.storyId) : [])
+
+  for (const storyId of ["wizard", "fairy", "princess", "dinosaur-expert"]) {
+    if (!priorityStoryIds.has(storyId)) {
+      throw new Error(`Launch-priority artwork prompts did not include ${storyId}.`)
+    }
+  }
+
+  if (!Array.isArray(priorityPrompts) || priorityPrompts.some((item) => !item.launchPriority || item.storyId === "bitcoin-hero")) {
+    throw new Error("Launch-priority artwork prompt filter returned a non-priority story.")
+  }
+  console.log("OK artwork prompt pack filters to launch-priority stories")
+
+  const missingPriorityPrompts = await requestJson("/api/artwork-manifest?prompts=1&missing=1&priority=1", {
+    headers: adminHeaders,
+  })
+  const footballMissingPage = Array.isArray(missingPriorityPrompts)
+    ? missingPriorityPrompts.find(
+        (item) =>
+          item.storyId === "footballer" &&
+          item.pageNumber === 8 &&
+          item.gender === "girl" &&
+          item.imagePath === "/stories/footballer/footballer-girl-page-8.png",
+      )
+    : null
+
+  if (!footballMissingPage) {
+    throw new Error("Launch artwork checklist did not flag missing later football story artwork.")
+  }
+  console.log("OK launch artwork checklist flags missing football pages")
+
+  const previewPriorityManifest = await requestJson("/api/artwork-manifest?priority=1&phase=preview", {
+    headers: adminHeaders,
+  })
+
+  if (
+    !Array.isArray(previewPriorityManifest) ||
+    previewPriorityManifest.length === 0 ||
+    previewPriorityManifest.some((item) => !item.launchPriority || item.artworkPhase !== "preview" || item.pageNumber > 3)
+  ) {
+    throw new Error("Preview artwork manifest did not return only launch preview pages.")
+  }
+
+  if (previewPriorityManifest.some((item) => !item.fileExists)) {
+    throw new Error("Launch preview artwork is missing for one or more priority preview pages.")
+  }
+  console.log("OK launch preview artwork is complete")
+
+  await requestJson("/api/enquiries", {
     method: "POST",
     body: JSON.stringify({
-      name: "Smoke Contact",
+      name: "Smoke launch signup",
       email: smokeEmail,
-      subject: "Smoke contact form",
-      message: `Smoke contact enquiry ${smokeId}`,
-      source: "contact",
+      subject: "Smoke launch list",
+      message: `Smoke launch signup ${smokeId}`,
     }),
-  },
-  [201, 202],
-)
-console.log("OK contact enquiry saved")
+  })
+  console.log("OK launch signup saved")
 
-await requestJson("/api/orders", {
-  method: "POST",
-  body: JSON.stringify(order),
-})
-console.log("OK order saved")
+  await requestJson(
+    "/api/enquiries",
+    {
+      method: "POST",
+      body: JSON.stringify({
+        name: "Smoke Contact",
+        email: smokeEmail,
+        subject: "Smoke contact form",
+        message: `Smoke contact enquiry ${smokeId}`,
+        source: "contact",
+      }),
+    },
+    [201, 202],
+  )
+  console.log("OK contact enquiry saved")
 
-const checkout = await requestJson("/api/checkout", {
-  method: "POST",
-  body: JSON.stringify({ order }),
-})
+  const tamperedOrder = {
+    ...order,
+    id: tamperedSmokeId,
+    total: 0,
+    status: "paid",
+    fulfilmentStatus: "sent",
+    emailSentAt: new Date().toISOString(),
+  }
+  const tamperedSave = await requestJson("/api/orders", {
+    method: "POST",
+    body: JSON.stringify(tamperedOrder),
+  })
 
-if (!checkout.checkout?.url) {
-  throw new Error("Checkout response did not include a URL")
+  if (
+    tamperedSave.order?.total !== 4.99 ||
+    tamperedSave.order?.status !== "payment_pending" ||
+    tamperedSave.order?.fulfilmentStatus !== "new" ||
+    tamperedSave.order?.emailSentAt
+  ) {
+    throw new Error(`Order creation did not normalise tampered payment fields: ${JSON.stringify(tamperedSave.order)}`)
+  }
+  console.log("OK order creation normalises payment fields")
+
+  await requestJson("/api/orders", {
+    method: "POST",
+    body: JSON.stringify(order),
+  })
+  console.log("OK order saved")
+
+  await requestJson(
+    "/api/orders",
+    {
+      method: "POST",
+      body: JSON.stringify({
+        ...order,
+        email: "replacement@example.com",
+        heroName: "Replacement Hero",
+      }),
+    },
+    [409],
+  )
+  console.log("OK duplicate order creation is rejected")
+
+  const checkout = await requestJson("/api/checkout", {
+    method: "POST",
+    body: JSON.stringify({ order }),
+  })
+
+  if (!checkout.checkout?.url) {
+    throw new Error("Checkout response did not include a URL")
+  }
+  console.log(`OK checkout created: ${checkout.checkout.mode}`)
+
+  if (checkout.checkout.mode === "demo" && !hasStripe) {
+    await requestPage(`/checkout/success?orderId=${encodeURIComponent(smokeId)}`)
+    console.log("OK demo checkout success")
+
+    await requestPage(`/download/${encodeURIComponent(smokeId)}`)
+    console.log("OK download page unlocked")
+  } else {
+    console.log("SKIP paid/download check because Stripe checkout requires external payment confirmation")
+  }
+
+  console.log(`Cleanup target: ${await cleanupSmokeData()}`)
+  console.log("MVP smoke flow passed")
+} catch (error) {
+  try {
+    await cleanupSmokeData()
+  } catch {
+    // Keep the original error as the useful failure.
+  }
+  throw error
+} finally {
+  server?.kill()
 }
-console.log(`OK checkout created: ${checkout.checkout.mode}`)
-
-if (checkout.checkout.mode === "demo" && !hasStripe) {
-  await requestPage(`/checkout/success?orderId=${encodeURIComponent(smokeId)}`)
-  console.log("OK demo checkout success")
-
-  await requestPage(`/download/${encodeURIComponent(smokeId)}`)
-  console.log("OK download page unlocked")
-} else {
-  console.log("SKIP paid/download check because Stripe checkout requires external payment confirmation")
-}
-
-console.log(`Cleanup target: ${await cleanupSmokeData()}`)
-console.log("MVP smoke flow passed")

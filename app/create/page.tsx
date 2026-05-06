@@ -12,6 +12,7 @@ import { Upload, Sparkles, BookOpen, Star, Heart, Wand2, User, Search, Download,
 import { checkoutProducts } from "@/lib/checkout"
 import { resolveFullStoryPages } from "@/lib/full-story"
 import { getStoryForCharacter, getStoryPathSummary, type StoryPathChoice } from "@/lib/stories"
+import { StoryArtPlaceholder } from "@/components/story-art-placeholder"
 
 type UploadedPhoto = {
   file: File
@@ -264,25 +265,26 @@ export default function Home() {
   ]
 
   const [characterSearchTerm, setCharacterSearchTerm] = useState("")
+  const priorityHeroIds = new Set(["superhero", "wizard", "fairy", "princess", "footballer", "dinosaur-expert"])
   const featuredHeroIds = [
     "superhero",
-    "bitcoin-hero",
     "wizard",
     "fairy",
-    "ninja",
-    "astronaut",
     "princess",
-    "dragon-trainer",
     "footballer",
+    "dinosaur-expert",
+    "astronaut",
+    "dragon-trainer",
+    "ninja",
     "pirate",
     "knight",
     "mermaid",
     "unicorn-rider",
-    "dinosaur-expert",
     "pop-star",
     "race-driver",
     "doctor",
     "basketball-player",
+    "bitcoin-hero",
   ]
   const featuredCharacters = featuredHeroIds
     .map((id) => allCharacters.find((character) => character.id === id))
@@ -462,6 +464,10 @@ export default function Home() {
       document.removeEventListener("visibilitychange", resetPreparingState)
     }
   }, [])
+
+  useEffect(() => {
+    window.scrollTo(0, 0)
+  }, [currentStep])
 
   const renderWelcome = () => (
     <section className="relative isolate flex min-h-[calc(100svh-4.25rem)] items-start justify-center overflow-hidden rounded-[1.5rem] border border-white/80 bg-[#fff7ff] px-3 py-3 text-center shadow-[0_24px_80px_rgba(172,122,218,0.18)] min-[390px]:py-4 sm:min-h-full sm:items-center sm:rounded-[2rem] sm:px-8 lg:py-5">
@@ -920,35 +926,9 @@ export default function Home() {
         <Badge className="bg-amber-300 px-3 py-1 text-sky-950">Step 3 of 5</Badge>
         <h2 className="text-3xl font-black leading-tight text-sky-950 sm:text-5xl">Add photos for {selectedLegendName}</h2>
         <p className="mx-auto max-w-2xl text-sm font-semibold leading-6 text-slate-700 sm:text-lg sm:leading-7">
-          The first photo is the main likeness reference. It helps guide the preview and tells us how many final reference photos to collect for your order.
+          The first photo is the main likeness reference. You can also skip this for now and add reference photos later if you want to keep going.
         </p>
       </div>
-
-      <Card className="mx-auto max-w-3xl border-0 bg-white/90 p-4 text-left shadow-[0_12px_35px_rgba(61,160,190,0.14)] sm:p-5">
-        <div className="mb-3 rounded-2xl border-2 border-emerald-100 bg-emerald-50 px-4 py-3 sm:mb-4">
-          <div className="flex items-start gap-3">
-            <ShieldCheck className="mt-0.5 h-5 w-5 shrink-0 text-emerald-600" />
-            <div>
-              <p className="text-sm font-black text-emerald-900">Used for their illustrated character</p>
-              <p className="mt-1 text-sm font-semibold leading-6 text-emerald-800">
-                Photos help us create a warm storybook likeness. For early access orders, we may ask for the original photo files by email using your order reference.
-              </p>
-            </div>
-          </div>
-        </div>
-        <div className="grid gap-3 md:grid-cols-3">
-          {[
-            "Front-facing face",
-            "Bright natural light",
-            "Clear hair and face",
-          ].map((tip) => (
-            <div key={tip} className="flex items-center gap-3 rounded-2xl bg-sky-50 px-4 py-2.5 sm:py-3">
-              <CheckCircle2 className="h-5 w-5 shrink-0 text-green-500" />
-              <span className="text-sm font-black text-sky-900">{tip}</span>
-            </div>
-          ))}
-        </div>
-      </Card>
 
       <div className="space-y-3">
         <input
@@ -970,7 +950,43 @@ export default function Home() {
         <p className="text-sm font-semibold text-slate-600">
           {uploadedPhotos.length > 0 ? `${uploadedPhotos.length} of 3 photos selected for reference` : "Add the clearest face photo first."}
         </p>
+        {uploadedPhotos.length === 0 && (
+          <Button
+            type="button"
+            onClick={() => setCurrentStep("character")}
+            variant="outline"
+            className="h-11 rounded-full border-sky-200 bg-white px-6 font-black text-sky-700 hover:bg-sky-50"
+          >
+            Skip Photos For Now
+          </Button>
+        )}
       </div>
+
+      <Card className="mx-auto max-w-3xl border-0 bg-white/90 p-4 text-left shadow-[0_12px_35px_rgba(61,160,190,0.14)] sm:p-5">
+        <div className="mb-3 rounded-2xl border-2 border-emerald-100 bg-emerald-50 px-4 py-3 sm:mb-4">
+          <div className="flex items-start gap-3">
+            <ShieldCheck className="mt-0.5 h-5 w-5 shrink-0 text-emerald-600" />
+            <div>
+              <p className="text-sm font-black text-emerald-900">Used for their illustrated character</p>
+              <p className="mt-1 text-sm font-semibold leading-6 text-emerald-800">
+                Photos help us create a warm storybook likeness and are stored privately with your order for artwork reference.
+              </p>
+            </div>
+          </div>
+        </div>
+        <div className="grid gap-3 md:grid-cols-3">
+          {[
+            "Front-facing face",
+            "Bright natural light",
+            "Clear hair and face",
+          ].map((tip) => (
+            <div key={tip} className="flex items-center gap-3 rounded-2xl bg-sky-50 px-4 py-2.5 sm:py-3">
+              <CheckCircle2 className="h-5 w-5 shrink-0 text-green-500" />
+              <span className="text-sm font-black text-sky-900">{tip}</span>
+            </div>
+          ))}
+        </div>
+      </Card>
 
       <div className="mx-auto grid max-w-md grid-cols-3 gap-3 sm:gap-4">
         {[1, 2, 3].map((index) => (
@@ -1050,6 +1066,12 @@ export default function Home() {
           </div>
         </div>
       )}
+
+      {uploadedPhotos.length === 0 && (
+        <p className="mx-auto max-w-xl rounded-2xl border-2 border-sky-100 bg-white/85 px-4 py-3 text-sm font-semibold leading-6 text-slate-700 shadow-sm">
+          No photo ready? You can still create the story now and add photo reference before a final artwork pass.
+        </p>
+      )}
     </div>
   )
 
@@ -1068,7 +1090,7 @@ export default function Home() {
           <Search className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
           <Input
             type="text"
-            placeholder="Search the 18 launch heroes..."
+            placeholder="Search hero worlds..."
             className="h-12 rounded-2xl border-sky-100 bg-white pl-10 font-semibold text-sky-900 placeholder:text-sky-300"
             value={characterSearchTerm}
             onChange={(e) => setCharacterSearchTerm(e.target.value)}
@@ -1118,7 +1140,7 @@ export default function Home() {
               </div>
               <p className="min-h-10 text-sm font-black leading-tight text-sky-950 sm:text-xl">{character.name}</p>
               <Badge variant="secondary" className="text-xs capitalize">
-                {character.category}
+                {priorityHeroIds.has(character.id) ? "Favourite" : character.category}
               </Badge>
             </div>
           </Card>
@@ -1826,8 +1848,8 @@ export default function Home() {
   const renderStory = () => {
     const characterData = allCharacters.find((char) => char.id === selectedCharacter)
     const heroType = characterData?.name || "Hero"
-    const heroMark = getHeroInitials(characterData?.name || heroType)
     const heroName = selectedLegendName || childName || "Little Legend"
+    const heroMark = getHeroInitials(heroName)
     const story = getStoryForCharacter(selectedCharacter, { heroName, heroType })
     const currentPage = story.pages[storyPageId] || story.pages.start
     const pageIds = Object.keys(story.pages)
@@ -1987,6 +2009,14 @@ export default function Home() {
                   className="absolute inset-0 h-full w-full object-cover"
                 />
               )}
+              {!visiblePageArtwork && (
+                <StoryArtPlaceholder
+                  heroType={heroType}
+                  heroName={heroName}
+                  initials={heroMark}
+                  pageTitle={currentPage.title}
+                />
+              )}
               {visiblePageArtwork && <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(255,255,255,0.04)_0%,rgba(255,255,255,0.18)_62%,rgba(255,255,255,0.72)_100%)]" />}
               <div className="absolute right-5 top-5 rotate-6 rounded-lg border-4 border-sky-950 bg-yellow-300 px-4 py-2 text-3xl font-black text-sky-950 shadow-[5px_5px_0_rgba(8,47,73,0.18)] sm:text-4xl">
                 {currentPage.sound}
@@ -1996,13 +2026,6 @@ export default function Home() {
               </div>
               <div className="grid h-full place-items-center pt-20 text-center">
                 <div>
-                  {!visiblePageArtwork && (
-                    <div className="mx-auto flex items-center justify-center gap-4">
-                      <div className={`grid h-32 w-32 rotate-[4deg] place-items-center rounded-full ${characterData?.color || "bg-sky-400"} text-4xl font-black text-white shadow-xl ring-4 ring-white`}>
-                        {heroMark}
-                      </div>
-                    </div>
-                  )}
                   <h3 className="mt-6 -rotate-1 bg-white px-4 py-2 text-3xl font-black uppercase text-sky-950 shadow-[5px_5px_0_rgba(8,47,73,0.12)]">{currentPage.title}</h3>
                   <p className="mx-auto mt-5 max-w-md rounded-2xl border-4 border-sky-950 bg-white/90 px-5 py-4 text-lg font-bold leading-7 text-sky-900 shadow-[5px_5px_0_rgba(8,47,73,0.14)]">{currentPage.scene}</p>
                 </div>
@@ -2025,7 +2048,13 @@ export default function Home() {
                   )}
                   {visiblePageArtwork && <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(255,255,255,0)_0%,rgba(255,255,255,0.15)_45%,rgba(255,255,255,0.86)_100%)]" />}
                   {!visiblePageArtwork && (
-                    <div className={`absolute inset-0 ${characterData?.color || "bg-sky-400"} opacity-20`} />
+                    <StoryArtPlaceholder
+                      heroType={heroType}
+                      heroName={heroName}
+                      initials={heroMark}
+                      pageTitle={currentPage.title}
+                      compact
+                    />
                   )}
                   <p className="absolute inset-x-4 bottom-4 rounded-2xl border-2 border-sky-950 bg-white/92 px-4 py-3 text-base font-black leading-6 text-sky-950 shadow-[4px_4px_0_rgba(8,47,73,0.14)]">
                     {panel}
@@ -2255,7 +2284,7 @@ export default function Home() {
                     <p className="text-sm font-semibold leading-6 text-slate-700">
                       The confirmation email includes the download link and, for digital orders, a hard copy upgrade link.
                       {uploadedPhotos.length > 0
-                        ? " Because photos were selected, we may follow up by email for the original files before final artwork."
+                        ? " Your reference photos are safely stored with the order for the personalised artwork stage."
                         : ""}
                     </p>
                   </div>
@@ -2350,12 +2379,6 @@ export default function Home() {
                 >
                   Back to story preview
                 </Button>
-                <a
-                  href="/admin/orders"
-                  className="block rounded-xl border-2 border-sky-100 bg-white px-4 py-3 text-center text-sm font-black text-sky-700 hover:bg-sky-50"
-                >
-                  Manage order
-                </a>
               </div>
             </div>
           </Card>
@@ -2543,11 +2566,14 @@ export default function Home() {
     const characterData = allCharacters.find((char) => char.id === selectedCharacter)
     const heroType = characterData?.name || "Hero"
     const heroName = selectedLegendName || childName || "Little Legend"
-    const heroMark = getHeroInitials(characterData?.name || heroType)
+    const heroMark = getHeroInitials(heroName)
     const story = getStoryForCharacter(selectedCharacter, { heroName, heroType })
     const artworkGender = selectedGender === "girl" ? "girl" : "boy"
     const fullStoryPages = resolveFullStoryPages(story, storyPath)
     const pathSummary = getStoryPathSummary(storyPath)
+    const coverArtwork = fullStoryPages[0]?.artwork?.[artworkGender]
+    const visibleCoverArtwork = coverArtwork && !failedArtwork[coverArtwork] ? coverArtwork : null
+    const qualityTags = ["Personalised", story.readingAge, `${fullStoryPages.length} story pages`]
 
     return (
       <div className="mx-auto max-w-6xl space-y-6 full-story-print">
@@ -2581,32 +2607,65 @@ export default function Home() {
 
         <section className="book-page print-page overflow-hidden rounded-[2rem] border-4 border-sky-950 bg-[#fffdf5] shadow-[12px_12px_0_rgba(8,47,73,0.18)]">
           <div className="book-cover-grid grid gap-0 lg:grid-cols-[0.92fr_1.08fr]">
-            <div className="grid min-h-[420px] place-items-center bg-[linear-gradient(135deg,#fef3c7_0%,#ccfbf1_50%,#dbeafe_100%)] p-8 text-center">
-              <div>
-                <div className={`mx-auto grid h-28 w-28 place-items-center rounded-full ${characterData?.color || "bg-sky-400"} text-4xl font-black text-white shadow-xl ring-4 ring-white`}>
-                  {heroMark}
+            <div className="book-cover-hero relative isolate grid min-h-[430px] place-items-end overflow-hidden bg-[linear-gradient(135deg,#fef3c7_0%,#ccfbf1_50%,#dbeafe_100%)] p-6 text-center sm:p-8">
+              {visibleCoverArtwork && (
+                <img
+                  src={visibleCoverArtwork}
+                  alt={`${story.title} cover artwork`}
+                  onError={() => setFailedArtwork((current) => ({ ...current, [visibleCoverArtwork]: true }))}
+                  className="absolute inset-0 -z-10 h-full w-full object-cover"
+                />
+              )}
+              {!visibleCoverArtwork && (
+                <div className="absolute inset-0 -z-10">
+                  <StoryArtPlaceholder
+                    heroType={heroType}
+                    heroName={heroName}
+                    initials={heroMark}
+                    pageTitle={story.title}
+                  />
                 </div>
-                <h1 className="mt-6 text-4xl font-black uppercase leading-tight text-sky-950 sm:text-6xl">{story.title}</h1>
-                <p className="mx-auto mt-4 max-w-md text-lg font-bold leading-7 text-slate-700">{story.subtitle}</p>
+              )}
+              <div className="absolute inset-0 -z-10 bg-[linear-gradient(180deg,rgba(8,47,73,0.06)_0%,rgba(8,47,73,0.08)_42%,rgba(8,47,73,0.82)_100%)]" />
+              <div className="book-cover-title-card w-full rounded-[1.5rem] border-4 border-white/80 bg-white/92 p-5 shadow-[0_18px_45px_rgba(8,47,73,0.24)] backdrop-blur-sm">
+                <div className="mx-auto mb-4 inline-flex items-center gap-2 rounded-full bg-amber-200 px-4 py-2 text-xs font-black uppercase text-sky-950">
+                  <Sparkles className="h-4 w-4 text-amber-600" />
+                  Little Legends Story
+                </div>
+                <h1 className="text-4xl font-black uppercase leading-tight text-sky-950 sm:text-6xl">{story.title}</h1>
+                <p className="mx-auto mt-4 max-w-md text-base font-bold leading-7 text-slate-700 sm:text-lg">{story.subtitle}</p>
               </div>
             </div>
-            <div className="space-y-4 border-t-4 border-sky-950 bg-white p-8 lg:border-l-4 lg:border-t-0">
-              <h2 className="text-2xl font-black text-sky-950">Created for {heroName}</h2>
+            <div className="book-cover-copy space-y-5 border-t-4 border-sky-950 bg-white p-8 lg:border-l-4 lg:border-t-0">
+              <div>
+                <p className="text-xs font-black uppercase tracking-widest text-rose-500">Made especially for</p>
+                <h2 className="mt-2 text-4xl font-black leading-tight text-sky-950">{heroName}</h2>
+                <p className="mt-2 text-lg font-bold leading-7 text-slate-700">
+                  A magical adventure starring {heroName} the {heroType}.
+                </p>
+              </div>
               <div className="grid gap-3 sm:grid-cols-2">
                 <div className="rounded-xl border-2 border-sky-100 bg-sky-50 p-4 text-sm font-bold leading-6 text-slate-700">
+                  <Sparkles className="mb-2 h-5 w-5 text-sky-700" />
                   {story.lesson}
                 </div>
                 <div className="rounded-xl border-2 border-sky-100 bg-amber-50 p-4 text-sm font-bold leading-6 text-slate-700">
-                  Story path: {pathSummary}
+                  <BookOpen className="mb-2 h-5 w-5 text-amber-700" />
+                  {pathSummary}
                 </div>
               </div>
-              <p className="text-sm font-semibold leading-6 text-slate-600">
-                Customer email: {checkoutForm.email || "Not entered yet"}
-              </p>
+              <div className="flex flex-wrap gap-2">
+                {qualityTags.map((tag) => (
+                  <span key={tag} className="rounded-full border-2 border-sky-100 bg-[#fffdf5] px-3 py-1.5 text-xs font-black uppercase tracking-wide text-sky-800">
+                    {tag}
+                  </span>
+                ))}
+              </div>
               {latestOrder && (
-                <p className="text-sm font-semibold leading-6 text-slate-600">
-                  Order reference: {latestOrder.id}
-                </p>
+                <div className="no-print rounded-xl border-2 border-sky-100 bg-[#fffdf5] p-4 text-sm font-semibold leading-6 text-slate-600">
+                  <p className="font-black text-sky-950">Order reference</p>
+                  <p>{latestOrder.id}</p>
+                </div>
               )}
             </div>
           </div>
@@ -2641,19 +2700,17 @@ export default function Home() {
                       className="absolute inset-0 h-full w-full object-cover"
                     />
                   )}
+                  {!visiblePageArtwork && (
+                    <StoryArtPlaceholder
+                      heroType={heroType}
+                      heroName={heroName}
+                      initials={heroMark}
+                      pageTitle={page.title}
+                      showFaceZone
+                    />
+                  )}
                   {visiblePageArtwork && <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(255,255,255,0.04)_0%,rgba(255,255,255,0.18)_62%,rgba(255,255,255,0.72)_100%)]" />}
-                  <div className="book-face-zone pointer-events-none absolute inset-x-[24%] top-[8%] z-10 h-[34%] rounded-[999px] border-4 border-white/70 bg-white/10 shadow-[0_0_0_9999px_rgba(255,255,255,0.02)]" />
                   <div className="relative grid h-full min-h-[390px] place-items-center text-center">
-                    {!visiblePageArtwork && (
-                      <div className="text-center">
-                        <div className={`mx-auto grid h-36 w-36 place-items-center rounded-full ${characterData?.color || "bg-sky-400"} text-5xl font-black text-white shadow-xl ring-4 ring-white`}>
-                          {heroMark}
-                        </div>
-                        <div className="mt-5 rounded-2xl border-4 border-white bg-white/85 px-5 py-3 text-sm font-black uppercase tracking-wide text-sky-950 shadow-[5px_5px_0_rgba(8,47,73,0.12)]">
-                          Face-safe artwork area
-                        </div>
-                      </div>
-                    )}
                   </div>
                 </div>
 
@@ -2669,7 +2726,7 @@ export default function Home() {
                     {page.panels.map((panel, index) => (
                       <div key={`${page.id}-${panel}`} className="book-panel rounded-2xl border-4 border-sky-950 bg-white p-4 shadow-[5px_5px_0_rgba(8,47,73,0.12)]">
                         <div className="mb-2 inline-flex rounded-none border-2 border-sky-950 bg-amber-200 px-3 py-1 text-xs font-black uppercase text-sky-950">
-                          Beat {index + 1}
+                          Moment {index + 1}
                         </div>
                         <p className="text-base font-bold leading-7 text-slate-700">{panel}</p>
                         {page.speech[index] && (
@@ -2680,18 +2737,40 @@ export default function Home() {
                       </div>
                     ))}
                   </div>
-
-                  {page.imageBrief && (
-                    <details className="no-print rounded-xl border-2 border-sky-100 bg-sky-50 p-3 text-sm font-semibold text-slate-700">
-                      <summary className="cursor-pointer font-black text-sky-900">Image brief</summary>
-                      <p className="mt-2 leading-6">{page.imageBrief}</p>
-                    </details>
-                  )}
                 </div>
+              </div>
+              <div className="mt-4 flex items-center justify-between border-t-2 border-sky-100 pt-3 text-xs font-black uppercase tracking-wide text-sky-800">
+                <span>Little Legends Story</span>
+                <span>Page {page.pageNumber}</span>
               </div>
             </section>
           )
         })}
+
+        <section className="book-page print-page overflow-hidden rounded-[2rem] border-4 border-sky-950 bg-[#fffdf5] p-6 text-center shadow-[10px_10px_0_rgba(8,47,73,0.16)] sm:p-8">
+          <div className="book-ending-inner grid min-h-[520px] place-items-center rounded-[1.5rem] border-4 border-sky-950 bg-[linear-gradient(135deg,#fff7ed_0%,#ecfeff_52%,#fef3c7_100%)] p-6">
+            <div className="mx-auto max-w-2xl">
+              <div className="mx-auto grid h-24 w-24 place-items-center rounded-full border-4 border-white bg-rose-100 text-rose-500 shadow-xl">
+                <Heart className="h-12 w-12 fill-rose-400" />
+              </div>
+              <p className="mt-6 text-xs font-black uppercase tracking-[0.24em] text-rose-500">The end</p>
+              <h2 className="mt-3 text-4xl font-black uppercase leading-tight text-sky-950 sm:text-6xl">
+                {heroName} stayed brave, kind, and full of wonder.
+              </h2>
+              <p className="mx-auto mt-5 max-w-xl text-lg font-bold leading-8 text-slate-700">
+                This story was made to be read aloud, kept close, and returned to whenever bedtime needs a little more magic.
+              </p>
+              <div className="mx-auto mt-8 grid max-w-md gap-3 sm:grid-cols-3">
+                {["Brave", "Kind", "Clever"].map((word) => (
+                  <div key={word} className="rounded-2xl border-2 border-sky-100 bg-white/86 px-4 py-3 text-sm font-black text-sky-900">
+                    <Star className="mx-auto mb-2 h-5 w-5 fill-amber-300 text-amber-400" />
+                    {word}
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        </section>
       </div>
     )
   }

@@ -1,10 +1,20 @@
 import { NextResponse } from "next/server"
 
+import { checkoutProducts } from "@/lib/checkout"
 import { getOrderDownloadUrl, sendOrderConfirmationEmail } from "@/lib/email"
 import { clearOrders, readOrders, saveOrder, updateOrderFulfilmentStatus, updateOrderPaymentStatus, type FulfilmentStatus, type OrderRecord, type PaymentStatus } from "@/lib/orders"
+import { checkRateLimit, getClientIp, rateLimitResponseHeaders } from "@/lib/rate-limit"
 
 const fulfilmentStatuses: FulfilmentStatus[] = ["new", "in_progress", "ready", "sent"]
 const paymentStatuses: PaymentStatus[] = ["payment_pending", "paid_demo", "paid"]
+const checkoutProductIds = Object.keys(checkoutProducts)
+const maxOrderIdLength = 80
+const maxShortTextLength = 160
+const maxEmailLength = 254
+const maxChoices = 20
+
+const cleanText = (value: string, maxLength = maxShortTextLength) => value.trim().replace(/\s+/g, " ").slice(0, maxLength)
+const isValidEmail = (email: string) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)
 
 const isOrderRecord = (value: unknown): value is OrderRecord => {
   if (!value || typeof value !== "object") return false
@@ -26,6 +36,48 @@ const isOrderRecord = (value: unknown): value is OrderRecord => {
   )
 }
 
+const isCheckoutProduct = (product: string): product is OrderRecord["product"] => checkoutProductIds.includes(product)
+
+const normalizeNewOrder = (order: OrderRecord): OrderRecord => {
+  const product = checkoutProducts[order.product]
+  const createdAt = new Date().toISOString()
+  const choices = (order.choices || []).slice(0, maxChoices).map((choice) => ({
+    pageId: cleanText(choice.pageId, 80),
+    choiceId: cleanText(choice.choiceId, 80),
+    pathTag: choice.pathTag,
+    text: cleanText(choice.text, 240),
+  }))
+
+  return {
+    ...order,
+    id: cleanText(order.id, maxOrderIdLength),
+    createdAt,
+    total: product.price,
+    email: order.email.trim().toLowerCase().slice(0, maxEmailLength),
+    phone: order.phone ? cleanText(order.phone, 40) : undefined,
+    heroName: cleanText(order.heroName),
+    heroType: cleanText(order.heroType),
+    storyTitle: cleanText(order.storyTitle, 220),
+    storyId: cleanText(order.storyId, 80),
+    choices,
+    postage: order.postage
+      ? {
+          fullName: cleanText(order.postage.fullName || ""),
+          addressLine1: cleanText(order.postage.addressLine1 || ""),
+          addressLine2: cleanText(order.postage.addressLine2 || ""),
+          city: cleanText(order.postage.city || ""),
+          postcode: cleanText(order.postage.postcode || "", 40),
+          country: cleanText(order.postage.country || "", 80),
+        }
+      : undefined,
+    status: "payment_pending",
+    fulfilmentStatus: "new",
+    fulfilmentUpdatedAt: createdAt,
+    emailSentAt: undefined,
+    downloadUrl: getOrderDownloadUrl(order.id),
+  }
+}
+
 export async function GET() {
   try {
     const orders = await readOrders()
@@ -44,10 +96,53 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "Invalid order" }, { status: 400 })
     }
 
-    const savedOrder = await saveOrder({
-      ...order,
-      downloadUrl: order.downloadUrl || getOrderDownloadUrl(order.id),
+    if (!isCheckoutProduct(order.product)) {
+      return NextResponse.json({ error: "Invalid order product" }, { status: 400 })
+    }
+
+    const normalisedOrder = normalizeNewOrder(order)
+
+    if (
+      !normalisedOrder.id ||
+      !isValidEmail(normalisedOrder.email) ||
+      !normalisedOrder.heroName ||
+      !normalisedOrder.heroType ||
+      !normalisedOrder.storyTitle ||
+      !normalisedOrder.storyId
+    ) {
+      return NextResponse.json({ error: "Invalid order" }, { status: 400 })
+    }
+
+    if (normalisedOrder.postage && (!normalisedOrder.postage.fullName || !normalisedOrder.postage.addressLine1 || !normalisedOrder.postage.city || !normalisedOrder.postage.postcode)) {
+      return NextResponse.json({ error: "Invalid postage details" }, { status: 400 })
+    }
+
+    const clientIp = getClientIp(request)
+    const rateLimit = checkRateLimit({
+      key: `order:${clientIp}:${normalisedOrder.email}`,
+      limit: 8,
+      windowMs: 60 * 60 * 1000,
     })
+
+    if (!rateLimit.ok) {
+      return NextResponse.json(
+        { error: "Too many order attempts. Please try again shortly." },
+        { status: 429, headers: rateLimitResponseHeaders(rateLimit.resetAt) },
+      )
+    }
+
+    if (!isValidEmail(order.email.trim().toLowerCase())) {
+      return NextResponse.json({ error: "Invalid order email" }, { status: 400 })
+    }
+
+    const existingOrders = await readOrders()
+    const existingOrder = existingOrders.find((savedOrder) => savedOrder.id === normalisedOrder.id)
+
+    if (existingOrder) {
+      return NextResponse.json({ error: "Order already exists" }, { status: 409 })
+    }
+
+    const savedOrder = await saveOrder(normalisedOrder)
     return NextResponse.json({ order: savedOrder }, { status: 201 })
   } catch (error) {
     console.error("Failed to save order:", error)
@@ -103,6 +198,10 @@ export async function PATCH(request: Request) {
 
 export async function DELETE() {
   try {
+    if (process.env.NODE_ENV === "production" && process.env.ALLOW_ORDER_CLEAR !== "1") {
+      return NextResponse.json({ error: "Clearing orders is disabled in production" }, { status: 403 })
+    }
+
     await clearOrders()
     return NextResponse.json({ orders: [] })
   } catch (error) {

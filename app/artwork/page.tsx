@@ -1,5 +1,5 @@
 import Link from "next/link"
-import { CheckCircle2, Download, Image, XCircle } from "lucide-react"
+import { CheckCircle2, Download, Image, Sparkles, XCircle } from "lucide-react"
 
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
@@ -10,13 +10,23 @@ export default function ArtworkReviewPage() {
   const manifest = getArtworkManifest()
   const existingCount = manifest.filter((item) => item.fileExists).length
   const missingCount = manifest.length - existingCount
+  const launchItems = manifest.filter((item) => item.launchPriority)
+  const launchExistingCount = launchItems.filter((item) => item.fileExists).length
+  const launchMissingCount = launchItems.length - launchExistingCount
+  const launchPreviewItems = launchItems.filter((item) => item.artworkPhase === "preview")
+  const launchPreviewExistingCount = launchPreviewItems.filter((item) => item.fileExists).length
+  const launchPreviewMissingCount = launchPreviewItems.length - launchPreviewExistingCount
   const groupedItems = Object.entries(
     manifest.reduce<Record<string, typeof manifest>>((groups, item) => {
       groups[item.storyTitle] = groups[item.storyTitle] || []
       groups[item.storyTitle].push(item)
       return groups
     }, {}),
-  )
+  ).sort(([, firstItems], [, secondItems]) => {
+    const firstPriority = firstItems[0]?.launchPriority ? 1 : 0
+    const secondPriority = secondItems[0]?.launchPriority ? 1 : 0
+    return secondPriority - firstPriority
+  })
 
   return (
     <main className="min-h-screen bg-[#f6efe9] px-4 py-6 text-sky-950 sm:py-8">
@@ -29,15 +39,27 @@ export default function ArtworkReviewPage() {
               Track every final boy/girl story image, confirm which files exist, and use the briefs to create face-swap-ready artwork.
             </p>
           </div>
-          <div className="flex flex-col gap-2 sm:flex-row">
+          <div className="flex flex-col gap-2 sm:flex-row sm:flex-wrap md:justify-end">
+            <Button asChild className="h-11 rounded-xl bg-amber-300 px-5 font-black text-sky-950 hover:bg-amber-200">
+              <a href="/api/artwork-prompts.csv?missing=1&priority=1&phase=preview">
+                <Sparkles className="h-4 w-4" />
+                Preview CSV
+              </a>
+            </Button>
+            <Button asChild className="h-11 rounded-xl bg-sky-500 px-5 font-black text-white hover:bg-sky-600">
+              <a href="/api/artwork-prompts.csv?missing=1&priority=1">
+                <Sparkles className="h-4 w-4" />
+                Launch CSV
+              </a>
+            </Button>
             <Button asChild className="h-11 rounded-xl bg-rose-500 px-5 font-black text-white hover:bg-rose-600">
               <a href="/api/artwork-prompts.csv?missing=1">
                 <Download className="h-4 w-4" />
-                Missing CSV
+                All Missing CSV
               </a>
             </Button>
             <Button asChild variant="outline" className="h-11 rounded-xl border-sky-200 bg-white px-5 font-black text-sky-700">
-              <a href="/api/artwork-manifest?prompts=1&missing=1">Missing JSON</a>
+              <a href="/api/artwork-manifest?prompts=1&missing=1&priority=1&phase=preview">Preview JSON</a>
             </Button>
             <Button asChild variant="outline" className="h-11 rounded-xl border-sky-200 bg-white px-5 font-black text-sky-700">
               <Link href="/">Back to App</Link>
@@ -45,10 +67,24 @@ export default function ArtworkReviewPage() {
           </div>
         </div>
 
-        <div className="grid gap-4 md:grid-cols-3">
+        <div className="grid gap-4 md:grid-cols-5">
           <Card className="border-4 border-sky-950 bg-white p-5 shadow-[6px_6px_0_rgba(8,47,73,0.14)]">
             <div className="text-sm font-black uppercase tracking-widest text-sky-700">Total slots</div>
             <div className="mt-2 text-4xl font-black">{manifest.length}</div>
+          </Card>
+          <Card className="border-4 border-sky-950 bg-sky-50 p-5 shadow-[6px_6px_0_rgba(8,47,73,0.14)]">
+            <div className="text-sm font-black uppercase tracking-widest text-sky-700">Preview missing</div>
+            <div className="mt-2 text-4xl font-black text-sky-700">{launchPreviewMissingCount}</div>
+            <p className="mt-1 text-xs font-black uppercase tracking-wide text-sky-700">
+              {launchPreviewExistingCount} of {launchPreviewItems.length} found
+            </p>
+          </Card>
+          <Card className="border-4 border-sky-950 bg-amber-50 p-5 shadow-[6px_6px_0_rgba(8,47,73,0.14)]">
+            <div className="text-sm font-black uppercase tracking-widest text-amber-700">Launch missing</div>
+            <div className="mt-2 text-4xl font-black text-amber-700">{launchMissingCount}</div>
+            <p className="mt-1 text-xs font-black uppercase tracking-wide text-amber-700">
+              {launchExistingCount} of {launchItems.length} found
+            </p>
           </Card>
           <Card className="border-4 border-sky-950 bg-emerald-50 p-5 shadow-[6px_6px_0_rgba(8,47,73,0.14)]">
             <div className="text-sm font-black uppercase tracking-widest text-emerald-700">Files found</div>
@@ -68,7 +104,15 @@ export default function ArtworkReviewPage() {
               <section key={storyTitle} className="space-y-4">
                 <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
                   <div>
-                    <h2 className="text-2xl font-black text-sky-950">{storyTitle}</h2>
+                    <div className="flex flex-wrap items-center gap-2">
+                      <h2 className="text-2xl font-black text-sky-950">{storyTitle}</h2>
+                      {items[0]?.launchPriority ? (
+                        <Badge className="bg-amber-300 text-sky-950">
+                          <Sparkles className="h-3 w-3" />
+                          Launch priority
+                        </Badge>
+                      ) : null}
+                    </div>
                     <p className="text-sm font-bold text-slate-600">
                       {storyExistingCount} of {items.length} files found
                     </p>
@@ -107,6 +151,9 @@ export default function ArtworkReviewPage() {
                       <div className="space-y-3 p-4">
                         <div className="flex flex-wrap items-center gap-2">
                           <Badge className="bg-amber-300 text-sky-950">Page {item.pageNumber}</Badge>
+                          <Badge className={item.artworkPhase === "preview" ? "bg-sky-100 text-sky-800" : "bg-slate-100 text-slate-700"}>
+                            {item.artworkPhase === "preview" ? "Preview" : "Full story"}
+                          </Badge>
                           <Badge className={item.gender === "boy" ? "bg-sky-100 text-sky-800" : "bg-pink-100 text-pink-800"}>
                             {item.gender}
                           </Badge>

@@ -274,6 +274,17 @@ try {
   if (!sessionCookie) throw new Error("Admin login did not set a session cookie.")
   console.log("OK admin login")
 
+  const unauthArtworkPage = await requestPage("/artwork")
+  if (unauthArtworkPage.status !== 307 && unauthArtworkPage.status !== 302) {
+    throw new Error(`/artwork should redirect without admin auth, got ${unauthArtworkPage.status}.`)
+  }
+
+  await requestJson("/api/artwork-manifest?prompts=1&missing=1&priority=1", {}, [401])
+  console.log("OK artwork tools require admin auth")
+
+  await requestJson(`/api/order-photos?orderId=${encodeURIComponent(smokeId)}`, {}, [401])
+  console.log("OK photo preview API requires admin auth")
+
   const photoForm = new FormData()
   photoForm.set("orderId", smokeId)
   photoForm.append("photos", new File([createSmokePng()], `${smokeId}.png`, { type: "image/png" }))
@@ -300,9 +311,20 @@ try {
   })
   console.log("OK smoke confirmation email logged")
 
+  const fulfilmentUpdate = await requestJson("/api/orders", {
+    method: "PATCH",
+    headers: { Cookie: sessionCookie },
+    body: JSON.stringify({ orderId: smokeId, fulfilmentStatus: "in_progress" }),
+  })
+
+  if (fulfilmentUpdate.data.order?.fulfilmentStatus !== "in_progress") {
+    throw new Error(`Fulfilment update did not persist: ${JSON.stringify(fulfilmentUpdate.data)}`)
+  }
+  console.log("OK smoke fulfilment status updated")
+
   const checks = []
 
-  for (const pagePath of ["/admin", "/admin/orders", "/admin/enquiries", "/admin/email-log", "/admin/print-queue"]) {
+  for (const pagePath of ["/admin", "/admin/orders", "/admin/enquiries", "/admin/email-log", "/admin/print-queue", "/artwork"]) {
     const page = await requestPage(pagePath, sessionCookie)
     const hasSmoke = page.text.includes(smokeId) || page.text.includes("Admin Smoke") || page.text.includes(smokeEmail)
     const hasDataIssue = page.text.includes("could not load") || page.text.includes("not fully connected")
@@ -311,20 +333,40 @@ try {
       throw new Error(`${pagePath} failed admin check. Status ${page.status}. Data issue: ${hasDataIssue}`)
     }
 
+    if (pagePath === "/admin/print-queue" && !page.text.includes("In progress")) {
+      throw new Error("/admin/print-queue did not render updated fulfilment status.")
+    }
+
+    if (pagePath === "/admin/print-queue" && !page.text.includes("customer reference photo")) {
+      throw new Error("/admin/print-queue did not render reference photo readiness.")
+    }
+
+    if (pagePath === "/admin/print-queue" && !page.text.includes(`/admin/orders?order=${encodeURIComponent(smokeId)}`)) {
+      throw new Error("/admin/print-queue did not link directly to the full smoke order.")
+    }
+
+    if (pagePath === "/artwork" && !page.text.includes("Preview CSV")) {
+      throw new Error("/artwork did not render the protected artwork review tools.")
+    }
+
     checks.push({ path: pagePath, status: page.status, hasSmoke })
   }
 
   const apiOrders = await requestJson("/api/orders", { headers: { Cookie: sessionCookie } })
   const apiEnquiries = await requestJson("/api/enquiries", { headers: { Cookie: sessionCookie } })
   const apiEmailLog = await requestJson("/api/email-log", { headers: { Cookie: sessionCookie } })
+  const apiArtwork = await requestJson("/api/artwork-manifest?prompts=1&missing=1&priority=1&phase=preview", {
+    headers: { Cookie: sessionCookie },
+  })
 
   const apiChecks = {
     orders: apiOrders.data.orders?.some((savedOrder) => savedOrder.id === smokeId),
     enquiries: apiEnquiries.data.enquiries?.some((enquiry) => enquiry.email === smokeEmail),
     emailLogs: apiEmailLog.data.emails?.some((email) => email.orderId === smokeId),
+    artwork: Array.isArray(apiArtwork.data) && apiArtwork.data.every((item) => item.launchPriority && item.artworkPhase === "preview"),
   }
 
-  if (!apiChecks.orders || !apiChecks.enquiries || !apiChecks.emailLogs) {
+  if (!apiChecks.orders || !apiChecks.enquiries || !apiChecks.emailLogs || !apiChecks.artwork) {
     throw new Error(`Admin API smoke records missing: ${JSON.stringify(apiChecks)}`)
   }
 
