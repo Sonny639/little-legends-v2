@@ -334,6 +334,7 @@ try {
     artworkPack.data.order?.id !== smokeId ||
     artworkPack.data.order?.storyId !== "wizard" ||
     artworkPack.data.order?.storedReferencePhotoCount < 1 ||
+    !artworkPack.data.referencePhotos?.[0]?.url ||
     !Array.isArray(artworkPack.data.pages) ||
     artworkPack.data.pages.length === 0 ||
     !artworkPack.data.pages[0]?.prompt?.includes("Admin Smoke")
@@ -341,7 +342,12 @@ try {
     throw new Error(`Order artwork pack did not include smoke story prompts: ${JSON.stringify(artworkPack.data)}`)
   }
 
-  if (artworkCsv.status !== 200 || !artworkCsv.text.includes("outputFileName") || !artworkCsv.text.includes(smokeId)) {
+  if (
+    artworkCsv.status !== 200 ||
+    !artworkCsv.text.includes("outputFileName") ||
+    !artworkCsv.text.includes("referencePhotoUrls") ||
+    !artworkCsv.text.includes(smokeId)
+  ) {
     throw new Error("Order artwork CSV did not render the smoke prompt pack.")
   }
   console.log("OK order artwork pack exports JSON and CSV")
@@ -363,6 +369,14 @@ try {
 
     if (pagePath === "/admin/print-queue" && !page.text.includes("customer reference photo")) {
       throw new Error("/admin/print-queue did not render reference photo readiness.")
+    }
+
+    if (pagePath === "/admin/print-queue" && !page.text.includes("Production checklist")) {
+      throw new Error("/admin/print-queue did not render the production checklist.")
+    }
+
+    if (pagePath === "/admin/print-queue" && !page.text.includes(`/api/orders/artwork-pack?orderId=${encodeURIComponent(smokeId)}&amp;format=csv`)) {
+      throw new Error("/admin/print-queue did not link directly to the artwork CSV.")
     }
 
     if (pagePath === "/admin/print-queue" && !page.text.includes(`/admin/orders?order=${encodeURIComponent(smokeId)}`)) {

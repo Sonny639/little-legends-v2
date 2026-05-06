@@ -195,3 +195,47 @@ export const listOrderPhotos = async (orderId: string): Promise<StoredOrderPhoto
     throw error
   }
 }
+
+export const createOrderPhotoPreviewLinks = async (
+  photos: StoredOrderPhoto[],
+  expiresInSeconds = 60 * 60,
+): Promise<ListedOrderPhoto[]> => {
+  if (photos.length === 0) {
+    return []
+  }
+
+  if (hasSupabaseAdmin()) {
+    const bucket = getStorageBucket()
+    const client = getSupabaseAdmin()
+    const { data, error } = await client.storage
+      .from(bucket)
+      .createSignedUrls(
+        photos.map((photo) => photo.storagePath),
+        expiresInSeconds,
+      )
+
+    if (error) {
+      throw new Error(`Failed to create photo preview links: ${error.message}`)
+    }
+
+    return photos.map((photo, index) => ({
+      ...photo,
+      url: data?.[index]?.signedUrl || "",
+    }))
+  }
+
+  if (process.env.NODE_ENV === "production") {
+    return photos
+  }
+
+  return Promise.all(
+    photos.map(async (photo) => {
+      const buffer = await fs.readFile(photo.storagePath)
+
+      return {
+        ...photo,
+        url: `data:${photo.mimeType};base64,${buffer.toString("base64")}`,
+      }
+    }),
+  )
+}

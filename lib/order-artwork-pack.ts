@@ -1,5 +1,5 @@
 import { resolveFullStoryPages } from "@/lib/full-story"
-import { listOrderPhotos } from "@/lib/order-photos"
+import { createOrderPhotoPreviewLinks, listOrderPhotos } from "@/lib/order-photos"
 import { type OrderRecord } from "@/lib/orders"
 import { getStoryForCharacter, getStoryPathSummary, type StoryPathChoice } from "@/lib/stories"
 
@@ -30,6 +30,7 @@ export const createOrderArtworkPack = async (order: OrderRecord) => {
   const choices = normaliseChoices(order.choices)
   const pages = resolveFullStoryPages(story, choices)
   const referencePhotos = await listOrderPhotos(order.id)
+  const referencePhotosWithLinks = await createOrderPhotoPreviewLinks(referencePhotos)
   const pathSummary = getStoryPathSummary(choices)
 
   return {
@@ -49,12 +50,14 @@ export const createOrderArtworkPack = async (order: OrderRecord) => {
       storedReferencePhotoCount: referencePhotos.length,
       pathSummary,
     },
-    referencePhotos: referencePhotos.map((photo, index) => ({
+    referencePhotos: referencePhotosWithLinks.map((photo, index) => ({
       index: index + 1,
       name: photo.name,
       mimeType: photo.mimeType,
       size: photo.size,
       storagePath: photo.storagePath,
+      url: photo.url || "",
+      signedUrlExpiresInSeconds: photo.url ? 60 * 60 : 0,
       source: photo.source,
       uploadedAt: photo.uploadedAt,
     })),
@@ -72,6 +75,9 @@ export const createOrderArtworkPack = async (order: OrderRecord) => {
         `Chosen path: ${pathSummary}`,
         `Gender variant: ${gender}.`,
         `Use the stored customer reference photos for likeness. Reference photo count: ${referencePhotos.length}.`,
+        referencePhotosWithLinks.length > 0
+          ? `Reference photo links: ${referencePhotosWithLinks.map((photo) => photo.url || photo.storagePath).join(" ")}.`
+          : "",
         "Final artwork requirement: premium full-page children's storybook illustration, warm magical lighting, child-friendly emotion, no text in image.",
         "Face-swap requirement: keep the child's face front-facing, unobstructed, well lit, and large enough for later replacement.",
       ]
@@ -101,6 +107,8 @@ export const getOrderArtworkPackCsv = (pack: Awaited<ReturnType<typeof createOrd
     "storyTitle",
     "gender",
     "storedReferencePhotoCount",
+    "referencePhotoPaths",
+    "referencePhotoUrls",
     "pageNumber",
     "pageId",
     "pageTitle",
@@ -122,6 +130,8 @@ export const getOrderArtworkPackCsv = (pack: Awaited<ReturnType<typeof createOrd
         pack.order.storyTitle,
         pack.order.gender,
         pack.order.storedReferencePhotoCount,
+        pack.referencePhotos.map((photo) => photo.storagePath).join(" | "),
+        pack.referencePhotos.map((photo) => photo.url).filter(Boolean).join(" | "),
         page.pageNumber,
         page.pageId,
         page.pageTitle,

@@ -56,6 +56,29 @@ const formatDate = (value: string) =>
     timeStyle: "short",
   }).format(new Date(value))
 
+const getProductionChecklist = (order: PrintQueueOrder) => [
+  {
+    label: order.status === "payment_pending" ? "Payment pending" : "Payment confirmed",
+    done: order.status === "paid" || order.status === "paid_demo",
+  },
+  {
+    label: "Artwork pack ready",
+    done: true,
+  },
+  {
+    label: (order.photoCount ?? 0) > 0 ? `${order.photoCount} reference photo${order.photoCount === 1 ? "" : "s"}` : "No reference photos",
+    done: (order.photoCount ?? 0) > 0,
+  },
+  {
+    label: "Print PDF ready",
+    done: order.status === "paid" || order.status === "paid_demo",
+  },
+  {
+    label: order.postage ? "Delivery address ready" : "Delivery address missing",
+    done: Boolean(order.postage),
+  },
+]
+
 export function PrintQueueClient({ initialOrders }: { initialOrders: PrintQueueOrder[] }) {
   const [orders, setOrders] = useState(initialOrders)
   const [updatingOrderId, setUpdatingOrderId] = useState("")
@@ -179,6 +202,34 @@ export function PrintQueueClient({ initialOrders }: { initialOrders: PrintQueueO
                     Print PDF
                   </Link>
                 </Button>
+                <div className="grid grid-cols-2 gap-2">
+                  <Button asChild variant="outline" className="h-10 rounded-xl border-purple-100 bg-white px-3 text-xs font-black text-purple-700 hover:bg-purple-50">
+                    <Link href={`/api/orders/artwork-pack?orderId=${encodeURIComponent(order.id)}`} target="_blank" rel="noreferrer">
+                      <Download className="h-4 w-4" />
+                      JSON
+                    </Link>
+                  </Button>
+                  <Button asChild variant="outline" className="h-10 rounded-xl border-purple-100 bg-white px-3 text-xs font-black text-purple-700 hover:bg-purple-50">
+                    <Link href={`/api/orders/artwork-pack?orderId=${encodeURIComponent(order.id)}&format=csv`}>
+                      <Download className="h-4 w-4" />
+                      CSV
+                    </Link>
+                  </Button>
+                </div>
+                <div className="rounded-xl border-2 border-sky-100 bg-white p-3">
+                  <div className="mb-2 flex items-center gap-2 text-xs font-black uppercase text-slate-700">
+                    <PackageCheck className="h-4 w-4 text-sky-700" />
+                    Production checklist
+                  </div>
+                  <div className="grid gap-1.5">
+                    {getProductionChecklist(order).map((item) => (
+                      <div key={item.label} className="flex items-center justify-between gap-3 rounded-lg bg-slate-50 px-2.5 py-2 text-xs font-black">
+                        <span className="text-slate-700">{item.label}</span>
+                        <span className={item.done ? "text-emerald-700" : "text-amber-700"}>{item.done ? "Ready" : "Check"}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
                 <div className="rounded-xl border-2 border-sky-100 bg-white p-3">
                   <div className="mb-2 flex items-center gap-2 text-xs font-black uppercase text-slate-700">
                     {isUpdating ? <Loader2 className="h-4 w-4 animate-spin text-sky-700" /> : <PackageCheck className="h-4 w-4 text-sky-700" />}
