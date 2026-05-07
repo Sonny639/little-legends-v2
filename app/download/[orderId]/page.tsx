@@ -10,6 +10,7 @@ import { Card } from "@/components/ui/card"
 import { StoryArtPlaceholder } from "@/components/story-art-placeholder"
 import { resolveFullStoryPages } from "@/lib/full-story"
 import { readOrders } from "@/lib/orders"
+import { getStoryArtworkFallback } from "@/lib/story-artwork-fallbacks"
 import { getStoryForCharacter, getStoryPathSummary, type StoryChoice, type StoryPathChoice } from "@/lib/stories"
 import { PrintButton } from "./print-button"
 
@@ -26,6 +27,12 @@ const publicDirectory = path.join(process.cwd(), "public")
 const publicAssetExists = (assetPath?: string) => {
   if (!assetPath) return false
   return fs.existsSync(path.join(publicDirectory, assetPath.replace(/^\//, "")))
+}
+
+const resolveAvailableArtwork = (primaryPath?: string, fallbackPath?: string) => {
+  if (publicAssetExists(primaryPath)) return primaryPath
+  if (fallbackPath && fallbackPath !== primaryPath && publicAssetExists(fallbackPath)) return fallbackPath
+  return null
 }
 
 const normaliseChoices = (choices: { pageId: string; choiceId: string; pathTag?: string; text: string }[]) =>
@@ -122,8 +129,9 @@ export default async function DownloadPage({ params }: DownloadPageProps) {
   const storyPages = resolveFullStoryPages(story, storyChoices)
   const artworkGender = order.gender === "girl" ? "girl" : "boy"
   const pathSummary = getStoryPathSummary(storyChoices)
+  const fallbackArtworkPath = getStoryArtworkFallback(story.characterId, artworkGender)
   const coverArtworkPath = storyPages[0]?.artwork?.[artworkGender]
-  const coverArtwork = publicAssetExists(coverArtworkPath) ? coverArtworkPath : null
+  const coverArtwork = resolveAvailableArtwork(coverArtworkPath, fallbackArtworkPath)
   const heroMark = getHeroInitials(order.heroName)
   const qualityTags = ["Personalised", story.readingAge, `${storyPages.length} story pages`]
 
@@ -216,7 +224,7 @@ export default async function DownloadPage({ params }: DownloadPageProps) {
 
         {storyPages.map((page) => {
           const pageArtworkPath = page.artwork?.[artworkGender]
-          const pageArtwork = publicAssetExists(pageArtworkPath) ? pageArtworkPath : null
+          const pageArtwork = resolveAvailableArtwork(pageArtworkPath, fallbackArtworkPath)
 
           return (
             <section

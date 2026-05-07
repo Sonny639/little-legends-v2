@@ -11,6 +11,7 @@ import { Badge } from "@/components/ui/badge"
 import { Upload, Sparkles, BookOpen, Star, Heart, Wand2, User, Search, Download, Mail, Truck, CreditCard, ShieldCheck, Clock, CheckCircle2, Camera, X, Trash2 } from 'lucide-react'
 import { checkoutProducts } from "@/lib/checkout"
 import { resolveFullStoryPages } from "@/lib/full-story"
+import { getStoryArtworkFallback } from "@/lib/story-artwork-fallbacks"
 import { getStoryForCharacter, getStoryPathSummary, type StoryPathChoice } from "@/lib/stories"
 import { StoryArtPlaceholder } from "@/components/story-art-placeholder"
 
@@ -1869,7 +1870,13 @@ export default function Home() {
     const isPreviewComplete = storyPageId === "purchase" || storyPath.length >= story.previewPageLimit
     const artworkGender = selectedGender === "girl" ? "girl" : "boy"
     const pageArtwork = currentPage.artwork?.[artworkGender]
-    const visiblePageArtwork = pageArtwork && !failedArtwork[pageArtwork] ? pageArtwork : null
+    const fallbackPageArtwork = getStoryArtworkFallback(story.characterId, artworkGender)
+    const visiblePageArtwork =
+      pageArtwork && !failedArtwork[pageArtwork]
+        ? pageArtwork
+        : fallbackPageArtwork && fallbackPageArtwork !== pageArtwork && !failedArtwork[fallbackPageArtwork]
+          ? fallbackPageArtwork
+          : null
     const pathSummary = getStoryPathSummary(storyPath)
 
     const handleStoryChoice = (choice: (typeof currentPage.choices)[number]) => {
@@ -2605,7 +2612,13 @@ export default function Home() {
     const fullStoryPages = resolveFullStoryPages(story, storyPath)
     const pathSummary = getStoryPathSummary(storyPath)
     const coverArtwork = fullStoryPages[0]?.artwork?.[artworkGender]
-    const visibleCoverArtwork = coverArtwork && !failedArtwork[coverArtwork] ? coverArtwork : null
+    const fallbackCoverArtwork = getStoryArtworkFallback(story.characterId, artworkGender)
+    const visibleCoverArtwork =
+      coverArtwork && !failedArtwork[coverArtwork]
+        ? coverArtwork
+        : fallbackCoverArtwork && fallbackCoverArtwork !== coverArtwork && !failedArtwork[fallbackCoverArtwork]
+          ? fallbackCoverArtwork
+          : null
     const qualityTags = ["Personalised", story.readingAge, `${fullStoryPages.length} story pages`]
 
     return (
@@ -2706,7 +2719,13 @@ export default function Home() {
 
         {fullStoryPages.map((page) => {
           const pageArtwork = page.artwork?.[artworkGender]
-          const visiblePageArtwork = pageArtwork && !failedArtwork[pageArtwork] ? pageArtwork : null
+          const fallbackPageArtwork = getStoryArtworkFallback(story.characterId, artworkGender)
+          const visiblePageArtwork =
+            pageArtwork && !failedArtwork[pageArtwork]
+              ? pageArtwork
+              : fallbackPageArtwork && fallbackPageArtwork !== pageArtwork && !failedArtwork[fallbackPageArtwork]
+                ? fallbackPageArtwork
+                : null
 
           return (
             <section
