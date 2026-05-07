@@ -260,20 +260,20 @@ try {
   const missingPriorityPrompts = await requestJson("/api/artwork-manifest?prompts=1&missing=1&priority=1", {
     headers: adminHeaders,
   })
-  const footballMissingPage = Array.isArray(missingPriorityPrompts)
+  const missingFullStoryPage = Array.isArray(missingPriorityPrompts)
     ? missingPriorityPrompts.find(
         (item) =>
-          item.storyId === "footballer" &&
-          item.pageNumber === 8 &&
-          item.gender === "girl" &&
-          item.imagePath === "/stories/footballer/footballer-girl-page-8.png",
+          item.storyId === "superhero" &&
+          item.pageId === "promise-plan" &&
+          item.gender === "boy" &&
+          item.imagePath === "/stories/superhero/superhero-boy-page-4.png",
       )
     : null
 
-  if (!footballMissingPage) {
-    throw new Error("Launch artwork checklist did not flag missing later football story artwork.")
+  if (!missingFullStoryPage) {
+    throw new Error("Launch artwork checklist did not flag missing later full-story artwork.")
   }
-  console.log("OK launch artwork checklist flags missing football pages")
+  console.log("OK launch artwork checklist flags missing later full-story pages")
 
   const previewPriorityManifest = await requestJson("/api/artwork-manifest?priority=1&phase=preview", {
     headers: adminHeaders,
