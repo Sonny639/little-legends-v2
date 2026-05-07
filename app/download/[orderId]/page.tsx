@@ -128,7 +128,7 @@ export default async function DownloadPage({ params }: DownloadPageProps) {
   const qualityTags = ["Personalised", story.readingAge, `${storyPages.length} story pages`]
 
   return (
-    <main className="storybook-app-bg min-h-screen px-4 py-6 sm:py-8">
+    <main className="storybook-app-bg min-h-screen overflow-x-hidden px-4 py-6 sm:py-8">
       <div className="mx-auto max-w-6xl space-y-6 full-story-print">
         <div className="no-print rounded-[2rem] border-4 border-sky-950 bg-white p-5 shadow-[8px_8px_0_rgba(8,47,73,0.18)]">
           <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
@@ -153,7 +153,7 @@ export default async function DownloadPage({ params }: DownloadPageProps) {
 
         <section className="book-page print-page overflow-hidden rounded-[2rem] border-4 border-sky-950 bg-[#fffdf5] shadow-[12px_12px_0_rgba(8,47,73,0.18)]">
           <div className="book-cover-grid grid gap-0 lg:grid-cols-[0.92fr_1.08fr]">
-            <div className="book-cover-hero relative isolate grid min-h-[430px] place-items-end overflow-hidden bg-[linear-gradient(135deg,#fef3c7_0%,#ccfbf1_50%,#dbeafe_100%)] p-6 text-center sm:p-8">
+            <div className="book-cover-hero relative isolate grid min-h-[360px] place-items-end overflow-hidden bg-[linear-gradient(135deg,#fef3c7_0%,#ccfbf1_50%,#dbeafe_100%)] p-5 text-center sm:min-h-[430px] sm:p-8">
               {coverArtwork && (
                 <img
                   src={coverArtwork}
@@ -177,14 +177,14 @@ export default async function DownloadPage({ params }: DownloadPageProps) {
                   <Sparkles className="h-4 w-4 text-amber-600" />
                   Little Legends Story
                 </div>
-                <h2 className="text-4xl font-black uppercase leading-tight text-sky-950 sm:text-6xl">{story.title}</h2>
+                <h2 className="text-3xl font-black uppercase leading-tight text-sky-950 sm:text-6xl">{story.title}</h2>
                 <p className="mx-auto mt-4 max-w-md text-base font-bold leading-7 text-slate-700 sm:text-lg">{story.subtitle}</p>
               </div>
             </div>
             <div className="book-cover-copy space-y-5 border-t-4 border-sky-950 bg-white p-8 lg:border-l-4 lg:border-t-0">
               <div>
                 <p className="text-xs font-black uppercase tracking-widest text-rose-500">Made especially for</p>
-                <h2 className="mt-2 text-4xl font-black leading-tight text-sky-950">{order.heroName}</h2>
+                <h2 className="mt-2 text-3xl font-black leading-tight text-sky-950 sm:text-4xl">{order.heroName}</h2>
                 <p className="mt-2 text-lg font-bold leading-7 text-slate-700">
                   A magical adventure starring {order.heroName} the {order.heroType}.
                 </p>
@@ -226,15 +226,15 @@ export default async function DownloadPage({ params }: DownloadPageProps) {
               <div className="mb-4 flex flex-col gap-3 border-b-4 border-sky-950 pb-4 sm:flex-row sm:items-end sm:justify-between">
                 <div>
                   <Badge className="mb-2 bg-amber-300 px-3 py-1 text-sky-950">Page {page.pageNumber}</Badge>
-                  <h2 className="text-3xl font-black uppercase leading-tight text-sky-950">{page.title}</h2>
+                  <h2 className="text-2xl font-black uppercase leading-tight text-sky-950 sm:text-3xl">{page.title}</h2>
                 </div>
-                <div className="rounded-xl border-4 border-sky-950 bg-yellow-300 px-4 py-2 text-2xl font-black text-sky-950 shadow-[4px_4px_0_rgba(8,47,73,0.14)]">
+                <div className="rounded-xl border-4 border-sky-950 bg-yellow-300 px-4 py-2 text-xl font-black text-sky-950 shadow-[4px_4px_0_rgba(8,47,73,0.14)] sm:text-2xl">
                   {page.sound}
                 </div>
               </div>
 
               <div className="book-page-body grid gap-4 lg:grid-cols-[1fr_0.85fr]">
-                <div className="book-art relative min-h-[430px] overflow-hidden rounded-2xl border-4 border-sky-950 bg-[radial-gradient(circle_at_18%_18%,rgba(255,255,255,0.85)_0_10%,transparent_11%),linear-gradient(135deg,#fef3c7_0%,#ffe4e6_45%,#bae6fd_100%)] bg-[length:32px_32px,auto] p-5">
+                <div className="book-art relative min-h-[360px] overflow-hidden rounded-2xl border-4 border-sky-950 bg-[radial-gradient(circle_at_18%_18%,rgba(255,255,255,0.85)_0_10%,transparent_11%),linear-gradient(135deg,#fef3c7_0%,#ffe4e6_45%,#bae6fd_100%)] bg-[length:32px_32px,auto] p-4 sm:min-h-[430px] sm:p-5">
                   {pageArtwork && (
                     <img
                       src={pageArtwork}
@@ -252,7 +252,7 @@ export default async function DownloadPage({ params }: DownloadPageProps) {
                     />
                   )}
                   {pageArtwork && <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(255,255,255,0.04)_0%,rgba(255,255,255,0.18)_62%,rgba(255,255,255,0.72)_100%)]" />}
-                  <div className="relative grid h-full min-h-[390px] place-items-center text-center" />
+                  <div className="relative grid h-full min-h-[320px] place-items-center text-center sm:min-h-[390px]" />
                 </div>
 
                 <div className="book-copy-column grid gap-4">
@@ -260,7 +260,7 @@ export default async function DownloadPage({ params }: DownloadPageProps) {
                     <div className="mb-2 inline-flex border-2 border-sky-950 bg-sky-100 px-3 py-1 text-xs font-black uppercase text-sky-950">
                       Story
                     </div>
-                    <p className="text-lg font-black leading-8 text-sky-950">{page.scene}</p>
+                    <p className="text-base font-black leading-7 text-sky-950 sm:text-lg sm:leading-8">{page.scene}</p>
                   </div>
 
                   <div className="book-panels grid gap-4">
@@ -295,7 +295,7 @@ export default async function DownloadPage({ params }: DownloadPageProps) {
                 <Heart className="h-12 w-12 fill-rose-400" />
               </div>
               <p className="mt-6 text-xs font-black uppercase tracking-[0.24em] text-rose-500">The end</p>
-              <h2 className="mt-3 text-4xl font-black uppercase leading-tight text-sky-950 sm:text-6xl">
+              <h2 className="mt-3 text-3xl font-black uppercase leading-tight text-sky-950 sm:text-6xl">
                 {order.heroName} stayed brave, kind, and full of wonder.
               </h2>
               <p className="mx-auto mt-5 max-w-xl text-lg font-bold leading-8 text-slate-700">

@@ -289,7 +289,8 @@ export default function Home() {
   const featuredCharacters = featuredHeroIds
     .map((id) => allCharacters.find((character) => character.id === id))
     .filter((character): character is (typeof allCharacters)[number] => Boolean(character))
-  const maxCharacterBatch = Math.max(1, Math.ceil(featuredCharacters.length / 9))
+  const characterBatchSize = 6
+  const maxCharacterBatch = Math.max(1, Math.ceil(featuredCharacters.length / characterBatchSize))
   const checkoutIcons = {
     digital: Download,
     hardback: BookOpen,
@@ -338,7 +339,7 @@ export default function Home() {
 
   // Add search functionality
   const getFilteredCharacters = () => {
-    if (!characterSearchTerm) return featuredCharacters.slice(characterBatchIndex * 9, characterBatchIndex * 9 + 9)
+    if (!characterSearchTerm) return featuredCharacters.slice(characterBatchIndex * characterBatchSize, characterBatchIndex * characterBatchSize + characterBatchSize)
 
     return allCharacters.filter(
       (char) =>
@@ -539,6 +540,9 @@ export default function Home() {
         <p className="mx-auto max-w-2xl text-sm font-semibold leading-6 text-slate-700 sm:text-lg sm:leading-7">
           A quick start so the preview feels personal from the first page.
         </p>
+        <p className="mx-auto inline-flex rounded-full bg-white/80 px-3 py-1 text-xs font-black uppercase tracking-wide text-teal-700 shadow-sm">
+          Takes about a minute
+        </p>
       </div>
       <div className="grid gap-3 sm:grid-cols-2 sm:gap-4">
         <Card
@@ -571,7 +575,7 @@ export default function Home() {
           onClick={() => setCurrentStep("name")}
           className="h-12 w-full rounded-full bg-gradient-to-r from-emerald-500 to-sky-500 px-8 text-base font-black text-white shadow-[0_14px_32px_rgba(14,165,233,0.22)] hover:from-emerald-600 hover:to-sky-600 sm:h-13 sm:w-auto sm:text-lg"
         >
-          Continue
+          Continue to hero name
         </Button>
       )}
     </div>
@@ -766,19 +770,21 @@ export default function Home() {
   const renderNameSelection = () => {
     const heroNameBase = childName.trim()
     const allGeneratedNames = heroNameBase && selectedGender ? generateLegendNames(heroNameBase, selectedGender) : []
-    const generatedNames = allGeneratedNames.slice(nameBatchIndex * 9, nameBatchIndex * 9 + 9)
-    const maxNameBatch = Math.max(1, Math.ceil(allGeneratedNames.length / 9))
+    const nameBatchSize = 6
+    const generatedNames = allGeneratedNames.slice(nameBatchIndex * nameBatchSize, nameBatchIndex * nameBatchSize + nameBatchSize)
+    const maxNameBatch = Math.max(1, Math.ceil(allGeneratedNames.length / nameBatchSize))
 
     return (
       <div className={`mx-auto max-w-4xl space-y-6 text-center sm:space-y-8 ${selectedLegendName ? "pb-28 sm:pb-24" : ""}`}>
         <div className="mx-auto grid max-w-4xl items-center gap-4 md:grid-cols-[1fr_230px] sm:gap-6">
           <div className="space-y-2 sm:space-y-3 md:text-left">
-          <h2 className="pb-1 text-3xl font-black leading-tight bg-gradient-to-r from-rose-500 via-amber-500 to-sky-500 bg-clip-text text-transparent sm:pb-2 sm:text-5xl">
-            Name Your Little Legend
-          </h2>
-          <p className="text-sm font-semibold leading-6 text-sky-800 sm:text-lg">
-            First, tell us their name. Pick a hero name, then use the Add Photos button that appears on screen.
-          </p>
+            <Badge className="bg-amber-300 px-3 py-1 text-sky-950">Step 2 of 5</Badge>
+            <h2 className="pb-1 text-3xl font-black leading-tight bg-gradient-to-r from-rose-500 via-amber-500 to-sky-500 bg-clip-text text-transparent sm:pb-2 sm:text-5xl">
+              Name Your Little Legend
+            </h2>
+            <p className="text-sm font-semibold leading-6 text-sky-800 sm:text-lg">
+              Enter their name, then choose one simple hero name to carry into the story.
+            </p>
           </div>
           <div className="relative mx-auto w-full max-w-[230px] overflow-hidden rounded-3xl border-4 border-white bg-white shadow-[0_16px_40px_rgba(61,160,190,0.18)]">
             <img
@@ -825,9 +831,9 @@ export default function Home() {
         {heroNameBase && (
           <div className="space-y-6">
             <div className="flex flex-col items-center justify-between gap-3 sm:flex-row">
-              <h3 className="flex items-center text-2xl font-black text-teal-800">
+              <h3 className="flex items-center text-xl font-black text-teal-800 sm:text-2xl">
                 <Sparkles className="mr-2 h-6 w-6 text-amber-400" />
-                Pick a hero name for {heroNameBase}
+                Pick one for {heroNameBase}
               </h3>
               <Button
                 onClick={() => {
@@ -839,11 +845,11 @@ export default function Home() {
                 className="rounded-full border-sky-200 bg-white px-5 font-black text-sky-700 shadow-sm hover:bg-sky-50"
               >
                 <Wand2 className="h-4 w-4" />
-                Generate new names
+                More names
               </Button>
             </div>
 
-            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3">
+            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 md:grid-cols-3">
               {generatedNames.map((legendName) => (
                 <Card
                   key={legendName}
@@ -890,9 +896,9 @@ export default function Home() {
             {selectedLegendName && (
               <div className="space-y-4">
                 <Card className="border-0 bg-white/90 p-6 shadow-[0_12px_35px_rgba(61,160,190,0.14)]">
-                  <p className="text-xl text-teal-800">
+                  <p className="text-lg text-teal-800 sm:text-xl">
                     <span className="font-bold">Your hero will be called:</span>{" "}
-                    <span className="font-black text-rose-600 text-2xl">{selectedLegendName}</span>
+                    <span className="font-black text-rose-600 text-xl sm:text-2xl">{selectedLegendName}</span>
                   </p>
                 </Card>
               </div>
@@ -911,7 +917,7 @@ export default function Home() {
                 onClick={() => setCurrentStep("upload")}
                 className="h-12 w-full rounded-full bg-gradient-to-r from-green-500 to-sky-500 px-8 text-base font-black text-white hover:from-green-600 hover:to-sky-600 sm:w-auto"
               >
-                Add Photos
+                Continue to photos
               </Button>
             </div>
           </div>
@@ -926,7 +932,7 @@ export default function Home() {
         <Badge className="bg-amber-300 px-3 py-1 text-sky-950">Step 3 of 5</Badge>
         <h2 className="text-3xl font-black leading-tight text-sky-950 sm:text-5xl">Add photos for {selectedLegendName}</h2>
         <p className="mx-auto max-w-2xl text-sm font-semibold leading-6 text-slate-700 sm:text-lg sm:leading-7">
-          The first photo is the main likeness reference. You can also skip this for now and add reference photos later if you want to keep going.
+          Add a clear face photo for the final artwork, or continue without one and keep the story moving.
         </p>
       </div>
 
@@ -957,7 +963,7 @@ export default function Home() {
             variant="outline"
             className="h-11 rounded-full border-sky-200 bg-white px-6 font-black text-sky-700 hover:bg-sky-50"
           >
-            Skip Photos For Now
+            Continue without photos
           </Button>
         )}
       </div>
@@ -1068,9 +1074,14 @@ export default function Home() {
       )}
 
       {uploadedPhotos.length === 0 && (
-        <p className="mx-auto max-w-xl rounded-2xl border-2 border-sky-100 bg-white/85 px-4 py-3 text-sm font-semibold leading-6 text-slate-700 shadow-sm">
-          No photo ready? You can still create the story now and add photo reference before a final artwork pass.
-        </p>
+        <Card className="mx-auto max-w-xl border-2 border-sky-100 bg-white/85 px-4 py-3 text-left shadow-sm">
+          <div className="flex items-start gap-3">
+            <Clock className="mt-0.5 h-5 w-5 shrink-0 text-sky-600" />
+            <p className="text-sm font-semibold leading-6 text-slate-700">
+              No photo ready? That is fine. You can preview the story now and add reference photos before final artwork production.
+            </p>
+          </div>
+        </Card>
       )}
     </div>
   )
@@ -1081,7 +1092,7 @@ export default function Home() {
         <Badge className="bg-amber-300 px-3 py-1 text-sky-950">Step 4 of 5</Badge>
         <h2 className="text-3xl font-black leading-tight text-sky-950 sm:text-5xl">What kind of hero will {selectedLegendName} be?</h2>
         <p className="mx-auto max-w-2xl text-sm font-semibold leading-6 text-slate-700 sm:text-lg sm:leading-7">
-          Choose the story world they will step into.
+          Start with a favourite below, or search if they already know the adventure they want.
         </p>
       </div>
 
@@ -1111,7 +1122,7 @@ export default function Home() {
             Previous
           </Button>
           <div className="rounded-full bg-white/80 px-4 py-2 text-sm font-black text-sky-900 shadow-sm">
-            Page {characterBatchIndex + 1} of {maxCharacterBatch}
+            Favourites {characterBatchIndex + 1} of {maxCharacterBatch}
           </div>
           <Button
             onClick={() => {
@@ -1121,7 +1132,7 @@ export default function Home() {
             variant="outline"
             className="h-11 w-full rounded-full border-sky-200 bg-white px-6 font-black text-sky-700 shadow-sm hover:bg-sky-50 sm:w-auto"
           >
-            Next
+            More worlds
           </Button>
         </div>
       )}
@@ -1140,7 +1151,7 @@ export default function Home() {
               </div>
               <p className="min-h-10 text-sm font-black leading-tight text-sky-950 sm:text-xl">{character.name}</p>
               <Badge variant="secondary" className="text-xs capitalize">
-                {priorityHeroIds.has(character.id) ? "Favourite" : character.category}
+                {priorityHeroIds.has(character.id) ? "Recommended" : character.category}
               </Badge>
             </div>
           </Card>
@@ -1885,18 +1896,18 @@ export default function Home() {
         <div className="mx-auto max-w-6xl">
           <Card className="overflow-hidden border-4 border-sky-950 bg-white shadow-[12px_12px_0_rgba(8,47,73,0.18)]">
             <div className="grid gap-0 lg:grid-cols-[0.9fr_1.1fr]">
-              <div className="relative min-h-[300px] bg-[linear-gradient(135deg,#fef3c7_0%,#ccfbf1_50%,#dbeafe_100%)] p-5">
-                <div className="absolute right-4 top-4 rotate-6 rounded-lg border-4 border-sky-950 bg-yellow-300 px-3 py-2 text-2xl font-black text-sky-950 shadow-[5px_5px_0_rgba(8,47,73,0.18)]">
+              <div className="relative min-h-[280px] bg-[linear-gradient(135deg,#fef3c7_0%,#ccfbf1_50%,#dbeafe_100%)] p-4 sm:min-h-[300px] sm:p-5">
+                <div className="absolute right-3 top-3 rotate-6 rounded-lg border-4 border-sky-950 bg-yellow-300 px-3 py-1.5 text-lg font-black text-sky-950 shadow-[5px_5px_0_rgba(8,47,73,0.18)] sm:right-4 sm:top-4 sm:py-2 sm:text-2xl">
                   PREVIEW READY
                 </div>
                 <div className="grid h-full place-items-center pt-14 text-center">
                   <div>
                     <div className="mx-auto flex items-center justify-center gap-4">
-                      <div className={`grid h-24 w-24 rotate-[5deg] place-items-center rounded-full ${characterData?.color || "bg-sky-400"} text-3xl font-black text-white shadow-xl ring-4 ring-white`}>
+                      <div className={`grid h-20 w-20 rotate-[5deg] place-items-center rounded-full ${characterData?.color || "bg-sky-400"} text-2xl font-black text-white shadow-xl ring-4 ring-white sm:h-24 sm:w-24 sm:text-3xl`}>
                         {heroMark}
                       </div>
                     </div>
-                    <h2 className="mt-5 text-3xl font-black uppercase leading-tight text-sky-950">{story.purchaseSummary.headline}</h2>
+                    <h2 className="mt-5 text-2xl font-black uppercase leading-tight text-sky-950 sm:text-3xl">{story.purchaseSummary.headline}</h2>
                     <p className="mx-auto mt-3 max-w-md rounded-2xl border-4 border-sky-950 bg-white/90 px-4 py-3 text-base font-bold leading-6 text-sky-900 shadow-[5px_5px_0_rgba(8,47,73,0.14)]">
                       {story.purchaseSummary.body}
                     </p>
@@ -1912,6 +1923,9 @@ export default function Home() {
                   <h3 className="mt-2 text-2xl font-black leading-tight text-sky-950">{story.title}</h3>
                   <p className="mt-1 text-sm font-semibold leading-6 text-slate-700">{story.subtitle}</p>
                   <p className="mt-2 rounded-xl bg-sky-50 px-3 py-2 text-sm font-black text-sky-900">{pathSummary}</p>
+                  <p className="mt-3 rounded-2xl border-2 border-rose-100 bg-rose-50 px-4 py-3 text-sm font-bold leading-6 text-rose-900">
+                    Make this into {heroName}'s finished bedtime story, ready to read, save, or print.
+                  </p>
                 </div>
 
                 <div className="grid gap-2 sm:grid-cols-3">
@@ -1930,30 +1944,33 @@ export default function Home() {
                       </div>
                       <h4 className="text-xl font-black text-sky-950">Digital PDF</h4>
                     </div>
-                    <p className="mt-2 text-sm font-semibold text-slate-700">Download the finished personalised story.</p>
+                    <p className="mt-2 text-sm font-semibold leading-6 text-slate-700">Instant access to read on your phone and save as a PDF.</p>
                     <p className="mt-3 text-3xl font-black text-rose-600">£4.99</p>
                     <Button
                       onClick={() => startCheckout("digital")}
                       className="mt-3 h-10 w-full rounded-xl bg-sky-500 font-black text-white hover:bg-sky-600"
                     >
-                      Buy Digital
+                      Get Digital Story
                     </Button>
                   </Card>
 
-                  <Card className="border-4 border-sky-950 bg-amber-50 p-4 shadow-[6px_6px_0_rgba(8,47,73,0.12)]">
+                  <Card className="relative border-4 border-sky-950 bg-amber-50 p-4 shadow-[6px_6px_0_rgba(8,47,73,0.12)]">
+                    <div className="absolute right-3 top-3 rounded-full bg-rose-500 px-3 py-1 text-[11px] font-black uppercase text-white shadow-sm">
+                      Best keepsake
+                    </div>
                     <div className="mb-2 flex items-center gap-3">
                       <div className="grid h-10 w-10 place-items-center rounded-xl border-4 border-sky-950 bg-white text-amber-600 shadow-[3px_3px_0_rgba(8,47,73,0.14)]">
                         <BookOpen className="h-5 w-5" />
                       </div>
-                      <h4 className="text-xl font-black text-sky-950">Hardback Book</h4>
+                      <h4 className="pr-20 text-xl font-black text-sky-950">Hardback Book</h4>
                     </div>
-                    <p className="mt-2 text-sm font-semibold text-slate-700">A printed keepsake version for bedtime reading.</p>
+                    <p className="mt-2 text-sm font-semibold leading-6 text-slate-700">A posted keepsake for bedtime reading, with digital access included.</p>
                     <p className="mt-3 text-3xl font-black text-rose-600">£14.99</p>
                     <Button
                       onClick={() => startCheckout("hardback")}
                       className="mt-3 h-10 w-full rounded-xl bg-rose-500 font-black text-white hover:bg-rose-600"
                     >
-                      Order Hardback
+                      Order Keepsake Book
                     </Button>
                   </Card>
                 </div>
@@ -1966,7 +1983,7 @@ export default function Home() {
                   variant="outline"
                   className="h-10 w-full rounded-xl border-sky-200 bg-white font-black text-sky-700"
                 >
-                  Replay sample pages
+                  Read sample again
                 </Button>
               </div>
             </div>
@@ -1977,20 +1994,20 @@ export default function Home() {
 
     return (
       <div className="mx-auto max-w-6xl space-y-5">
-        <div className="rounded-[2rem] border-4 border-sky-950 bg-white p-4 shadow-[8px_8px_0_rgba(8,47,73,0.18)]">
-          <div className="flex flex-col items-center justify-between gap-3 border-b-4 border-sky-950 pb-4 text-center md:flex-row md:text-left">
+        <div className="rounded-[2rem] border-4 border-sky-950 bg-white p-3 shadow-[8px_8px_0_rgba(8,47,73,0.18)] sm:p-4">
+          <div className="flex flex-col items-center justify-between gap-2 border-b-4 border-sky-950 pb-3 text-center md:flex-row md:text-left">
             <div>
               <Badge className="mb-2 bg-amber-300 px-3 py-1 text-sky-950">{currentPage.kicker}</Badge>
-              <h2 className="text-3xl font-black uppercase leading-tight text-sky-950 sm:text-5xl">{story.title}</h2>
-              <p className="mt-1 text-lg font-black text-rose-600">{story.lesson}</p>
+              <h2 className="text-2xl font-black uppercase leading-tight text-sky-950 sm:text-5xl">{story.title}</h2>
+              <p className="mt-1 text-base font-black text-rose-600 sm:text-lg">{story.lesson}</p>
             </div>
-            <div className="rounded-2xl border-4 border-sky-950 bg-sky-100 px-5 py-3 text-center shadow-[5px_5px_0_rgba(8,47,73,0.18)]">
+            <div className="rounded-2xl border-4 border-sky-950 bg-sky-100 px-4 py-2 text-center shadow-[5px_5px_0_rgba(8,47,73,0.18)] sm:px-5 sm:py-3">
               <p className="text-xs font-black uppercase tracking-widest text-sky-700">Preview</p>
-              <p className="text-3xl font-black text-sky-950">{visiblePageNumber}/{story.previewPageLimit}</p>
+              <p className="text-2xl font-black text-sky-950 sm:text-3xl">{visiblePageNumber}/{story.previewPageLimit}</p>
             </div>
           </div>
 
-          <div className="mt-4 h-3 overflow-hidden rounded-full bg-sky-100 shadow-inner">
+          <div className="mt-3 h-2.5 overflow-hidden rounded-full bg-sky-100 shadow-inner sm:mt-4 sm:h-3">
             <div
               className="h-full rounded-full bg-gradient-to-r from-amber-400 via-rose-400 to-sky-400 transition-all"
               style={{ width: `${(visiblePageNumber / story.previewPageLimit) * 100}%` }}
@@ -2388,26 +2405,26 @@ export default function Home() {
 
     return (
       <form onSubmit={handleSubmit} className="mx-auto max-w-6xl space-y-5">
-        <div className="rounded-[2rem] border-4 border-sky-950 bg-white p-5 shadow-[8px_8px_0_rgba(8,47,73,0.18)]">
+        <div className="rounded-[2rem] border-4 border-sky-950 bg-white p-4 shadow-[8px_8px_0_rgba(8,47,73,0.18)] sm:p-5">
           <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
             <div>
-              <Badge className="mb-2 bg-amber-300 px-3 py-1 text-sky-950">Secure checkout</Badge>
+              <Badge className="mb-2 bg-amber-300 px-3 py-1 text-sky-950">Step 5 of 5</Badge>
               <h2 className="text-3xl font-black uppercase leading-tight text-sky-950 sm:text-5xl">Complete your order</h2>
               <p className="mt-2 max-w-2xl text-sm font-bold leading-6 text-slate-700">
                 {checkoutProduct === "upgrade"
                   ? `Add a posted hard copy for ${story.title}.`
-                  : `Choose a digital download or a posted hard copy for ${story.title}.`}
+                  : `Confirm where to send ${heroName}'s finished story, then continue to secure payment.`}
               </p>
             </div>
-            <div className="rounded-2xl border-4 border-sky-950 bg-sky-100 px-5 py-3 text-center shadow-[5px_5px_0_rgba(8,47,73,0.18)]">
+            <div className="rounded-2xl border-4 border-sky-950 bg-sky-100 px-4 py-3 text-center shadow-[5px_5px_0_rgba(8,47,73,0.18)] sm:px-5">
               <p className="text-xs font-black uppercase tracking-widest text-sky-700">Total</p>
-              <p className="text-3xl font-black text-sky-950">{money.format(currentCheckout.price)}</p>
+              <p className="text-2xl font-black text-sky-950 sm:text-3xl">{money.format(currentCheckout.price)}</p>
             </div>
           </div>
         </div>
 
         <div className="grid gap-5 lg:grid-cols-[1fr_0.75fr]">
-          <Card className="border-4 border-sky-950 bg-[#fffdf5] p-5 shadow-[10px_10px_0_rgba(8,47,73,0.16)]">
+          <Card className="border-4 border-sky-950 bg-[#fffdf5] p-4 shadow-[10px_10px_0_rgba(8,47,73,0.16)] sm:p-5">
             <div className={`grid gap-3 ${checkoutProduct === "upgrade" ? "" : "sm:grid-cols-2"}`}>
               {visibleCheckoutProducts.map((product) => {
                 const option = checkoutOptions[product]
@@ -2423,11 +2440,11 @@ export default function Home() {
                       setOrderSubmitted(false)
                       setCheckoutError("")
                     }}
-                    className={`rounded-2xl border-4 p-4 text-left shadow-[5px_5px_0_rgba(8,47,73,0.12)] transition-all hover:-translate-y-0.5 ${
+                    className={`rounded-2xl border-4 p-3 text-left shadow-[5px_5px_0_rgba(8,47,73,0.12)] transition-all hover:-translate-y-0.5 sm:p-4 ${
                       isSelected ? "border-sky-950 bg-sky-100" : "border-sky-100 bg-white"
                     }`}
                   >
-                    <div className="mb-3 grid h-11 w-11 place-items-center rounded-xl border-4 border-sky-950 bg-white text-sky-700">
+                    <div className="mb-3 grid h-10 w-10 place-items-center rounded-xl border-4 border-sky-950 bg-white text-sky-700 sm:h-11 sm:w-11">
                       <OptionIcon className="h-5 w-5" />
                     </div>
                     <h3 className="text-lg font-black text-sky-950">{option.label}</h3>
@@ -2440,54 +2457,67 @@ export default function Home() {
 
             <div className="mt-6 grid gap-4">
               <div className="grid gap-2">
-                <Label htmlFor="email" className="text-sm font-black text-sky-950">Email for receipt and download</Label>
+                <Label htmlFor="email" className="text-sm font-black text-sky-950">Email for receipt and story link</Label>
                 <Input
                   id="email"
                   type="email"
+                  inputMode="email"
+                  autoComplete="email"
+                  autoCapitalize="none"
                   required
                   value={checkoutForm.email}
                   onChange={(event) => updateCheckoutField("email", event.target.value)}
                   placeholder="you@example.com"
                   className="h-12 rounded-xl border-2 border-sky-100 bg-white font-semibold"
                 />
+                <p className="text-xs font-bold leading-5 text-slate-600">
+                  We will send the receipt and story access here.
+                </p>
               </div>
 
               {requiresPostage && (
                 <div className="grid gap-4 rounded-2xl border-4 border-sky-950 bg-white p-4">
-                  <div className="flex items-center gap-2">
+                  <div className="flex items-start gap-2">
                     <Truck className="h-5 w-5 text-rose-500" />
-                    <h3 className="text-xl font-black text-sky-950">Postage details</h3>
+                    <div>
+                      <h3 className="text-xl font-black text-sky-950">Delivery address</h3>
+                      <p className="mt-1 text-xs font-bold leading-5 text-slate-600">
+                        For the printed keepsake copy.
+                      </p>
+                    </div>
                   </div>
                   <div className="grid gap-4 sm:grid-cols-2">
                     <div className="grid gap-2 sm:col-span-2">
                       <Label htmlFor="fullName" className="text-sm font-black text-sky-950">Full name</Label>
-                      <Input id="fullName" required={requiresPostage} value={checkoutForm.fullName} onChange={(event) => updateCheckoutField("fullName", event.target.value)} className="h-12 rounded-xl border-2 border-sky-100 bg-white font-semibold" />
+                      <Input id="fullName" autoComplete="name" required={requiresPostage} value={checkoutForm.fullName} onChange={(event) => updateCheckoutField("fullName", event.target.value)} className="h-12 rounded-xl border-2 border-sky-100 bg-white font-semibold" />
                     </div>
                     <div className="grid gap-2 sm:col-span-2">
                       <Label htmlFor="addressLine1" className="text-sm font-black text-sky-950">Address line 1</Label>
-                      <Input id="addressLine1" required={requiresPostage} value={checkoutForm.addressLine1} onChange={(event) => updateCheckoutField("addressLine1", event.target.value)} className="h-12 rounded-xl border-2 border-sky-100 bg-white font-semibold" />
+                      <Input id="addressLine1" autoComplete="address-line1" required={requiresPostage} value={checkoutForm.addressLine1} onChange={(event) => updateCheckoutField("addressLine1", event.target.value)} className="h-12 rounded-xl border-2 border-sky-100 bg-white font-semibold" />
                     </div>
                     <div className="grid gap-2 sm:col-span-2">
                       <Label htmlFor="addressLine2" className="text-sm font-black text-sky-950">Address line 2</Label>
-                      <Input id="addressLine2" value={checkoutForm.addressLine2} onChange={(event) => updateCheckoutField("addressLine2", event.target.value)} className="h-12 rounded-xl border-2 border-sky-100 bg-white font-semibold" />
+                      <Input id="addressLine2" autoComplete="address-line2" value={checkoutForm.addressLine2} onChange={(event) => updateCheckoutField("addressLine2", event.target.value)} className="h-12 rounded-xl border-2 border-sky-100 bg-white font-semibold" />
                     </div>
                     <div className="grid gap-2">
                       <Label htmlFor="city" className="text-sm font-black text-sky-950">Town or city</Label>
-                      <Input id="city" required={requiresPostage} value={checkoutForm.city} onChange={(event) => updateCheckoutField("city", event.target.value)} className="h-12 rounded-xl border-2 border-sky-100 bg-white font-semibold" />
+                      <Input id="city" autoComplete="address-level2" required={requiresPostage} value={checkoutForm.city} onChange={(event) => updateCheckoutField("city", event.target.value)} className="h-12 rounded-xl border-2 border-sky-100 bg-white font-semibold" />
                     </div>
                     <div className="grid gap-2">
                       <Label htmlFor="postcode" className="text-sm font-black text-sky-950">Postcode</Label>
-                      <Input id="postcode" required={requiresPostage} value={checkoutForm.postcode} onChange={(event) => updateCheckoutField("postcode", event.target.value)} className="h-12 rounded-xl border-2 border-sky-100 bg-white font-semibold" />
+                      <Input id="postcode" autoComplete="postal-code" required={requiresPostage} value={checkoutForm.postcode} onChange={(event) => updateCheckoutField("postcode", event.target.value)} className="h-12 rounded-xl border-2 border-sky-100 bg-white font-semibold" />
                     </div>
                     <div className="grid gap-2 sm:col-span-2">
                       <Label htmlFor="country" className="text-sm font-black text-sky-950">Country</Label>
-                      <Input id="country" required={requiresPostage} value={checkoutForm.country} onChange={(event) => updateCheckoutField("country", event.target.value)} className="h-12 rounded-xl border-2 border-sky-100 bg-white font-semibold" />
+                      <Input id="country" autoComplete="country-name" required={requiresPostage} value={checkoutForm.country} onChange={(event) => updateCheckoutField("country", event.target.value)} className="h-12 rounded-xl border-2 border-sky-100 bg-white font-semibold" />
                     </div>
                     <div className="grid gap-2 sm:col-span-2">
                       <Label htmlFor="phone" className="text-sm font-black text-sky-950">Telephone number</Label>
                       <Input
                         id="phone"
                         type="tel"
+                        inputMode="tel"
+                        autoComplete="tel"
                         required={requiresPostage}
                         value={checkoutForm.phone}
                         onChange={(event) => updateCheckoutField("phone", event.target.value)}
@@ -2502,9 +2532,9 @@ export default function Home() {
           </Card>
 
           <div className="space-y-5">
-            <Card className="border-4 border-sky-950 bg-white p-5 shadow-[8px_8px_0_rgba(8,47,73,0.14)]">
+            <Card className="border-4 border-sky-950 bg-white p-4 shadow-[8px_8px_0_rgba(8,47,73,0.14)] sm:p-5">
               <div className="mb-4 flex items-center gap-3">
-                <div className="grid h-12 w-12 place-items-center rounded-xl border-4 border-sky-950 bg-sky-50 text-sky-700">
+                <div className="grid h-11 w-11 shrink-0 place-items-center rounded-xl border-4 border-sky-950 bg-sky-50 text-sky-700 sm:h-12 sm:w-12">
                   <CurrentIcon className="h-6 w-6" />
                 </div>
                 <div>
@@ -2523,7 +2553,7 @@ export default function Home() {
               </div>
             </Card>
 
-            <Card className="border-4 border-sky-950 bg-amber-50 p-5 shadow-[8px_8px_0_rgba(8,47,73,0.14)]">
+            <Card className="border-4 border-sky-950 bg-amber-50 p-4 shadow-[8px_8px_0_rgba(8,47,73,0.14)] sm:p-5">
               <div className="mb-3 flex items-center gap-2 text-sky-950">
                 <ShieldCheck className="h-5 w-5" />
                 <h3 className="text-lg font-black">Secure payment</h3>
@@ -2533,8 +2563,8 @@ export default function Home() {
                 {uploadedPhotos.length > 0 ? " Reference photos are stored privately with your order before checkout continues." : ""}
               </p>
               <div className="mt-4 grid gap-2 text-xs font-black text-sky-900">
-                <div className="rounded-xl bg-white/80 px-3 py-2">Secure checkout</div>
-                <div className="rounded-xl bg-white/80 px-3 py-2">Email receipt and download link</div>
+                <div className="rounded-xl bg-white/80 px-3 py-2">Secure Stripe checkout</div>
+                <div className="rounded-xl bg-white/80 px-3 py-2">Email receipt and story link</div>
                 <div className="rounded-xl bg-white/80 px-3 py-2">{dispatchEstimate}</div>
               </div>
               <div className="mt-3 flex flex-wrap gap-3 text-xs font-black text-sky-700">
@@ -2553,8 +2583,11 @@ export default function Home() {
                 className="mt-4 h-12 w-full rounded-xl bg-rose-500 text-base font-black text-white hover:bg-rose-600 disabled:opacity-70"
               >
                 <CreditCard className="h-5 w-5" />
-                {isPreparingCheckout ? "Preparing secure checkout..." : currentCheckout.button}
+                {isPreparingCheckout ? "Preparing secure checkout..." : "Continue to secure payment"}
               </Button>
+              <p className="mt-3 text-center text-xs font-bold leading-5 text-slate-600">
+                You can review everything before confirming payment.
+              </p>
             </Card>
           </div>
         </div>
