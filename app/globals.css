@@ -248,7 +248,7 @@ nextjs-portal {
 @media print {
   @page {
     size: A4 landscape;
-    margin: 8mm;
+    margin: 6mm;
   }
 
   * {
@@ -273,15 +273,38 @@ nextjs-portal {
   }
 
   .print-page {
+    box-sizing: border-box !important;
     width: 100% !important;
-    min-height: 180mm !important;
+    height: 198mm !important;
+    min-height: 198mm !important;
+    max-height: 198mm !important;
     margin: 0 !important;
-    padding: 5mm !important;
+    padding: 4mm !important;
     break-after: page;
+    break-inside: avoid;
     page-break-after: always;
+    page-break-inside: avoid;
     box-shadow: none !important;
     border-radius: 8px !important;
     overflow: hidden !important;
+  }
+
+  .book-page-header {
+    margin-bottom: 3mm !important;
+    padding-bottom: 3mm !important;
+    gap: 2mm !important;
+  }
+
+  .book-page-header h2 {
+    font-size: 22pt !important;
+    line-height: 1.05 !important;
+  }
+
+  .book-page-header > div:last-child {
+    padding: 1.5mm 3mm !important;
+    font-size: 15pt !important;
+    border-width: 2px !important;
+    box-shadow: none !important;
   }
 
   .book-cover-grid {
@@ -292,13 +315,14 @@ nextjs-portal {
   .book-page-body {
     display: grid !important;
     grid-template-columns: 1fr 0.85fr !important;
-    height: calc(180mm - 43mm) !important;
+    height: 152mm !important;
     align-items: stretch !important;
+    gap: 4mm !important;
   }
 
   .book-cover-hero,
   .book-cover-copy {
-    min-height: calc(180mm - 10mm) !important;
+    min-height: 190mm !important;
   }
 
   .book-cover-title-card {
@@ -314,16 +338,24 @@ nextjs-portal {
     display: grid !important;
     grid-template-rows: auto 1fr !important;
     height: 100% !important;
+    gap: 3mm !important;
   }
 
   .book-scene-text {
+    padding: 3.2mm !important;
     box-shadow: none !important;
+  }
+
+  .book-scene-text p {
+    font-size: 13pt !important;
+    line-height: 1.35 !important;
   }
 
   .book-panels {
     display: grid !important;
     grid-template-rows: repeat(2, minmax(0, 1fr)) !important;
     min-height: 0 !important;
+    gap: 3mm !important;
   }
 
   .book-panel {
@@ -331,10 +363,23 @@ nextjs-portal {
     min-height: 0 !important;
     flex-direction: column !important;
     justify-content: center !important;
+    padding: 3.2mm !important;
     box-shadow: none !important;
   }
 
+  .book-panel p {
+    font-size: 11.5pt !important;
+    line-height: 1.35 !important;
+  }
+
+  .book-panel div {
+    margin-top: 2mm !important;
+    padding: 2mm 3mm !important;
+    font-size: 11pt !important;
+    line-height: 1.25 !important;
+  }
+
   .book-ending-inner {
-    min-height: calc(180mm - 10mm) !important;
+    min-height: 190mm !important;
   }
 }

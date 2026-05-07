@@ -231,7 +231,7 @@ export default async function DownloadPage({ params }: DownloadPageProps) {
               key={page.id}
               className="book-page print-page overflow-hidden rounded-[2rem] border-4 border-sky-950 bg-[#fffdf5] p-4 shadow-[10px_10px_0_rgba(8,47,73,0.16)] sm:p-5"
             >
-              <div className="mb-4 flex flex-col gap-3 border-b-4 border-sky-950 pb-4 sm:flex-row sm:items-end sm:justify-between">
+              <div className="book-page-header mb-4 flex flex-col gap-3 border-b-4 border-sky-950 pb-4 sm:flex-row sm:items-end sm:justify-between">
                 <div>
                   <Badge className="mb-2 bg-amber-300 px-3 py-1 text-sky-950">Page {page.pageNumber}</Badge>
                   <h2 className="text-2xl font-black uppercase leading-tight text-sky-950 sm:text-3xl">{page.title}</h2>
@@ -265,18 +265,12 @@ export default async function DownloadPage({ params }: DownloadPageProps) {
 
                 <div className="book-copy-column grid gap-4">
                   <div className="book-scene-text rounded-2xl border-4 border-sky-950 bg-white p-5 shadow-[5px_5px_0_rgba(8,47,73,0.12)]">
-                    <div className="mb-2 inline-flex border-2 border-sky-950 bg-sky-100 px-3 py-1 text-xs font-black uppercase text-sky-950">
-                      Story
-                    </div>
                     <p className="text-base font-black leading-7 text-sky-950 sm:text-lg sm:leading-8">{page.scene}</p>
                   </div>
 
                   <div className="book-panels grid gap-4">
                     {page.panels.map((panel, index) => (
                       <div key={`${page.id}-${panel}`} className="book-panel rounded-2xl border-4 border-sky-950 bg-white p-4 shadow-[5px_5px_0_rgba(8,47,73,0.12)]">
-                        <div className="mb-2 inline-flex border-2 border-sky-950 bg-amber-200 px-3 py-1 text-xs font-black uppercase text-sky-950">
-                          Moment {index + 1}
-                        </div>
                         <p className="text-base font-bold leading-7 text-slate-700">{panel}</p>
                         {page.speech[index] && (
                           <div className="mt-3 rounded-[1.5rem] rounded-bl-sm border-2 border-sky-900 bg-amber-50 px-4 py-3 text-base font-black text-sky-950">
