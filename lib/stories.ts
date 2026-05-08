@@ -129,7 +129,10 @@ const footballerArtwork = (page: number) => {
   }
 }
 
-const dinosaurExpertArtwork = (page: number) => artwork("dinosaur-expert", page)
+const dinosaurExpertArtwork = (page: number) => ({
+  boy: `/stories/dinosaur-expert/dinosaur-expert-boy-page-${page}.png`,
+  girl: `/stories/dinosaur-expert/dinosaur-expert-girl-page-${page}.png`,
+})
 
 const bitcoinHeroArtwork = (page: number) => ({
   boy: `/stories/bitcoin-hero/bitcoin-hero-page-${page}.svg`,
