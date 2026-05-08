@@ -1889,6 +1889,11 @@ export default function Home() {
       story.characterId === "footballer" ||
       heroType.toLowerCase().includes("football") ||
       Boolean(currentPage.artwork?.boy?.includes("/footballer/"))
+    const isDinosaurPreview =
+      selectedCharacter === "dinosaur-expert" ||
+      story.characterId === "dinosaur-expert" ||
+      heroType.toLowerCase().includes("dinosaur") ||
+      Boolean(currentPage.artwork?.boy?.includes("/dinosaur-expert"))
     const footballSoundBadgePosition =
       isFootballPreview && currentPage.id === "first-chance"
         ? "left-3 bottom-28 sm:left-5 sm:bottom-32"
@@ -1906,6 +1911,19 @@ export default function Home() {
           "bg-[radial-gradient(circle_at_22%_24%,rgba(250,204,21,0.58)_0_7%,transparent_8%),radial-gradient(circle_at_72%_72%,rgba(125,211,252,0.42)_0_10%,transparent_11%),linear-gradient(135deg,#082f49_0%,#155e75_52%,#0f766e_100%)]",
       },
         ]
+      : isDinosaurPreview
+        ? [
+            {
+              label: "Fossil clue",
+              background:
+                "bg-[radial-gradient(circle_at_74%_24%,rgba(254,243,199,0.94)_0_7%,transparent_8%),radial-gradient(circle_at_22%_74%,rgba(132,204,22,0.38)_0_13%,transparent_14%),linear-gradient(135deg,#14532d_0%,#166534_46%,#f59e0b_100%)]",
+            },
+            {
+              label: "Rescue plan",
+              background:
+                "bg-[radial-gradient(circle_at_24%_28%,rgba(252,211,77,0.58)_0_8%,transparent_9%),radial-gradient(circle_at_74%_72%,rgba(187,247,208,0.45)_0_12%,transparent_13%),linear-gradient(135deg,#292524_0%,#166534_52%,#65a30d_100%)]",
+            },
+          ]
       : [
           {
             label: "Story moment",
@@ -2140,6 +2158,20 @@ export default function Home() {
                         <div className="absolute left-7 top-7 h-14 w-14 rounded-full border-4 border-white/45" />
                         <div className="absolute right-7 bottom-7 h-16 w-24 rounded-lg border-4 border-white/45" />
                         <div className="absolute left-[34%] top-[42%] h-1 w-[42%] -rotate-12 rounded-full bg-white/42" />
+                      </>
+                    )
+                  ) : isDinosaurPreview ? (
+                    index === 0 ? (
+                      <>
+                        <div className="absolute left-7 top-8 h-14 w-24 -rotate-12 rounded-[50%] border-4 border-amber-100/60" />
+                        <div className="absolute right-8 top-10 h-10 w-10 rounded-full border-4 border-sky-950/42 bg-amber-100/90 shadow-[4px_4px_0_rgba(8,47,73,0.16)]" />
+                        <div className="absolute inset-x-8 bottom-10 h-2 rounded-full bg-amber-100/55" />
+                      </>
+                    ) : (
+                      <>
+                        <div className="absolute left-8 bottom-8 h-16 w-20 rounded-[50%] border-4 border-amber-100/58 bg-amber-100/20" />
+                        <div className="absolute right-8 top-8 h-20 w-12 rounded-full border-4 border-white/42" />
+                        <div className="absolute left-[30%] top-[48%] h-1.5 w-[46%] rotate-6 rounded-full bg-white/42" />
                       </>
                     )
                   ) : (

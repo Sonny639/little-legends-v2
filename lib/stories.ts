@@ -129,6 +129,8 @@ const footballerArtwork = (page: number) => {
   }
 }
 
+const dinosaurExpertArtwork = (page: number) => artwork("dinosaur-expert", page)
+
 const bitcoinHeroArtwork = (page: number) => ({
   boy: `/stories/bitcoin-hero/bitcoin-hero-page-${page}.svg`,
   girl: `/stories/bitcoin-hero/bitcoin-hero-page-${page}.svg`,
@@ -149,6 +151,8 @@ export const getStoryForCharacter = (
     story = createBitcoinHeroStory(heroName, heroType)
   } else if (characterId === "footballer") {
     story = createFootballerStory(heroName, heroType)
+  } else if (characterId === "dinosaur-expert") {
+    story = createDinosaurExpertStory(heroName, heroType)
   } else if (characterId === "superhero") {
     story = createSuperheroStory(heroName, heroType)
   } else {
@@ -2886,6 +2890,229 @@ function createFootballerStory(heroName: string, heroType: string): CharacterSto
         speech: ["We won by playing together.", "Fair play feels brilliant."],
         sound: "CHEER!",
         choices: [choice("read-again", "Read the adventure again", "start", "brave")],
+      },
+    },
+  }
+}
+
+function createDinosaurExpertStory(heroName: string, heroType: string): CharacterStory {
+  return {
+    characterId: "dinosaur-expert",
+    title: `${heroName} and the Dino Egg Rescue`,
+    subtitle: `${heroName} the ${heroType} follows fossil clues and learns that big discoveries need gentle hands and patient eyes.`,
+    readingAge: "Ages 3 to 8",
+    lesson: "Curiosity, patience, and caring for nature",
+    previewPageLimit: 3,
+    purchaseSummary: {
+      headline: "Unlock the full dinosaur rescue",
+      body: `The full story follows ${heroName} through Fossil Valley, a missing egg, careful clues, and a gentle rescue where tiny dinosaurs stay safe.`,
+      includes: [
+        "A complete dinosaur rescue story with fossil clues",
+        "Choices about patience, kindness, and careful exploring",
+        "A warm ending about protecting nature and staying gentle",
+      ],
+    },
+    pages: {
+      start: {
+        id: "start",
+        kicker: "Page 1",
+        title: "The Fossil Calls",
+        scene: `A golden fossil glows beside ${heroName}'s bed and points a trail of tiny footprints toward Fossil Valley.`,
+        artwork: dinosaurExpertArtwork(1),
+        panels: [
+          `${heroName} finds the fossil warm with magic, as tiny footprints appear one by one across the floor.`,
+          `The footprints lead to fern trees, sunset rocks, and a worried chirp that echoes through Fossil Valley.`,
+        ],
+        speech: ["Those footprints are a clue.", "I'll be careful."],
+        sound: "CHIRP!",
+        choices: [
+          choice("follow-footprints", "Follow the glowing footprints", "fountain", "clever"),
+          choice("pack-fossil-kit", "Pack the fossil finder kit", "fountain", "brave"),
+        ],
+      },
+      fountain: {
+        id: "fountain",
+        kicker: "Page 2",
+        title: "The Egg That Rolled Away",
+        scene: `A baby dinosaur nest sits under the fern trees, but one speckled egg is missing from the soft moss.`,
+        artwork: dinosaurExpertArtwork(2),
+        panels: [
+          `The tiny triceratops sniffs the empty nest with muddy knees and worried eyes.`,
+          `${heroName} spots Rumble Hill shaking in the distance and knows the valley needs calm feet, quiet eyes, and a careful plan.`,
+        ],
+        speech: ["No rushing near an egg.", "We follow the clues gently."],
+        sound: "RUMBLE!",
+        choices: [
+          choice("calm-triceratops", "Calm the tiny triceratops", "cloud-story", "kind"),
+          choice("study-the-nest", "Study the nest for clues", "cloud-story", "clever"),
+        ],
+      },
+      "cloud-story": {
+        id: "cloud-story",
+        kicker: "Page 3",
+        title: "Rumble Hill Did Not Mean To Shake",
+        scene: `Rumble Hill explains that everyone stomped past too quickly, and all the noise made the stones jump with worry.`,
+        artwork: dinosaurExpertArtwork(3),
+        panels: [
+          `The hill is not naughty; it is frightened by loud rushing feet and too many excited explorers.`,
+          `${heroName} pats the tiny triceratops on its muddy back and shows everyone how to step softly like falling leaves.`,
+        ],
+        speech: ["The hill was worried.", "Soft steps, everyone."],
+        sound: "THUD-SHH!",
+        choices: [
+          choice("soft-step-plan", "Teach everyone soft steps", "map-maker", "kind"),
+          choice("open-finder-map", "Open the fossil finder map", "map-maker", "clever"),
+        ],
+      },
+      "map-maker": {
+        id: "map-maker",
+        kicker: "Page 4",
+        title: "The Fossil Finder Map",
+        scene: `The fossil finder glows whenever ${heroName} looks closely instead of quickly, tracing careful circles in the warm dust.`,
+        artwork: dinosaurExpertArtwork(4),
+        panels: [
+          `A footprint, a fern crumb, and a tiny shell mark a trail from the nest toward the safest hollow in the valley.`,
+          `${heroName} marks each clue gently, turning a muddle of worry into a rescue plan everyone can follow.`,
+        ],
+        speech: ["Slow looking finds more.", "The egg left a gentle trail."],
+        sound: "BEEP!",
+        choices: [
+          choice("visit-cave", "Search the fossil cave", "library-laugh", "clever"),
+          choice("bring-helper", "Bring the tiny triceratops", "library-laugh", "teamwork"),
+        ],
+      },
+      "library-laugh": {
+        id: "library-laugh",
+        kicker: "Page 5",
+        title: "The Footprint In Stone",
+        scene: `Inside the fossil record cave, ${heroName} finds a tiny footprint pressed into soft stone beside an ancient fern shape.`,
+        artwork: dinosaurExpertArtwork(5),
+        panels: [
+          `${heroName} kneels beside the footprint and keeps the fossil finder still so the delicate clue does not crumble.`,
+          `The tiny triceratops wants to rush ahead, but ${heroName} shows how careful eyes can protect important discoveries.`,
+        ],
+        speech: ["Look closely.", "This clue is fragile."],
+        sound: "TAP!",
+        choices: [
+          choice("trace-footprint", "Trace the footprint gently", "bakery-bubble", "clever"),
+          choice("comfort-helper", "Comfort the tiny helper", "bakery-bubble", "kind"),
+        ],
+      },
+      "bakery-bubble": {
+        id: "bakery-bubble",
+        kicker: "Page 6",
+        title: "The Leaf Snack Clue",
+        scene: `Near the leaf snack pile, fern crumbs dance in a little bubble beside two tiny tooth marks.`,
+        artwork: dinosaurExpertArtwork(6),
+        panels: [
+          `${heroName} notices the egg did not roll alone; a baby dinosaur must have tried to follow and got worried too.`,
+          `The fossil finder hums softly, showing that the rescue is about helping the egg and the little dinosaur.`,
+        ],
+        speech: ["The baby was scared.", "We help the egg and the little one."],
+        sound: "CRUNCH!",
+        choices: [
+          choice("follow-crumbs", "Follow the fern crumbs", "playground-chase", "clever"),
+          choice("leave-snacks", "Leave a calming leaf snack", "playground-chase", "kind"),
+        ],
+      },
+      "playground-chase": {
+        id: "playground-chase",
+        kicker: "Page 7",
+        title: "The Mud Slide Clue",
+        scene: `The last footprint is half-hidden beside a mud slide, where the egg must have rolled without cracking its spotted shell.`,
+        artwork: dinosaurExpertArtwork(7),
+        panels: [
+          `${heroName} asks the bigger dinosaurs to wait back so heavy feet do not shake the muddy slope again.`,
+          `Together, ${heroName} and the tiny triceratops build a soft fern path toward the warm hollow.`,
+        ],
+        speech: ["Give the egg space.", "Fern path first."],
+        sound: "SQUELCH!",
+        choices: [
+          choice("build-fern-path", "Build the soft fern path", "cloud-smile", "teamwork"),
+          choice("check-the-slope", "Check the muddy slope", "cloud-smile", "clever"),
+        ],
+      },
+      "cloud-smile": {
+        id: "cloud-smile",
+        kicker: "Page 8",
+        title: "Rumble Hill Settles",
+        scene: `${heroName} follows the fern path to a warm hollow where the egg rests safely in a patch of moss.`,
+        artwork: dinosaurExpertArtwork(8),
+        panels: [
+          `Rumble Hill takes one slow breath, then another, until the stones stop jumping and the valley grows peaceful.`,
+          `The tiny triceratops chirps with relief when the speckled egg gives the smallest sleepy wiggle.`,
+        ],
+        speech: ["Slow breaths, big hill.", "The egg is safe."],
+        sound: "RUMMM...",
+        choices: [
+          choice("thank-hill", "Thank Rumble Hill", "comet-test", "kind"),
+          choice("check-egg", "Check the egg carefully", "comet-test", "clever"),
+        ],
+      },
+      "comet-test": {
+        id: "comet-test",
+        kicker: "Page 9",
+        title: "The Fossil's Question",
+        scene: `The golden fossil glows and asks ${heroName} what explorers should do when a discovery feels exciting and important.`,
+        artwork: dinosaurExpertArtwork(9),
+        panels: [
+          `${heroName} thinks of the fragile footprint, the worried baby dinosaur, and the egg that needed gentle hands.`,
+          `The answer feels clear: real experts protect what they find before they show it proudly.`,
+        ],
+        speech: ["Protect it first.", "Discovery needs care."],
+        sound: "HMMM!",
+        choices: [
+          choice("answer-care", "Answer with gentle care", "town-parade", "kind"),
+          choice("answer-expert", "Answer like an expert explorer", "town-parade", "clever"),
+        ],
+      },
+      "town-parade": {
+        id: "town-parade",
+        kicker: "Page 10",
+        title: "The Stomp-Soft Parade",
+        scene: `Fossil Valley celebrates with a stomp-soft parade, where every dinosaur lifts its feet carefully so the egg can rest.`,
+        artwork: dinosaurExpertArtwork(10),
+        panels: [
+          `${heroName} leads from the front, showing that being an expert means noticing small things and keeping them safe.`,
+          `Even the biggest dinosaurs practise soft steps, proud to help the smallest nest in the valley.`,
+        ],
+        speech: ["Soft steps, everyone.", "Tiny things matter."],
+        sound: "STOMP-SOFT!",
+        choices: [
+          choice("share-credit", "Share the rescue credit", "bedtime-star", "teamwork"),
+          choice("thank-everyone", "Thank every careful helper", "bedtime-star", "kind"),
+        ],
+      },
+      "bedtime-star": {
+        id: "bedtime-star",
+        kicker: "Page 11",
+        title: "The Fossil Night-Light",
+        scene: `As evening settles over the fern trees, the golden fossil sends one warm glow back home with ${heroName}.`,
+        artwork: dinosaurExpertArtwork(11),
+        panels: [
+          `Beside the bed, the fossil shines like a tiny nest light, full of careful thinking and brave kindness.`,
+          `${heroName} remembers every footprint and every soft step, proud in the quiet way that comes after helping.`,
+        ],
+        speech: ["Goodnight, Fossil Valley.", "I used gentle hands."],
+        sound: "TWINKLE!",
+        choices: [
+          choice("make-wish", "Make one careful wish", "full-ending", "kind"),
+          choice("wave-goodnight", "Wave goodnight to the valley", "full-ending", "brave"),
+        ],
+      },
+      "full-ending": {
+        id: "full-ending",
+        kicker: "Page 12",
+        title: "The Dino Egg Comes Home",
+        scene: `${heroName} carries the egg the last little way on a bed of ferns, while Rumble Hill keeps perfectly still.`,
+        artwork: dinosaurExpertArtwork(12),
+        panels: [
+          `When the egg nest glows again, Fossil Valley cheers in whisper-soft roars so the smallest dinosaur can sleep.`,
+          `${heroName} learns that big discoveries feel best when they are protected with patience, kindness, and care.`,
+        ],
+        speech: ["Home safe.", "Big discoveries need gentle hands."],
+        sound: "SOFT ROAR!",
+        choices: [choice("read-again", "Read the adventure again", "start", "kind")],
       },
     },
   }
