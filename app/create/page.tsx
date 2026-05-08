@@ -1944,8 +1944,8 @@ export default function Home() {
                 <div className="grid h-full place-items-center pt-14 text-center">
                   <div>
                     <div className="mx-auto flex items-center justify-center gap-4">
-                      <div className={`grid h-20 w-20 rotate-[5deg] place-items-center rounded-full ${characterData?.color || "bg-sky-400"} text-2xl font-black text-white shadow-xl ring-4 ring-white sm:h-24 sm:w-24 sm:text-3xl`}>
-                        {heroMark}
+                      <div className="grid h-20 w-20 rotate-[5deg] place-items-center rounded-full border-4 border-white bg-gradient-to-br from-amber-200 via-white to-sky-100 text-4xl shadow-xl ring-4 ring-white/70 sm:h-24 sm:w-24 sm:text-5xl">
+                        <span aria-hidden="true">{characterData?.emoji || "✨"}</span>
                       </div>
                     </div>
                     <h2 className="mt-5 text-2xl font-black uppercase leading-tight text-sky-950 sm:text-3xl">{story.purchaseSummary.headline}</h2>
