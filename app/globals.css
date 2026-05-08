@@ -260,8 +260,20 @@ nextjs-portal {
     display: none !important;
   }
 
+  html,
   body {
     background: white !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    overflow: visible !important;
+  }
+
+  main.storybook-app-bg {
+    min-height: 0 !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    background: white !important;
+    overflow: visible !important;
   }
 
   .full-story-print {
@@ -274,35 +286,42 @@ nextjs-portal {
 
   .print-page {
     box-sizing: border-box !important;
-    width: 100% !important;
-    height: 198mm !important;
-    min-height: 198mm !important;
-    max-height: 198mm !important;
-    margin: 0 !important;
-    padding: 4mm !important;
+    width: 283mm !important;
+    height: 196mm !important;
+    min-height: 196mm !important;
+    max-height: 196mm !important;
+    margin: 0 auto !important;
+    padding: 3.5mm !important;
     break-after: page;
     break-inside: avoid;
     page-break-after: always;
     page-break-inside: avoid;
     box-shadow: none !important;
+    border-width: 2px !important;
     border-radius: 8px !important;
     overflow: hidden !important;
   }
 
+  .print-page:last-child {
+    break-after: auto;
+    page-break-after: auto;
+  }
+
   .book-page-header {
-    margin-bottom: 3mm !important;
-    padding-bottom: 3mm !important;
+    margin-bottom: 2.5mm !important;
+    padding-bottom: 2.5mm !important;
     gap: 2mm !important;
+    border-width: 2px !important;
   }
 
   .book-page-header h2 {
-    font-size: 22pt !important;
+    font-size: 20pt !important;
     line-height: 1.05 !important;
   }
 
   .book-page-header > div:last-child {
-    padding: 1.5mm 3mm !important;
-    font-size: 15pt !important;
+    padding: 1mm 2.5mm !important;
+    font-size: 13pt !important;
     border-width: 2px !important;
     box-shadow: none !important;
   }
@@ -310,44 +329,94 @@ nextjs-portal {
   .book-cover-grid {
     display: grid !important;
     grid-template-columns: 0.92fr 1.08fr !important;
+    height: 100% !important;
+    min-height: 0 !important;
   }
 
   .book-page-body {
     display: grid !important;
     grid-template-columns: 1fr 0.85fr !important;
-    height: 152mm !important;
+    height: 148mm !important;
     align-items: stretch !important;
-    gap: 4mm !important;
+    gap: 3.5mm !important;
   }
 
   .book-cover-hero,
   .book-cover-copy {
-    min-height: 190mm !important;
+    height: 100% !important;
+    min-height: 0 !important;
+    padding: 4mm !important;
+  }
+
+  .book-cover-copy {
+    display: flex !important;
+    flex-direction: column !important;
+    justify-content: center !important;
+    gap: 3mm !important;
+    border-width: 2px !important;
+  }
+
+  .book-cover-copy > * {
+    margin-top: 0 !important;
   }
 
   .book-cover-title-card {
+    padding: 4mm !important;
+    border-width: 2px !important;
     box-shadow: none !important;
+  }
+
+  .book-cover-title-card h2 {
+    font-size: 30pt !important;
+    line-height: 1 !important;
+  }
+
+  .book-cover-title-card p,
+  .book-cover-copy p {
+    font-size: 11pt !important;
+    line-height: 1.35 !important;
+  }
+
+  .book-cover-copy h2 {
+    font-size: 22pt !important;
+  }
+
+  .book-cover-copy .grid {
+    gap: 2mm !important;
+  }
+
+  .book-cover-copy .grid > div {
+    padding: 2.5mm !important;
+    border-width: 1px !important;
+  }
+
+  .book-cover-copy .flex {
+    gap: 1.5mm !important;
   }
 
   .book-art {
     min-height: 0 !important;
     height: 100% !important;
+    border-width: 2px !important;
+    border-radius: 7px !important;
   }
 
   .book-copy-column {
     display: grid !important;
     grid-template-rows: auto 1fr !important;
     height: 100% !important;
-    gap: 3mm !important;
+    gap: 2.5mm !important;
   }
 
   .book-scene-text {
-    padding: 3.2mm !important;
+    padding: 2.8mm !important;
+    border-width: 2px !important;
+    border-radius: 7px !important;
     box-shadow: none !important;
   }
 
   .book-scene-text p {
-    font-size: 13pt !important;
+    font-size: 12pt !important;
     line-height: 1.35 !important;
   }
 
@@ -355,7 +424,7 @@ nextjs-portal {
     display: grid !important;
     grid-template-rows: repeat(2, minmax(0, 1fr)) !important;
     min-height: 0 !important;
-    gap: 3mm !important;
+    gap: 2.5mm !important;
   }
 
   .book-panel {
@@ -363,23 +432,44 @@ nextjs-portal {
     min-height: 0 !important;
     flex-direction: column !important;
     justify-content: center !important;
-    padding: 3.2mm !important;
+    padding: 2.8mm !important;
+    border-width: 2px !important;
+    border-radius: 7px !important;
     box-shadow: none !important;
   }
 
   .book-panel p {
-    font-size: 11.5pt !important;
+    font-size: 10.5pt !important;
     line-height: 1.35 !important;
   }
 
   .book-panel div {
-    margin-top: 2mm !important;
-    padding: 2mm 3mm !important;
-    font-size: 11pt !important;
+    margin-top: 1.5mm !important;
+    padding: 1.6mm 2.5mm !important;
+    font-size: 10pt !important;
     line-height: 1.25 !important;
+    border-width: 1px !important;
+  }
+
+  .book-page-body + div {
+    margin-top: 2.5mm !important;
+    padding-top: 2mm !important;
   }
 
   .book-ending-inner {
-    min-height: 190mm !important;
+    min-height: 0 !important;
+    height: 100% !important;
+    padding: 4mm !important;
+    border-width: 2px !important;
+  }
+
+  .book-ending-inner h2 {
+    font-size: 32pt !important;
+    line-height: 1.05 !important;
+  }
+
+  .book-ending-inner p {
+    font-size: 12pt !important;
+    line-height: 1.4 !important;
   }
 }

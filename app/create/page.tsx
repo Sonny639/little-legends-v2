@@ -1878,6 +1878,19 @@ export default function Home() {
           ? fallbackPageArtwork
           : null
     const pathSummary = getStoryPathSummary(storyPath)
+    const isFootballPreview = story.characterId === "footballer"
+    const footballPanelStyles = [
+      {
+        label: "Match moment",
+        background:
+          "bg-[radial-gradient(circle_at_78%_22%,rgba(255,255,255,0.95)_0_5%,transparent_6%),radial-gradient(circle_at_28%_72%,rgba(251,191,36,0.34)_0_12%,transparent_13%),linear-gradient(135deg,#064e3b_0%,#0f766e_48%,#bef264_100%)]",
+      },
+      {
+        label: "Team plan",
+        background:
+          "bg-[radial-gradient(circle_at_22%_24%,rgba(250,204,21,0.58)_0_7%,transparent_8%),radial-gradient(circle_at_72%_72%,rgba(125,211,252,0.42)_0_10%,transparent_11%),linear-gradient(135deg,#082f49_0%,#155e75_52%,#0f766e_100%)]",
+      },
+    ]
 
     const handleStoryChoice = (choice: (typeof currentPage.choices)[number]) => {
       if (choice.id === "read-again") {
@@ -2041,17 +2054,39 @@ export default function Home() {
                   pageTitle={currentPage.title}
                 />
               )}
-              {visiblePageArtwork && <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(255,255,255,0.04)_0%,rgba(255,255,255,0.18)_62%,rgba(255,255,255,0.72)_100%)]" />}
-              <div className="absolute right-3 top-3 rotate-6 rounded-lg border-4 border-sky-950 bg-yellow-300 px-3 py-1.5 text-xl font-black text-sky-950 shadow-[5px_5px_0_rgba(8,47,73,0.18)] sm:right-5 sm:top-5 sm:px-4 sm:py-2 sm:text-4xl">
+              {visiblePageArtwork && (
+                <div
+                  className={
+                    isFootballPreview
+                      ? "absolute inset-0 bg-[linear-gradient(180deg,rgba(255,255,255,0.02)_0%,rgba(255,255,255,0.05)_45%,rgba(255,255,255,0.82)_100%)]"
+                      : "absolute inset-0 bg-[linear-gradient(180deg,rgba(255,255,255,0.04)_0%,rgba(255,255,255,0.18)_62%,rgba(255,255,255,0.72)_100%)]"
+                  }
+                />
+              )}
+              <div
+                className={`absolute rotate-6 rounded-lg border-4 border-sky-950 bg-yellow-300 px-3 py-1.5 text-xl font-black text-sky-950 shadow-[5px_5px_0_rgba(8,47,73,0.18)] sm:px-4 sm:py-2 sm:text-4xl ${
+                  isFootballPreview ? "left-3 top-3 sm:left-5 sm:top-5" : "right-3 top-3 sm:right-5 sm:top-5"
+                }`}
+              >
                 {currentPage.sound}
               </div>
-              <div className="absolute left-3 top-3 max-w-[58%] rounded-2xl rounded-bl-sm border-4 border-sky-950 bg-white px-3 py-2 text-left text-sm font-black leading-5 text-sky-950 shadow-[5px_5px_0_rgba(8,47,73,0.14)] sm:left-5 sm:top-5 sm:max-w-[62%] sm:px-4 sm:py-3 sm:text-base sm:leading-6">
+              <div
+                className={`absolute max-w-[58%] rounded-2xl rounded-bl-sm border-4 border-sky-950 bg-white px-3 py-2 text-left text-sm font-black leading-5 text-sky-950 shadow-[5px_5px_0_rgba(8,47,73,0.14)] sm:max-w-[62%] sm:px-4 sm:py-3 sm:text-base sm:leading-6 ${
+                  isFootballPreview ? "right-3 top-3 sm:right-5 sm:top-5" : "left-3 top-3 sm:left-5 sm:top-5"
+                }`}
+              >
                 {currentPage.speech[0]}
               </div>
-              <div className="grid h-full place-items-center pt-20 text-center">
-                <div>
-                  <h3 className="mt-6 -rotate-1 bg-white px-4 py-2 text-2xl font-black uppercase text-sky-950 shadow-[5px_5px_0_rgba(8,47,73,0.12)] sm:text-3xl">{currentPage.title}</h3>
-                  <p className="mx-auto mt-4 max-w-md rounded-2xl border-4 border-sky-950 bg-white/90 px-4 py-3 text-base font-bold leading-6 text-sky-900 shadow-[5px_5px_0_rgba(8,47,73,0.14)] sm:mt-5 sm:px-5 sm:py-4 sm:text-lg sm:leading-7">{currentPage.scene}</p>
+              <div
+                className={
+                  isFootballPreview
+                    ? "absolute inset-x-3 bottom-3 flex justify-start text-left sm:inset-x-5 sm:bottom-5"
+                    : "grid h-full place-items-center pt-20 text-center"
+                }
+              >
+                <div className={isFootballPreview ? "max-w-xl" : ""}>
+                  <h3 className={`${isFootballPreview ? "inline-block" : "mt-6"} -rotate-1 bg-white px-4 py-2 text-2xl font-black uppercase text-sky-950 shadow-[5px_5px_0_rgba(8,47,73,0.12)] sm:text-3xl`}>{currentPage.title}</h3>
+                  <p className={`${isFootballPreview ? "mt-2" : "mx-auto mt-4 sm:mt-5"} max-w-md rounded-2xl border-4 border-sky-950 bg-white/90 px-4 py-3 text-base font-bold leading-6 text-sky-900 shadow-[5px_5px_0_rgba(8,47,73,0.14)] sm:px-5 sm:py-4 sm:text-lg sm:leading-7`}>{currentPage.scene}</p>
                 </div>
               </div>
             </div>
@@ -2062,16 +2097,37 @@ export default function Home() {
                   key={panel}
                   className={`relative min-h-40 overflow-hidden rounded-2xl border-4 border-sky-950 bg-white shadow-[6px_6px_0_rgba(8,47,73,0.14)] sm:min-h-48 ${index === 0 ? "rotate-[1deg]" : "rotate-[-1deg]"}`}
                 >
-                  {visiblePageArtwork && (
+                  {isFootballPreview ? (
+                    <>
+                      <div className={`absolute inset-0 ${footballPanelStyles[index]?.background || footballPanelStyles[0].background}`} />
+                      {index === 0 ? (
+                        <>
+                          <div className="absolute bottom-0 left-1/2 h-full w-1 -translate-x-1/2 bg-white/24" />
+                          <div className="absolute inset-x-6 bottom-8 h-12 rounded-t-full border-4 border-white/55" />
+                          <div className="absolute right-8 top-6 h-10 w-10 rounded-full border-4 border-sky-950/45 bg-white/90 shadow-[4px_4px_0_rgba(8,47,73,0.16)]" />
+                        </>
+                      ) : (
+                        <>
+                          <div className="absolute left-7 top-7 h-14 w-14 rounded-full border-4 border-white/45" />
+                          <div className="absolute right-7 bottom-7 h-16 w-24 rounded-lg border-4 border-white/45" />
+                          <div className="absolute left-[34%] top-[42%] h-1 w-[42%] -rotate-12 rounded-full bg-white/42" />
+                        </>
+                      )}
+                      <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(255,255,255,0.02)_0%,rgba(255,255,255,0.18)_52%,rgba(255,255,255,0.9)_100%)]" />
+                      <div className="absolute left-4 top-4 rounded-full border-2 border-white/70 bg-white/88 px-3 py-1 text-xs font-black uppercase tracking-wide text-sky-950 shadow-[3px_3px_0_rgba(8,47,73,0.14)]">
+                        {footballPanelStyles[index]?.label || "Story beat"}
+                      </div>
+                    </>
+                  ) : visiblePageArtwork ? (
                     <img
                       src={visiblePageArtwork}
                       alt={`${currentPage.title} panel ${index + 1}`}
                       onError={() => setFailedArtwork((current) => ({ ...current, [visiblePageArtwork]: true }))}
                       className={`absolute inset-0 h-full w-full scale-125 object-cover ${index === 0 ? "object-left" : "object-right"}`}
                     />
-                  )}
-                  {visiblePageArtwork && <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(255,255,255,0)_0%,rgba(255,255,255,0.15)_45%,rgba(255,255,255,0.86)_100%)]" />}
-                  {!visiblePageArtwork && (
+                  ) : null}
+                  {!isFootballPreview && visiblePageArtwork && <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(255,255,255,0)_0%,rgba(255,255,255,0.15)_45%,rgba(255,255,255,0.86)_100%)]" />}
+                  {!isFootballPreview && !visiblePageArtwork && (
                     <StoryArtPlaceholder
                       heroType={heroType}
                       heroName={heroName}

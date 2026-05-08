@@ -2792,7 +2792,7 @@ function createFootballerStory(heroName: string, heroType: string): CharacterSto
         id: "corner-kick",
         kicker: "Page 7",
         title: "The Corner Kick",
-        scene: `A corner kick swings into the box, curling like a comet toward ${heroName}.`,
+        scene: `A corner kick starts beside the flag and curls toward the box like a comet, with ${heroName} ready for the next brave touch.`,
         artwork: footballerArtwork(7),
         panels: [
           `${heroName} could shoot, but two teammates are ready for the clever routine they practised when nobody was watching.`,
