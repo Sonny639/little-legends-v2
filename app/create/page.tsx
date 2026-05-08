@@ -1883,7 +1883,8 @@ export default function Home() {
       story.characterId === "footballer" ||
       heroType.toLowerCase().includes("football") ||
       Boolean(currentPage.artwork?.boy?.includes("/footballer/"))
-    const footballPanelStyles = [
+    const previewPanelStyles = isFootballPreview
+      ? [
       {
         label: "Match moment",
         background:
@@ -1894,7 +1895,19 @@ export default function Home() {
         background:
           "bg-[radial-gradient(circle_at_22%_24%,rgba(250,204,21,0.58)_0_7%,transparent_8%),radial-gradient(circle_at_72%_72%,rgba(125,211,252,0.42)_0_10%,transparent_11%),linear-gradient(135deg,#082f49_0%,#155e75_52%,#0f766e_100%)]",
       },
-    ]
+        ]
+      : [
+          {
+            label: "Story moment",
+            background:
+              "bg-[radial-gradient(circle_at_76%_24%,rgba(255,255,255,0.88)_0_6%,transparent_7%),radial-gradient(circle_at_24%_72%,rgba(251,191,36,0.42)_0_12%,transparent_13%),linear-gradient(135deg,#7c3aed_0%,#0ea5e9_52%,#f9a8d4_100%)]",
+          },
+          {
+            label: "Magic detail",
+            background:
+              "bg-[radial-gradient(circle_at_20%_20%,rgba(253,224,71,0.54)_0_7%,transparent_8%),radial-gradient(circle_at_74%_70%,rgba(186,230,253,0.5)_0_11%,transparent_12%),linear-gradient(135deg,#0f172a_0%,#4c1d95_52%,#be185d_100%)]",
+          },
+        ]
 
     const handleStoryChoice = (choice: (typeof currentPage.choices)[number]) => {
       if (choice.id === "read-again") {
@@ -2101,45 +2114,32 @@ export default function Home() {
                   key={panel}
                   className={`relative min-h-40 overflow-hidden rounded-2xl border-4 border-sky-950 bg-white shadow-[6px_6px_0_rgba(8,47,73,0.14)] sm:min-h-48 ${index === 0 ? "rotate-[1deg]" : "rotate-[-1deg]"}`}
                 >
+                  <div className={`absolute inset-0 ${previewPanelStyles[index]?.background || previewPanelStyles[0].background}`} />
                   {isFootballPreview ? (
+                    index === 0 ? (
+                      <>
+                        <div className="absolute bottom-0 left-1/2 h-full w-1 -translate-x-1/2 bg-white/24" />
+                        <div className="absolute inset-x-6 bottom-8 h-12 rounded-t-full border-4 border-white/55" />
+                        <div className="absolute right-8 top-6 h-10 w-10 rounded-full border-4 border-sky-950/45 bg-white/90 shadow-[4px_4px_0_rgba(8,47,73,0.16)]" />
+                      </>
+                    ) : (
+                      <>
+                        <div className="absolute left-7 top-7 h-14 w-14 rounded-full border-4 border-white/45" />
+                        <div className="absolute right-7 bottom-7 h-16 w-24 rounded-lg border-4 border-white/45" />
+                        <div className="absolute left-[34%] top-[42%] h-1 w-[42%] -rotate-12 rounded-full bg-white/42" />
+                      </>
+                    )
+                  ) : (
                     <>
-                      <div className={`absolute inset-0 ${footballPanelStyles[index]?.background || footballPanelStyles[0].background}`} />
-                      {index === 0 ? (
-                        <>
-                          <div className="absolute bottom-0 left-1/2 h-full w-1 -translate-x-1/2 bg-white/24" />
-                          <div className="absolute inset-x-6 bottom-8 h-12 rounded-t-full border-4 border-white/55" />
-                          <div className="absolute right-8 top-6 h-10 w-10 rounded-full border-4 border-sky-950/45 bg-white/90 shadow-[4px_4px_0_rgba(8,47,73,0.16)]" />
-                        </>
-                      ) : (
-                        <>
-                          <div className="absolute left-7 top-7 h-14 w-14 rounded-full border-4 border-white/45" />
-                          <div className="absolute right-7 bottom-7 h-16 w-24 rounded-lg border-4 border-white/45" />
-                          <div className="absolute left-[34%] top-[42%] h-1 w-[42%] -rotate-12 rounded-full bg-white/42" />
-                        </>
-                      )}
-                      <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(255,255,255,0.02)_0%,rgba(255,255,255,0.18)_52%,rgba(255,255,255,0.9)_100%)]" />
-                      <div className="absolute left-4 top-4 rounded-full border-2 border-white/70 bg-white/88 px-3 py-1 text-xs font-black uppercase tracking-wide text-sky-950 shadow-[3px_3px_0_rgba(8,47,73,0.14)]">
-                        {footballPanelStyles[index]?.label || "Story beat"}
-                      </div>
+                      <div className="absolute left-8 top-8 h-12 w-12 rounded-full border-4 border-white/45 bg-white/12" />
+                      <div className="absolute right-8 top-12 h-5 w-5 rotate-45 bg-white/58 shadow-[0_0_28px_rgba(255,255,255,0.7)]" />
+                      <div className="absolute bottom-8 left-1/2 h-1 w-[54%] -translate-x-1/2 rounded-full bg-white/40" />
                     </>
-                  ) : visiblePageArtwork ? (
-                    <img
-                      src={visiblePageArtwork}
-                      alt={`${currentPage.title} panel ${index + 1}`}
-                      onError={() => setFailedArtwork((current) => ({ ...current, [visiblePageArtwork]: true }))}
-                      className={`absolute inset-0 h-full w-full scale-125 object-cover ${index === 0 ? "object-left" : "object-right"}`}
-                    />
-                  ) : null}
-                  {!isFootballPreview && visiblePageArtwork && <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(255,255,255,0)_0%,rgba(255,255,255,0.15)_45%,rgba(255,255,255,0.86)_100%)]" />}
-                  {!isFootballPreview && !visiblePageArtwork && (
-                    <StoryArtPlaceholder
-                      heroType={heroType}
-                      heroName={heroName}
-                      initials={heroMark}
-                      pageTitle={currentPage.title}
-                      compact
-                    />
                   )}
+                  <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(255,255,255,0.02)_0%,rgba(255,255,255,0.18)_52%,rgba(255,255,255,0.9)_100%)]" />
+                  <div className="absolute left-4 top-4 rounded-full border-2 border-white/70 bg-white/88 px-3 py-1 text-xs font-black uppercase tracking-wide text-sky-950 shadow-[3px_3px_0_rgba(8,47,73,0.14)]">
+                    {previewPanelStyles[index]?.label || "Story beat"}
+                  </div>
                   <p className="absolute inset-x-3 bottom-3 rounded-2xl border-2 border-sky-950 bg-white/92 px-3 py-2 text-sm font-black leading-5 text-sky-950 shadow-[4px_4px_0_rgba(8,47,73,0.14)] sm:inset-x-4 sm:bottom-4 sm:px-4 sm:py-3 sm:text-base sm:leading-6">
                     {panel}
                   </p>
