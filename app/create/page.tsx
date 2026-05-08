@@ -1878,7 +1878,11 @@ export default function Home() {
           ? fallbackPageArtwork
           : null
     const pathSummary = getStoryPathSummary(storyPath)
-    const isFootballPreview = story.characterId === "footballer"
+    const isFootballPreview =
+      selectedCharacter === "footballer" ||
+      story.characterId === "footballer" ||
+      heroType.toLowerCase().includes("football") ||
+      Boolean(currentPage.artwork?.boy?.includes("/footballer/"))
     const footballPanelStyles = [
       {
         label: "Match moment",
