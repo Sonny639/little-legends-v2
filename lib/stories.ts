@@ -60,7 +60,7 @@ const choice = (
   pathTag,
 })
 
-const launchPreviewArtworkIds = new Set(["superhero", "wizard", "fairy", "princess", "dinosaur-expert"])
+const launchPreviewArtworkIds = new Set(["wizard", "fairy", "princess"])
 
 const artwork = (characterId: string, page: number) => {
   if (launchPreviewArtworkIds.has(characterId) && page <= 3) {

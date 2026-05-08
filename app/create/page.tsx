@@ -1914,14 +1914,19 @@ export default function Home() {
       story.characterId === "race-driver" ||
       heroType.toLowerCase().includes("race") ||
       Boolean(currentPage.artwork?.boy?.includes("/race-driver"))
+    const isSuperheroPreview =
+      selectedCharacter === "superhero" ||
+      story.characterId === "superhero" ||
+      heroType.toLowerCase().includes("superhero") ||
+      Boolean(currentPage.artwork?.boy?.includes("/superhero/"))
     const footballSoundBadgePosition =
       isFootballPreview && currentPage.id === "first-chance"
         ? "left-3 bottom-28 sm:left-5 sm:bottom-32"
         : "left-3 top-3 sm:left-5 sm:top-5"
-    const isImageLedPreview = isFootballPreview || isDinosaurPreview || isRacePreview
+    const isImageLedPreview = isFootballPreview || isDinosaurPreview || isRacePreview || isSuperheroPreview
     const soundBadgePosition = isFootballPreview
       ? footballSoundBadgePosition
-      : isDinosaurPreview
+      : isImageLedPreview
         ? "left-3 top-3 sm:left-5 sm:top-5"
         : "right-3 top-3 sm:right-5 sm:top-5"
     const speechBubblePosition = isImageLedPreview
@@ -1964,6 +1969,19 @@ export default function Home() {
               label: "Fair race plan",
               background:
                 "bg-[radial-gradient(circle_at_22%_24%,rgba(250,204,21,0.58)_0_7%,transparent_8%),radial-gradient(circle_at_72%_72%,rgba(125,211,252,0.42)_0_10%,transparent_11%),linear-gradient(135deg,#111827_0%,#1d4ed8_52%,#ef4444_100%)]",
+            },
+          ]
+      : isSuperheroPreview
+        ? [
+            {
+              label: "Promise spark",
+              background:
+                "bg-[radial-gradient(circle_at_76%_22%,rgba(255,255,255,0.94)_0_6%,transparent_7%),radial-gradient(circle_at_25%_72%,rgba(250,204,21,0.38)_0_12%,transparent_13%),linear-gradient(135deg,#0f172a_0%,#2563eb_48%,#facc15_100%)]",
+            },
+            {
+              label: "Kindness plan",
+              background:
+                "bg-[radial-gradient(circle_at_22%_24%,rgba(254,240,138,0.56)_0_7%,transparent_8%),radial-gradient(circle_at_72%_72%,rgba(147,197,253,0.44)_0_11%,transparent_12%),linear-gradient(135deg,#1e1b4b_0%,#1d4ed8_52%,#f59e0b_100%)]",
             },
           ]
       : [
@@ -2232,6 +2250,20 @@ export default function Home() {
                           <span className="rounded-full bg-emerald-200/70" />
                         </div>
                         <div className="absolute left-[30%] top-[45%] h-1.5 w-[46%] -rotate-6 rounded-full bg-white/42" />
+                      </>
+                    )
+                  ) : isSuperheroPreview ? (
+                    index === 0 ? (
+                      <>
+                        <div className="absolute right-8 top-8 h-10 w-10 rotate-45 bg-white/82 shadow-[0_0_30px_rgba(255,255,255,0.8)]" />
+                        <div className="absolute left-8 bottom-10 h-1.5 w-[55%] -rotate-12 rounded-full bg-white/50" />
+                        <div className="absolute left-8 top-10 h-16 w-10 rounded-t-full border-4 border-white/42" />
+                      </>
+                    ) : (
+                      <>
+                        <div className="absolute left-7 bottom-7 h-14 w-20 rounded-2xl border-4 border-white/42 bg-white/12" />
+                        <div className="absolute right-8 top-8 h-12 w-12 rounded-full border-4 border-amber-100/55" />
+                        <div className="absolute left-[32%] top-[46%] h-1.5 w-[46%] rotate-6 rounded-full bg-white/44" />
                       </>
                     )
                   ) : (
