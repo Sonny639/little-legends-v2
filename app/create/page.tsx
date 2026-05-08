@@ -1898,6 +1898,15 @@ export default function Home() {
       isFootballPreview && currentPage.id === "first-chance"
         ? "left-3 bottom-28 sm:left-5 sm:bottom-32"
         : "left-3 top-3 sm:left-5 sm:top-5"
+    const isImageLedPreview = isFootballPreview || isDinosaurPreview
+    const soundBadgePosition = isFootballPreview
+      ? footballSoundBadgePosition
+      : isDinosaurPreview
+        ? "left-3 top-3 sm:left-5 sm:top-5"
+        : "right-3 top-3 sm:right-5 sm:top-5"
+    const speechBubblePosition = isImageLedPreview
+      ? "right-3 top-3 sm:right-5 sm:top-5"
+      : "left-3 top-3 sm:left-5 sm:top-5"
     const previewPanelStyles = isFootballPreview
       ? [
       {
@@ -2105,7 +2114,7 @@ export default function Home() {
               {visiblePageArtwork && (
                 <div
                   className={
-                    isFootballPreview
+                    isImageLedPreview
                       ? "absolute inset-0 bg-[linear-gradient(180deg,rgba(255,255,255,0.02)_0%,rgba(255,255,255,0.05)_45%,rgba(255,255,255,0.82)_100%)]"
                       : "absolute inset-0 bg-[linear-gradient(180deg,rgba(255,255,255,0.04)_0%,rgba(255,255,255,0.18)_62%,rgba(255,255,255,0.72)_100%)]"
                   }
@@ -2113,28 +2122,28 @@ export default function Home() {
               )}
               <div
                 className={`absolute rotate-6 rounded-lg border-4 border-sky-950 bg-yellow-300 px-3 py-1.5 text-xl font-black text-sky-950 shadow-[5px_5px_0_rgba(8,47,73,0.18)] sm:px-4 sm:py-2 sm:text-4xl ${
-                  isFootballPreview ? footballSoundBadgePosition : "right-3 top-3 sm:right-5 sm:top-5"
+                  soundBadgePosition
                 }`}
               >
                 {currentPage.sound}
               </div>
               <div
                 className={`absolute max-w-[58%] rounded-2xl rounded-bl-sm border-4 border-sky-950 bg-white px-3 py-2 text-left text-sm font-black leading-5 text-sky-950 shadow-[5px_5px_0_rgba(8,47,73,0.14)] sm:max-w-[62%] sm:px-4 sm:py-3 sm:text-base sm:leading-6 ${
-                  isFootballPreview ? "right-3 top-3 sm:right-5 sm:top-5" : "left-3 top-3 sm:left-5 sm:top-5"
+                  speechBubblePosition
                 }`}
               >
                 {currentPage.speech[0]}
               </div>
               <div
                 className={
-                  isFootballPreview
+                  isImageLedPreview
                     ? "absolute inset-x-3 bottom-3 flex justify-start text-left sm:inset-x-5 sm:bottom-5"
                     : "grid h-full place-items-center pt-20 text-center"
                 }
               >
-                <div className={isFootballPreview ? "max-w-xl" : ""}>
-                  <h3 className={`${isFootballPreview ? "inline-block" : "mt-6"} -rotate-1 bg-white px-4 py-2 text-2xl font-black uppercase text-sky-950 shadow-[5px_5px_0_rgba(8,47,73,0.12)] sm:text-3xl`}>{currentPage.title}</h3>
-                  <p className={`${isFootballPreview ? "mt-2" : "mx-auto mt-4 sm:mt-5"} max-w-md rounded-2xl border-4 border-sky-950 bg-white/90 px-4 py-3 text-base font-bold leading-6 text-sky-900 shadow-[5px_5px_0_rgba(8,47,73,0.14)] sm:px-5 sm:py-4 sm:text-lg sm:leading-7`}>{currentPage.scene}</p>
+                <div className={isImageLedPreview ? "max-w-xl" : ""}>
+                  <h3 className={`${isImageLedPreview ? "inline-block" : "mt-6"} -rotate-1 bg-white px-4 py-2 text-2xl font-black uppercase text-sky-950 shadow-[5px_5px_0_rgba(8,47,73,0.12)] sm:text-3xl`}>{currentPage.title}</h3>
+                  <p className={`${isImageLedPreview ? "mt-2" : "mx-auto mt-4 sm:mt-5"} max-w-md rounded-2xl border-4 border-sky-950 bg-white/90 px-4 py-3 text-base font-bold leading-6 text-sky-900 shadow-[5px_5px_0_rgba(8,47,73,0.14)] sm:px-5 sm:py-4 sm:text-lg sm:leading-7`}>{currentPage.scene}</p>
                 </div>
               </div>
             </div>
