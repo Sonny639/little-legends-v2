@@ -284,7 +284,6 @@ export default function Home() {
     "mermaid",
     "unicorn-rider",
     "pop-star",
-    "race-driver",
     "doctor",
     "basketball-player",
     "bitcoin-hero",
