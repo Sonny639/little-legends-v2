@@ -323,7 +323,13 @@ export default function Home() {
     } else if (currentStep === "character") {
       setCurrentStep("upload")
     } else if (currentStep === "story") {
-      setCurrentStep("character")
+      if (storyPath.length > 0) {
+        const previousChoice = storyPath[storyPath.length - 1]
+        setStoryPath((currentPath) => currentPath.slice(0, -1))
+        setStoryPageId(previousChoice.pageId)
+      } else {
+        setCurrentStep("character")
+      }
     } else if (currentStep === "checkout") {
       setOrderSubmitted(false)
       setIsPreparingCheckout(false)
