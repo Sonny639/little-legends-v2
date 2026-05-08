@@ -9,7 +9,7 @@ export function PrintButton() {
     <Button
       type="button"
       onClick={() => window.print()}
-      className="h-11 rounded-xl bg-emerald-500 px-5 font-black text-white hover:bg-emerald-600"
+      className="h-11 w-full min-w-[12rem] rounded-xl bg-emerald-500 px-6 font-black text-white hover:bg-emerald-600"
     >
       <Printer className="h-4 w-4" />
       Print / Save PDF

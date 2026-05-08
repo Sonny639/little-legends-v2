@@ -12,6 +12,7 @@ import { Label } from "@/components/ui/label"
 export default function ContactPage() {
   const [name, setName] = useState("")
   const [email, setEmail] = useState("")
+  const [orderReference, setOrderReference] = useState("")
   const [subject, setSubject] = useState("")
   const [message, setMessage] = useState("")
   const [status, setStatus] = useState("")
@@ -26,13 +27,14 @@ export default function ContactPage() {
       const response = await fetch("/api/enquiries", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name, email, subject, message, source: "contact" }),
+        body: JSON.stringify({ name, email, orderReference, subject, message, source: "contact" }),
       })
 
       if (!response.ok) throw new Error("Could not send enquiry")
 
       setName("")
       setEmail("")
+      setOrderReference("")
       setSubject("")
       setMessage("")
       setStatus("Thanks, your enquiry has been sent.")
@@ -73,6 +75,16 @@ export default function ContactPage() {
             <div className="space-y-2">
               <Label htmlFor="subject" className="font-black text-sky-950">Subject</Label>
               <Input id="subject" required value={subject} onChange={(event) => setSubject(event.target.value)} className="h-11 rounded-xl border-2 border-sky-100 bg-white font-semibold" />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="orderReference" className="font-black text-sky-950">Order number, if applicable</Label>
+              <Input
+                id="orderReference"
+                value={orderReference}
+                onChange={(event) => setOrderReference(event.target.value)}
+                placeholder="e.g. order_123 or Stripe reference"
+                className="h-11 rounded-xl border-2 border-sky-100 bg-white font-semibold"
+              />
             </div>
             <div className="space-y-2">
               <Label htmlFor="message" className="font-black text-sky-950">Message</Label>

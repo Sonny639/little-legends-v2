@@ -2477,7 +2477,7 @@ export default function Home() {
                       window.setTimeout(() => window.print(), 250)
                     }}
                     disabled={latestOrder?.status !== "paid_demo" && latestOrder?.status !== "paid"}
-                    className="h-11 rounded-xl bg-emerald-500 px-5 font-black text-white hover:bg-emerald-600"
+                    className="h-11 min-w-[10rem] rounded-xl bg-emerald-500 px-6 font-black text-white hover:bg-emerald-600"
                   >
                     <Download className="h-4 w-4" />
                     Download PDF
@@ -2740,7 +2740,7 @@ export default function Home() {
             <div className="grid gap-2 sm:grid-cols-2">
               <Button
                 onClick={() => window.print()}
-                className="h-11 rounded-xl bg-emerald-500 px-5 font-black text-white hover:bg-emerald-600"
+                className="h-11 min-w-[10rem] rounded-xl bg-emerald-500 px-6 font-black text-white hover:bg-emerald-600"
               >
                 <Download className="h-4 w-4" />
                 Download PDF

@@ -7,6 +7,7 @@ import { checkRateLimit, getClientIp, rateLimitResponseHeaders } from "@/lib/rat
 const enquiryStatuses: EnquiryStatus[] = ["new", "replied", "closed"]
 const maxNameLength = 120
 const maxEmailLength = 254
+const maxOrderReferenceLength = 120
 const maxSubjectLength = 160
 const maxMessageLength = 3000
 
@@ -27,13 +28,14 @@ export async function GET() {
 
 export async function POST(request: Request) {
   try {
-    const { name, email, subject, message, source, company, website } = await request.json()
+    const { name, email, orderReference, subject, message, source, company, website } = await request.json()
 
     if (
       typeof name !== "string" ||
       typeof email !== "string" ||
       typeof subject !== "string" ||
       typeof message !== "string" ||
+      typeof orderReference !== "undefined" && typeof orderReference !== "string" ||
       typeof source !== "undefined" && typeof source !== "string"
     ) {
       return NextResponse.json({ error: "Invalid enquiry" }, { status: 400 })
@@ -45,8 +47,12 @@ export async function POST(request: Request) {
 
     const cleanedName = cleanText(name, maxNameLength)
     const cleanedEmail = email.trim().toLowerCase().slice(0, maxEmailLength)
+    const cleanedOrderReference = typeof orderReference === "string" ? cleanText(orderReference, maxOrderReferenceLength) : ""
     const cleanedSubject = cleanText(subject, maxSubjectLength)
     const cleanedMessage = cleanMessage(message)
+    const enquiryMessage = cleanedOrderReference
+      ? [`Order/reference number: ${cleanedOrderReference}`, "", cleanedMessage].join("\n")
+      : cleanedMessage
 
     if (!cleanedName || !isValidEmail(cleanedEmail) || !cleanedSubject || cleanedMessage.length < 2) {
       return NextResponse.json({ error: "Invalid enquiry" }, { status: 400 })
@@ -70,13 +76,14 @@ export async function POST(request: Request) {
       name: cleanedName,
       email: cleanedEmail,
       subject: cleanedSubject,
-      message: cleanedMessage,
+      message: enquiryMessage,
     })
 
     if (source === "contact") {
       const notification = await sendContactEmail({
         name: cleanedName,
         email: cleanedEmail,
+        orderReference: cleanedOrderReference,
         subject: cleanedSubject,
         message: cleanedMessage,
       })

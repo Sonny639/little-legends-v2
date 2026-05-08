@@ -3,6 +3,7 @@ import nodemailer from "nodemailer"
 type ContactEmailInput = {
   name: string
   email: string
+  orderReference?: string
   subject: string
   message: string
 }
@@ -12,7 +13,7 @@ const smtpPort = () => Number(process.env.SMTP_PORT || 587)
 const hasSmtpConfig = () =>
   Boolean(process.env.SMTP_HOST && process.env.SMTP_USER && process.env.SMTP_PASSWORD)
 
-export const sendContactEmail = async ({ name, email, subject, message }: ContactEmailInput) => {
+export const sendContactEmail = async ({ name, email, orderReference, subject, message }: ContactEmailInput) => {
   if (!hasSmtpConfig()) {
     return { sent: false, reason: "SMTP is not configured" }
   }
@@ -42,6 +43,7 @@ export const sendContactEmail = async ({ name, email, subject, message }: Contac
       ``,
       `Name: ${name}`,
       `Email: ${email}`,
+      ...(orderReference ? [`Order/reference number: ${orderReference}`] : []),
       `Subject: ${subject}`,
       ``,
       message,
