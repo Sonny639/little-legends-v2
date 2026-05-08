@@ -1883,6 +1883,10 @@ export default function Home() {
       story.characterId === "footballer" ||
       heroType.toLowerCase().includes("football") ||
       Boolean(currentPage.artwork?.boy?.includes("/footballer/"))
+    const footballSoundBadgePosition =
+      isFootballPreview && currentPage.id === "first-chance"
+        ? "left-3 bottom-28 sm:left-5 sm:bottom-32"
+        : "left-3 top-3 sm:left-5 sm:top-5"
     const previewPanelStyles = isFootballPreview
       ? [
       {
@@ -2082,7 +2086,7 @@ export default function Home() {
               )}
               <div
                 className={`absolute rotate-6 rounded-lg border-4 border-sky-950 bg-yellow-300 px-3 py-1.5 text-xl font-black text-sky-950 shadow-[5px_5px_0_rgba(8,47,73,0.18)] sm:px-4 sm:py-2 sm:text-4xl ${
-                  isFootballPreview ? "left-3 top-3 sm:left-5 sm:top-5" : "right-3 top-3 sm:right-5 sm:top-5"
+                  isFootballPreview ? footballSoundBadgePosition : "right-3 top-3 sm:right-5 sm:top-5"
                 }`}
               >
                 {currentPage.sound}
