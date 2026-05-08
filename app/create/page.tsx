@@ -266,14 +266,16 @@ export default function Home() {
   ]
 
   const [characterSearchTerm, setCharacterSearchTerm] = useState("")
-  const priorityHeroIds = new Set(["superhero", "wizard", "fairy", "princess", "footballer", "dinosaur-expert"])
+  const launchHeroIds = new Set(["footballer", "dinosaur-expert", "superhero", "race-driver", "fairy", "princess"])
+  const priorityHeroIds = launchHeroIds
   const featuredHeroIds = [
-    "superhero",
-    "wizard",
-    "fairy",
-    "princess",
     "footballer",
     "dinosaur-expert",
+    "superhero",
+    "race-driver",
+    "fairy",
+    "princess",
+    "wizard",
     "astronaut",
     "dragon-trainer",
     "ninja",
@@ -357,6 +359,8 @@ export default function Home() {
 
   // Update the character selection step to skip character-type
   const handleCharacterSelection = (characterId: string) => {
+    if (!launchHeroIds.has(characterId)) return
+
     setSelectedCharacter(characterId)
     setStoryPage(1)
     setStoryPageId("start")
@@ -1099,7 +1103,7 @@ export default function Home() {
         <Badge className="bg-amber-300 px-3 py-1 text-sky-950">Step 4 of 5</Badge>
         <h2 className="text-3xl font-black leading-tight text-sky-950 sm:text-5xl">What kind of hero will {selectedLegendName} be?</h2>
         <p className="mx-auto max-w-2xl text-sm font-semibold leading-6 text-slate-700 sm:text-lg sm:leading-7">
-          Start with a favourite below, or search if they already know the adventure they want.
+          Start with one of our launch adventures below. More hero worlds are coming soon.
         </p>
       </div>
 
@@ -1145,24 +1149,36 @@ export default function Home() {
       )}
 
       <div className="mx-auto grid max-w-4xl grid-cols-2 gap-2.5 sm:gap-4 md:grid-cols-3">
-        {getFilteredCharacters().map((character) => (
-          <Card
-            key={character.id}
-            className={`storybook-focus cursor-pointer border-4 p-3 shadow-[6px_6px_0_rgba(8,47,73,0.11)] sm:p-5 ${selectedCharacter === character.id ? "border-sky-950 bg-amber-50 ring-4 ring-amber-100" : "border-white bg-white/90"}`}
-            onClick={() => handleCharacterSelection(character.id)}
-          >
-            <div className="space-y-2 text-center sm:space-y-3">
-              <div className="relative mx-auto flex h-14 w-14 items-center justify-center overflow-hidden rounded-2xl border-4 border-sky-950 bg-[#fffdf5] text-lg font-black text-sky-950 shadow-[4px_4px_0_rgba(8,47,73,0.12)] ring-4 ring-white sm:h-20 sm:w-20 sm:text-3xl">
-                <span className={`absolute inset-x-2 bottom-1 h-2 rounded-full ${character.color}`} aria-hidden="true" />
-                <span className="relative drop-shadow-sm">{getHeroInitials(character.name)}</span>
+        {getFilteredCharacters().map((character) => {
+          const isLaunchHero = launchHeroIds.has(character.id)
+
+          return (
+            <Card
+              key={character.id}
+              aria-disabled={!isLaunchHero}
+              className={`relative border-4 p-3 shadow-[6px_6px_0_rgba(8,47,73,0.11)] sm:p-5 ${
+                isLaunchHero ? "storybook-focus cursor-pointer" : "cursor-not-allowed opacity-65 grayscale-[0.35]"
+              } ${selectedCharacter === character.id ? "border-sky-950 bg-amber-50 ring-4 ring-amber-100" : "border-white bg-white/90"}`}
+              onClick={() => handleCharacterSelection(character.id)}
+            >
+              {!isLaunchHero && (
+                <div className="absolute right-2 top-2 rounded-full bg-sky-950 px-2.5 py-1 text-[10px] font-black uppercase tracking-wide text-white shadow-sm">
+                  Coming soon
+                </div>
+              )}
+              <div className="space-y-2 text-center sm:space-y-3">
+                <div className="relative mx-auto flex h-14 w-14 items-center justify-center overflow-hidden rounded-2xl border-4 border-sky-950 bg-[#fffdf5] text-lg font-black text-sky-950 shadow-[4px_4px_0_rgba(8,47,73,0.12)] ring-4 ring-white sm:h-20 sm:w-20 sm:text-3xl">
+                  <span className={`absolute inset-x-2 bottom-1 h-2 rounded-full ${character.color}`} aria-hidden="true" />
+                  <span className="relative drop-shadow-sm">{getHeroInitials(character.name)}</span>
+                </div>
+                <p className="min-h-10 text-sm font-black leading-tight text-sky-950 sm:text-xl">{character.name}</p>
+                <Badge variant="secondary" className="text-xs capitalize">
+                  {isLaunchHero ? "Available now" : "Next adventure"}
+                </Badge>
               </div>
-              <p className="min-h-10 text-sm font-black leading-tight text-sky-950 sm:text-xl">{character.name}</p>
-              <Badge variant="secondary" className="text-xs capitalize">
-                {priorityHeroIds.has(character.id) ? "Recommended" : character.category}
-              </Badge>
-            </div>
-          </Card>
-        ))}
+            </Card>
+          )
+        })}
       </div>
 
       {getFilteredCharacters().length === 0 && characterSearchTerm && (
@@ -1894,11 +1910,16 @@ export default function Home() {
       story.characterId === "dinosaur-expert" ||
       heroType.toLowerCase().includes("dinosaur") ||
       Boolean(currentPage.artwork?.boy?.includes("/dinosaur-expert"))
+    const isRacePreview =
+      selectedCharacter === "race-driver" ||
+      story.characterId === "race-driver" ||
+      heroType.toLowerCase().includes("race") ||
+      Boolean(currentPage.artwork?.boy?.includes("/race-driver"))
     const footballSoundBadgePosition =
       isFootballPreview && currentPage.id === "first-chance"
         ? "left-3 bottom-28 sm:left-5 sm:bottom-32"
         : "left-3 top-3 sm:left-5 sm:top-5"
-    const isImageLedPreview = isFootballPreview || isDinosaurPreview
+    const isImageLedPreview = isFootballPreview || isDinosaurPreview || isRacePreview
     const soundBadgePosition = isFootballPreview
       ? footballSoundBadgePosition
       : isDinosaurPreview
@@ -1931,6 +1952,19 @@ export default function Home() {
               label: "Rescue plan",
               background:
                 "bg-[radial-gradient(circle_at_24%_28%,rgba(252,211,77,0.58)_0_8%,transparent_9%),radial-gradient(circle_at_74%_72%,rgba(187,247,208,0.45)_0_12%,transparent_13%),linear-gradient(135deg,#292524_0%,#166534_52%,#65a30d_100%)]",
+            },
+          ]
+      : isRacePreview
+        ? [
+            {
+              label: "Track moment",
+              background:
+                "bg-[radial-gradient(circle_at_76%_24%,rgba(254,243,199,0.92)_0_6%,transparent_7%),radial-gradient(circle_at_24%_72%,rgba(248,113,113,0.36)_0_12%,transparent_13%),linear-gradient(135deg,#7f1d1d_0%,#ef4444_48%,#fbbf24_100%)]",
+            },
+            {
+              label: "Fair race plan",
+              background:
+                "bg-[radial-gradient(circle_at_22%_24%,rgba(250,204,21,0.58)_0_7%,transparent_8%),radial-gradient(circle_at_72%_72%,rgba(125,211,252,0.42)_0_10%,transparent_11%),linear-gradient(135deg,#111827_0%,#1d4ed8_52%,#ef4444_100%)]",
             },
           ]
       : [
@@ -2181,6 +2215,24 @@ export default function Home() {
                         <div className="absolute left-8 bottom-8 h-16 w-20 rounded-[50%] border-4 border-amber-100/58 bg-amber-100/20" />
                         <div className="absolute right-8 top-8 h-20 w-12 rounded-full border-4 border-white/42" />
                         <div className="absolute left-[30%] top-[48%] h-1.5 w-[46%] rotate-6 rounded-full bg-white/42" />
+                      </>
+                    )
+                  ) : isRacePreview ? (
+                    index === 0 ? (
+                      <>
+                        <div className="absolute bottom-0 left-1/2 h-full w-1 -translate-x-1/2 bg-white/24" />
+                        <div className="absolute inset-x-7 bottom-8 h-12 rounded-t-full border-4 border-white/50" />
+                        <div className="absolute right-8 top-6 h-9 w-16 rounded-lg border-4 border-white/45" />
+                      </>
+                    ) : (
+                      <>
+                        <div className="absolute left-7 bottom-7 h-14 w-24 rounded-full border-4 border-white/45" />
+                        <div className="absolute right-8 top-8 grid h-14 w-10 grid-rows-3 gap-1 rounded-xl border-4 border-white/45 p-1">
+                          <span className="rounded-full bg-red-300/70" />
+                          <span className="rounded-full bg-amber-200/80" />
+                          <span className="rounded-full bg-emerald-200/70" />
+                        </div>
+                        <div className="absolute left-[30%] top-[45%] h-1.5 w-[46%] -rotate-6 rounded-full bg-white/42" />
                       </>
                     )
                   ) : (

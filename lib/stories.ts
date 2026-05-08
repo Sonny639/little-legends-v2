@@ -105,6 +105,10 @@ const visualDirectionForHero = (heroType: string) => {
     return "Visual direction: friendly fossil valley, child explorer outfit, fossil finder, warm ferns, gentle baby dinosaur details, adventurous but never scary."
   }
 
+  if (normalisedHeroType.includes("race") || normalisedHeroType.includes("car driver")) {
+    return "Visual direction: bright child-safe racing circuit, red open-wheel race car, fair-play energy, checkered flags, safety cones, no crashes or danger."
+  }
+
   return "Visual direction: premium magical children's storybook illustration with warm bedtime emotion, expressive child hero, and a clear sense of wonder."
 }
 

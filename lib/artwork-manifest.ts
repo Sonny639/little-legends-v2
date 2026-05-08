@@ -26,6 +26,7 @@ export type ArtworkPromptPackItem = ArtworkManifestItem & {
 
 const artworkStories = [
   { id: "superhero", heroName: "Little Legend", heroType: "Superhero" },
+  { id: "race-driver", heroName: "Little Legend", heroType: "Race Car Driver" },
   { id: "wizard", heroName: "Little Legend", heroType: "Wizard" },
   { id: "fairy", heroName: "Little Legend", heroType: "Fairy" },
   { id: "princess", heroName: "Little Legend", heroType: "Princess" },
@@ -35,7 +36,7 @@ const artworkStories = [
   { id: "starter-template", heroName: "Little Legend", heroType: "Hero" },
 ]
 
-const launchPriorityStoryIds = new Set(["superhero", "wizard", "fairy", "princess", "footballer", "dinosaur-expert"])
+const launchPriorityStoryIds = new Set(["superhero", "race-driver", "fairy", "princess", "footballer", "dinosaur-expert"])
 const launchStoryOrder = new Map(artworkStories.map((story, index) => [story.id, index]))
 
 const publicDirectory = path.join(process.cwd(), "public")

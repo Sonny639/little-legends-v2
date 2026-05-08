@@ -229,15 +229,15 @@ try {
   const adminCookie = await getAdminCookie()
   const adminHeaders = adminCookie ? { Cookie: adminCookie } : {}
 
-  const artworkPrompts = await requestJson("/api/artwork-manifest?prompts=1&story=wizard", {
+  const artworkPrompts = await requestJson("/api/artwork-manifest?prompts=1&story=race-driver", {
     headers: adminHeaders,
   })
-  const wizardPrompt = Array.isArray(artworkPrompts)
-    ? artworkPrompts.find((item) => item.storyId === "wizard" && item.prompt?.includes("moonlit magical library"))
+  const raceDriverPrompt = Array.isArray(artworkPrompts)
+    ? artworkPrompts.find((item) => item.storyId === "race-driver" && item.prompt?.includes("child-safe racing circuit"))
     : null
 
-  if (!wizardPrompt) {
-    throw new Error("Artwork prompt pack did not include the wizard visual direction.")
+  if (!raceDriverPrompt) {
+    throw new Error("Artwork prompt pack did not include the race driver visual direction.")
   }
   console.log("OK artwork prompt pack includes priority hero visual direction")
 
@@ -246,7 +246,7 @@ try {
   })
   const priorityStoryIds = new Set(Array.isArray(priorityPrompts) ? priorityPrompts.map((item) => item.storyId) : [])
 
-  for (const storyId of ["wizard", "fairy", "princess", "dinosaur-expert"]) {
+  for (const storyId of ["race-driver", "fairy", "princess", "dinosaur-expert"]) {
     if (!priorityStoryIds.has(storyId)) {
       throw new Error(`Launch-priority artwork prompts did not include ${storyId}.`)
     }
