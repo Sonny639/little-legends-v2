@@ -1977,39 +1977,42 @@ export default function Home() {
                   ))}
                 </div>
 
-                <div className="grid gap-3 sm:grid-cols-2">
-                  <Card className="border-4 border-sky-950 bg-sky-50 p-4 shadow-[6px_6px_0_rgba(8,47,73,0.12)]">
-                    <div className="mb-2 flex items-center gap-3">
+                <div className="grid items-stretch gap-3 sm:grid-cols-2">
+                  <Card className="flex h-full flex-col border-4 border-sky-950 bg-sky-50 p-4 shadow-[6px_6px_0_rgba(8,47,73,0.12)]">
+                    <div className="mb-3 flex min-h-7 justify-end">
+                      <span className="invisible rounded-full px-3 py-1 text-[11px] font-black uppercase">Best keepsake</span>
+                    </div>
+                    <div className="flex items-center gap-3">
                       <div className="grid h-10 w-10 place-items-center rounded-xl border-4 border-sky-950 bg-white text-sky-600 shadow-[3px_3px_0_rgba(8,47,73,0.14)]">
                         <Download className="h-5 w-5" />
                       </div>
                       <h4 className="text-xl font-black text-sky-950">Digital PDF</h4>
                     </div>
-                    <p className="mt-2 text-sm font-semibold leading-6 text-slate-700">Instant access to read on your phone and save as a PDF.</p>
+                    <p className="mt-4 min-h-[3rem] text-sm font-semibold leading-6 text-slate-700">Instant access to read on your phone and save as a PDF.</p>
                     <p className="mt-3 text-3xl font-black text-rose-600">£4.99</p>
                     <Button
                       onClick={() => startCheckout("digital")}
-                      className="mt-3 h-10 w-full rounded-xl bg-sky-500 font-black text-white hover:bg-sky-600"
+                      className="mt-auto h-10 w-full rounded-xl bg-sky-500 font-black text-white hover:bg-sky-600"
                     >
                       Get Digital Story
                     </Button>
                   </Card>
 
-                  <Card className="relative border-4 border-sky-950 bg-amber-50 p-4 shadow-[6px_6px_0_rgba(8,47,73,0.12)]">
-                    <div className="absolute right-3 top-3 rounded-full bg-rose-500 px-3 py-1 text-[11px] font-black uppercase text-white shadow-sm">
-                      Best keepsake
+                  <Card className="flex h-full flex-col border-4 border-sky-950 bg-amber-50 p-4 shadow-[6px_6px_0_rgba(8,47,73,0.12)]">
+                    <div className="mb-3 flex min-h-7 justify-end">
+                      <span className="rounded-full bg-rose-500 px-3 py-1 text-[11px] font-black uppercase text-white shadow-sm">Best keepsake</span>
                     </div>
-                    <div className="mb-2 flex items-center gap-3">
+                    <div className="flex items-center gap-3">
                       <div className="grid h-10 w-10 place-items-center rounded-xl border-4 border-sky-950 bg-white text-amber-600 shadow-[3px_3px_0_rgba(8,47,73,0.14)]">
                         <BookOpen className="h-5 w-5" />
                       </div>
-                      <h4 className="pr-20 text-xl font-black text-sky-950">Hardback Book</h4>
+                      <h4 className="text-xl font-black text-sky-950">Hardback Book</h4>
                     </div>
-                    <p className="mt-2 text-sm font-semibold leading-6 text-slate-700">A posted keepsake for bedtime reading, with digital access included.</p>
+                    <p className="mt-4 min-h-[3rem] text-sm font-semibold leading-6 text-slate-700">A posted keepsake for bedtime reading, with digital access included.</p>
                     <p className="mt-3 text-3xl font-black text-rose-600">£14.99</p>
                     <Button
                       onClick={() => startCheckout("hardback")}
-                      className="mt-3 h-10 w-full rounded-xl bg-rose-500 font-black text-white hover:bg-rose-600"
+                      className="mt-auto h-10 w-full rounded-xl bg-rose-500 font-black text-white hover:bg-rose-600"
                     >
                       Order Keepsake Book
                     </Button>
