@@ -1,5 +1,5 @@
 import Link from "next/link"
-import { CheckCircle2, Download, Mail } from "lucide-react"
+import { CheckCircle2, Download } from "lucide-react"
 
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
@@ -110,31 +110,23 @@ export default async function CheckoutSuccessPage({ searchParams }: CheckoutSucc
               </div>
             )}
 
-            <div className="grid gap-3 sm:grid-cols-3">
+            <div className="grid gap-3">
               {visibleOrder && isPaid && (
-                <Button asChild className="h-11 rounded-xl bg-emerald-500 px-5 font-black text-white hover:bg-emerald-600 sm:col-span-1">
+                <Button asChild className="h-12 rounded-xl bg-emerald-500 px-6 text-base font-black text-white hover:bg-emerald-600">
                   <Link href={`/download/${visibleOrder.id}`}>
                     <Download className="h-4 w-4" />
                     Read Story
                   </Link>
                 </Button>
               )}
-              <Button asChild className="h-11 rounded-xl bg-sky-500 px-5 font-black text-white hover:bg-sky-600">
-                <Link href="/create">
-                  <CheckCircle2 className="h-4 w-4" />
-                  Back to app
-                </Link>
-              </Button>
-              <Button
-                asChild
-                variant="outline"
-                className="h-11 rounded-xl border-sky-200 bg-white px-5 font-black text-sky-700"
-              >
-                <Link href="/contact">
-                  <Mail className="h-4 w-4" />
-                  Help
-                </Link>
-              </Button>
+              {(!visibleOrder || !isPaid) && (
+                <Button asChild className="h-11 rounded-xl bg-sky-500 px-5 font-black text-white hover:bg-sky-600">
+                  <Link href="/contact">
+                    <CheckCircle2 className="h-4 w-4" />
+                    Contact support
+                  </Link>
+                </Button>
+              )}
             </div>
           </div>
         </Card>

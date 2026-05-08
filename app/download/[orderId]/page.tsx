@@ -2,7 +2,7 @@ import fs from "fs"
 import path from "path"
 
 import Link from "next/link"
-import { ArrowLeft, BookOpen, Heart, Lock, Sparkles, Star } from "lucide-react"
+import { BookOpen, Heart, Home, Lock, Sparkles, Star } from "lucide-react"
 
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
@@ -136,7 +136,7 @@ export default async function DownloadPage({ params }: DownloadPageProps) {
   const qualityTags = ["Personalised", story.readingAge, `${storyPages.length} story pages`]
 
   return (
-    <main className="storybook-app-bg min-h-screen overflow-x-hidden px-4 py-6 sm:py-8">
+    <main id="top" className="storybook-app-bg min-h-screen overflow-x-hidden px-4 py-6 sm:py-8">
       <div className="mx-auto max-w-6xl space-y-6 full-story-print">
         <div className="no-print rounded-[2rem] border-4 border-sky-950 bg-white p-5 shadow-[8px_8px_0_rgba(8,47,73,0.18)]">
           <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
@@ -147,13 +147,7 @@ export default async function DownloadPage({ params }: DownloadPageProps) {
                 Read it below, or use Download PDF to save a printable copy.
               </p>
             </div>
-            <div className="grid gap-2 sm:grid-cols-2">
-              <Button asChild variant="outline" className="h-11 rounded-xl border-sky-200 bg-white px-5 font-black text-sky-700">
-                <Link href="/create">
-                  <ArrowLeft className="h-4 w-4" />
-                  App
-                </Link>
-              </Button>
+            <div className="flex justify-start md:justify-end md:pr-4">
               <PrintButton />
             </div>
           </div>
@@ -314,6 +308,31 @@ export default async function DownloadPage({ params }: DownloadPageProps) {
             </div>
           </div>
         </section>
+
+        <div className="no-print rounded-[2rem] border-4 border-sky-950 bg-white p-5 shadow-[8px_8px_0_rgba(8,47,73,0.18)]">
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+            <div>
+              <h2 className="text-xl font-black text-sky-950">Finished saving your story?</h2>
+              <p className="mt-1 text-sm font-bold leading-6 text-slate-700">
+                You can return to the top to read again or head back to the app when you are ready.
+              </p>
+            </div>
+            <div className="grid gap-2 sm:grid-cols-2">
+              <Button asChild variant="outline" className="h-11 rounded-xl border-sky-200 bg-white px-5 font-black text-sky-700">
+                <a href="#top">
+                  <BookOpen className="h-4 w-4" />
+                  Back to story
+                </a>
+              </Button>
+              <Button asChild className="h-11 rounded-xl bg-sky-500 px-5 font-black text-white hover:bg-sky-600">
+                <Link href="/create">
+                  <Home className="h-4 w-4" />
+                  Home
+                </Link>
+              </Button>
+            </div>
+          </div>
+        </div>
       </div>
     </main>
   )
