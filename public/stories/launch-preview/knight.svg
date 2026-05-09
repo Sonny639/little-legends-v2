@@ -1,0 +1,48 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 900" role="img" aria-label="A child knight at a warm starlight castle keep">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop stop-color="#172554"/>
+      <stop offset=".52" stop-color="#1d4ed8"/>
+      <stop offset="1" stop-color="#fbbf24"/>
+    </linearGradient>
+    <radialGradient id="glow" cx=".5" cy=".36" r=".5">
+      <stop stop-color="#fef3c7"/>
+      <stop offset=".42" stop-color="#93c5fd" stop-opacity=".68"/>
+      <stop offset="1" stop-color="#93c5fd" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+  <rect width="1200" height="900" fill="url(#bg)"/>
+  <rect width="1200" height="900" fill="url(#glow)"/>
+  <g fill="#1e3a8a" stroke="#bfdbfe" stroke-width="8" opacity=".86">
+    <path d="M92 706 V398 L172 338 L252 398 V706Z"/>
+    <path d="M906 706 V378 L998 312 L1090 378 V706Z"/>
+    <path d="M236 706 V488 H964 V706Z"/>
+    <path d="M352 488 V330 H458 V488Z"/>
+    <path d="M742 488 V330 H848 V488Z"/>
+    <path d="M352 330 L405 286 L458 330 M742 330 L795 286 L848 330"/>
+  </g>
+  <g fill="#fde68a">
+    <circle cx="172" cy="176" r="6"/>
+    <circle cx="338" cy="112" r="5"/>
+    <circle cx="852" cy="118" r="7"/>
+    <circle cx="1032" cy="206" r="5"/>
+  </g>
+  <g transform="translate(424 248)">
+    <path d="M176 148 C92 206 60 328 104 456 H248 C292 328 260 206 176 148Z" fill="#93c5fd" stroke="#082f49" stroke-width="10"/>
+    <path d="M96 222 C42 288 34 372 80 458" fill="none" stroke="#dbeafe" stroke-width="34" stroke-linecap="round"/>
+    <path d="M258 222 C324 282 342 360 302 458" fill="none" stroke="#dbeafe" stroke-width="34" stroke-linecap="round"/>
+    <circle cx="176" cy="84" r="70" fill="#fed7aa" stroke="#082f49" stroke-width="9"/>
+    <path d="M104 56 C136 16 210 16 246 58 C206 42 154 42 104 56Z" fill="#7c2d12"/>
+    <circle cx="150" cy="82" r="8" fill="#082f49"/>
+    <circle cx="202" cy="82" r="8" fill="#082f49"/>
+    <path d="M148 116 Q176 138 204 116" fill="none" stroke="#082f49" stroke-width="8" stroke-linecap="round"/>
+    <path d="M104 286 L176 246 L248 286 V372 Q176 428 104 372Z" fill="#fef3c7" stroke="#082f49" stroke-width="8" stroke-linejoin="round"/>
+    <path d="M176 276 L194 314 L236 320 L206 350 L214 392 L176 372 L138 392 L146 350 L116 320 L158 314Z" fill="#fbbf24" stroke="#082f49" stroke-width="5" stroke-linejoin="round"/>
+  </g>
+  <path d="M292 708 C438 614 766 614 908 708" fill="none" stroke="#fde68a" stroke-width="14" stroke-linecap="round" opacity=".82"/>
+  <g fill="#fef3c7" opacity=".9">
+    <path d="M600 148 l14 28 31 5 -23 22 6 31 -28 -15 -28 15 6 -31 -23 -22 31 -5Z"/>
+    <circle cx="420" cy="626" r="8"/>
+    <circle cx="768" cy="622" r="8"/>
+  </g>
+</svg>

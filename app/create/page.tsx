@@ -210,7 +210,6 @@ export default function Home() {
     { id: "unicorn-rider", name: "Unicorn Rider", emoji: "🦄", color: "bg-rainbow", category: "fantasy" },
     { id: "dragon-trainer", name: "Dragon Trainer", emoji: "🐉", color: "bg-green-600", category: "fantasy" },
     { id: "princess", name: "Princess", emoji: "👸", color: "bg-pink-500", category: "fantasy" },
-    { id: "prince", name: "Prince", emoji: "🤴", color: "bg-blue-500", category: "fantasy" },
 
     // Animals & Nature
     { id: "dinosaur-expert", name: "Dinosaur Expert", emoji: "🦕", color: "bg-green-700", category: "animals" },
@@ -266,30 +265,36 @@ export default function Home() {
   ]
 
   const [characterSearchTerm, setCharacterSearchTerm] = useState("")
-  const launchHeroIds = new Set(["footballer", "dinosaur-expert", "superhero", "race-driver", "fairy", "princess"])
+  const launchHeroIdsByGender = {
+    boy: ["footballer", "dinosaur-expert", "superhero", "race-driver", "wizard", "knight"],
+    girl: ["footballer", "dinosaur-expert", "superhero", "race-driver", "fairy", "princess"],
+  }
+  const launchHeroIds = new Set(launchHeroIdsByGender[selectedGender || "girl"])
   const priorityHeroIds = launchHeroIds
   const featuredHeroIds = [
     "footballer",
     "dinosaur-expert",
     "superhero",
     "race-driver",
-    "fairy",
-    "princess",
-    "wizard",
+    ...(selectedGender === "boy" ? ["wizard", "knight"] : ["fairy", "princess"]),
+    ...(selectedGender === "boy" ? [] : ["wizard"]),
     "astronaut",
     "dragon-trainer",
     "ninja",
     "pirate",
-    "knight",
+    ...(selectedGender === "boy" ? ["explorer"] : ["knight"]),
     "mermaid",
     "unicorn-rider",
     "pop-star",
     "doctor",
     "basketball-player",
     "bitcoin-hero",
+    ...(selectedGender === "boy" ? ["pilot"] : []),
   ]
+  const genderHiddenCharacterIds = new Set(selectedGender === "boy" ? ["fairy", "princess"] : [])
+  const visibleCharacters = allCharacters.filter((character) => !genderHiddenCharacterIds.has(character.id))
   const featuredCharacters = featuredHeroIds
-    .map((id) => allCharacters.find((character) => character.id === id))
+    .map((id) => visibleCharacters.find((character) => character.id === id))
     .filter((character): character is (typeof allCharacters)[number] => Boolean(character))
   const characterBatchSize = 6
   const maxCharacterBatch = Math.max(1, Math.ceil(featuredCharacters.length / characterBatchSize))
@@ -349,11 +354,20 @@ export default function Home() {
   const getFilteredCharacters = () => {
     if (!characterSearchTerm) return featuredCharacters.slice(characterBatchIndex * characterBatchSize, characterBatchIndex * characterBatchSize + characterBatchSize)
 
-    return allCharacters.filter(
+    return visibleCharacters.filter(
       (char) =>
         char.name.toLowerCase().includes(characterSearchTerm.toLowerCase()) ||
         char.category.toLowerCase().includes(characterSearchTerm.toLowerCase()),
     )
+  }
+
+  const handleGenderSelection = (gender: "boy" | "girl") => {
+    setSelectedGender(gender)
+    setSelectedCharacter(null)
+    setCharacterBatchIndex(0)
+    setStoryPage(1)
+    setStoryPageId("start")
+    setStoryPath([])
   }
 
   // Update the character selection step to skip character-type
@@ -557,7 +571,7 @@ export default function Home() {
       <div className="grid gap-3 sm:grid-cols-2 sm:gap-4">
         <Card
           className={`storybook-focus cursor-pointer border-4 p-4 shadow-[8px_8px_0_rgba(8,47,73,0.12)] sm:p-6 ${selectedGender === "boy" ? "border-sky-950 bg-sky-50 ring-4 ring-amber-200" : "border-white bg-white/90"}`}
-          onClick={() => setSelectedGender("boy")}
+          onClick={() => handleGenderSelection("boy")}
         >
           <div className="space-y-2 text-center sm:space-y-4">
             <div className="mx-auto grid h-14 w-14 place-items-center rounded-2xl bg-sky-100 text-sky-700 ring-4 ring-white sm:h-18 sm:w-18">
@@ -569,7 +583,7 @@ export default function Home() {
         </Card>
         <Card
           className={`storybook-focus cursor-pointer border-4 p-4 shadow-[8px_8px_0_rgba(8,47,73,0.12)] sm:p-6 ${selectedGender === "girl" ? "border-sky-950 bg-rose-50 ring-4 ring-amber-200" : "border-white bg-white/90"}`}
-          onClick={() => setSelectedGender("girl")}
+          onClick={() => handleGenderSelection("girl")}
         >
           <div className="space-y-2 text-center sm:space-y-4">
             <div className="mx-auto grid h-14 w-14 place-items-center rounded-2xl bg-rose-100 text-rose-600 ring-4 ring-white sm:h-18 sm:w-18">

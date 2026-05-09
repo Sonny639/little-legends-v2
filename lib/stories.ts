@@ -60,7 +60,7 @@ const choice = (
   pathTag,
 })
 
-const launchPreviewArtworkIds = new Set(["wizard", "fairy", "princess"])
+const launchPreviewArtworkIds = new Set(["wizard", "fairy", "princess", "knight"])
 
 const artwork = (characterId: string, page: number) => {
   if (launchPreviewArtworkIds.has(characterId) && page <= 3) {
@@ -95,6 +95,10 @@ const visualDirectionForHero = (heroType: string) => {
 
   if (normalisedHeroType.includes("princess")) {
     return "Visual direction: starlight castle, child-friendly royal outfit, gentle crown, warm gold and rose light, leadership and kindness rather than glamour."
+  }
+
+  if (normalisedHeroType.includes("knight")) {
+    return "Visual direction: warm starlight castle keep, child-friendly brave knight outfit, gentle shield, gold banner light, protection and kindness rather than fighting."
   }
 
   if (normalisedHeroType.includes("football")) {

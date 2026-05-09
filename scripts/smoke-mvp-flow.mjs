@@ -246,7 +246,7 @@ try {
   })
   const priorityStoryIds = new Set(Array.isArray(priorityPrompts) ? priorityPrompts.map((item) => item.storyId) : [])
 
-  for (const storyId of ["race-driver", "fairy", "princess", "dinosaur-expert"]) {
+  for (const storyId of ["race-driver", "wizard", "knight", "fairy", "princess", "dinosaur-expert"]) {
     if (!priorityStoryIds.has(storyId)) {
       throw new Error(`Launch-priority artwork prompts did not include ${storyId}.`)
     }
