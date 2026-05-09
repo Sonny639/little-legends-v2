@@ -1938,11 +1938,17 @@ export default function Home() {
       story.characterId === "fairy" ||
       heroType.toLowerCase().includes("fairy") ||
       Boolean(currentPage.artwork?.girl?.includes("/fairy/"))
+    const isWizardPreview =
+      selectedCharacter === "wizard" ||
+      story.characterId === "wizard" ||
+      heroType.toLowerCase().includes("wizard") ||
+      Boolean(currentPage.artwork?.boy?.includes("/wizard/"))
     const footballSoundBadgePosition =
       isFootballPreview && currentPage.id === "first-chance"
         ? "left-3 bottom-28 sm:left-5 sm:bottom-32"
         : "left-3 top-3 sm:left-5 sm:top-5"
-    const isImageLedPreview = isFootballPreview || isDinosaurPreview || isRacePreview || isSuperheroPreview || isFairyPreview
+    const isImageLedPreview =
+      isFootballPreview || isDinosaurPreview || isRacePreview || isSuperheroPreview || isFairyPreview || isWizardPreview
     const soundBadgePosition = isFootballPreview
       ? footballSoundBadgePosition
       : isImageLedPreview
@@ -2014,6 +2020,19 @@ export default function Home() {
               label: "Sparkle seeds",
               background:
                 "bg-[radial-gradient(circle_at_24%_26%,rgba(253,224,71,0.58)_0_8%,transparent_9%),radial-gradient(circle_at_74%_72%,rgba(244,114,182,0.42)_0_11%,transparent_12%),linear-gradient(135deg,#14532d_0%,#0f766e_52%,#f59e0b_100%)]",
+            },
+          ]
+      : isWizardPreview
+        ? [
+            {
+              label: "Spellbook clue",
+              background:
+                "bg-[radial-gradient(circle_at_76%_22%,rgba(254,243,199,0.94)_0_7%,transparent_8%),radial-gradient(circle_at_26%_72%,rgba(196,181,253,0.42)_0_12%,transparent_13%),linear-gradient(135deg,#1e1b4b_0%,#4c1d95_48%,#fbbf24_100%)]",
+            },
+            {
+              label: "Kind words",
+              background:
+                "bg-[radial-gradient(circle_at_24%_26%,rgba(253,224,71,0.56)_0_8%,transparent_9%),radial-gradient(circle_at_74%_72%,rgba(191,219,254,0.44)_0_11%,transparent_12%),linear-gradient(135deg,#111047_0%,#2563eb_52%,#7c3aed_100%)]",
             },
           ]
       : [
@@ -2309,6 +2328,20 @@ export default function Home() {
                       <>
                         <div className="absolute left-8 top-8 h-12 w-12 rounded-full border-4 border-amber-100/58 bg-amber-100/18" />
                         <div className="absolute right-8 bottom-8 h-12 w-16 rounded-[50%] border-4 border-white/44 bg-white/12" />
+                        <div className="absolute left-[28%] top-[48%] h-1.5 w-[50%] rotate-6 rounded-full bg-white/44" />
+                      </>
+                    )
+                  ) : isWizardPreview ? (
+                    index === 0 ? (
+                      <>
+                        <div className="absolute right-8 top-8 h-10 w-14 rounded-lg border-4 border-amber-100/58 bg-amber-100/20 shadow-[0_0_30px_rgba(253,224,71,0.62)]" />
+                        <div className="absolute left-7 bottom-8 h-16 w-10 rounded-t-full border-4 border-white/42 bg-white/10" />
+                        <div className="absolute left-[34%] top-[45%] h-1.5 w-[46%] -rotate-12 rounded-full bg-white/46" />
+                      </>
+                    ) : (
+                      <>
+                        <div className="absolute left-8 top-8 h-12 w-12 rounded-full border-4 border-violet-100/58 bg-white/14" />
+                        <div className="absolute right-8 bottom-8 h-12 w-20 rounded-[50%] border-4 border-amber-100/48 bg-amber-100/12" />
                         <div className="absolute left-[28%] top-[48%] h-1.5 w-[50%] rotate-6 rounded-full bg-white/44" />
                       </>
                     )

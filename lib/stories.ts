@@ -60,9 +60,16 @@ const choice = (
   pathTag,
 })
 
-const launchPreviewArtworkIds = new Set(["wizard", "princess", "knight"])
+const launchPreviewArtworkIds = new Set(["princess", "knight"])
 
 const artwork = (characterId: string, page: number) => {
+  if (characterId === "wizard" && page <= 3) {
+    return {
+      boy: `/stories/wizard/wizard-boy-page-${page}.png`,
+      girl: "/stories/launch-preview/wizard.svg",
+    }
+  }
+
   if (characterId === "fairy" && page <= 3) {
     return {
       boy: "/stories/launch-preview/fairy.svg",
