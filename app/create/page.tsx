@@ -1943,12 +1943,29 @@ export default function Home() {
       story.characterId === "wizard" ||
       heroType.toLowerCase().includes("wizard") ||
       Boolean(currentPage.artwork?.boy?.includes("/wizard/"))
+    const isPrincessPreview =
+      selectedCharacter === "princess" ||
+      story.characterId === "princess" ||
+      heroType.toLowerCase().includes("princess") ||
+      Boolean(currentPage.artwork?.girl?.includes("/princess/"))
+    const isKnightPreview =
+      selectedCharacter === "knight" ||
+      story.characterId === "knight" ||
+      heroType.toLowerCase().includes("knight") ||
+      Boolean(currentPage.artwork?.boy?.includes("/knight/"))
     const footballSoundBadgePosition =
       isFootballPreview && currentPage.id === "first-chance"
         ? "left-3 bottom-28 sm:left-5 sm:bottom-32"
         : "left-3 top-3 sm:left-5 sm:top-5"
     const isImageLedPreview =
-      isFootballPreview || isDinosaurPreview || isRacePreview || isSuperheroPreview || isFairyPreview || isWizardPreview
+      isFootballPreview ||
+      isDinosaurPreview ||
+      isRacePreview ||
+      isSuperheroPreview ||
+      isFairyPreview ||
+      isWizardPreview ||
+      isPrincessPreview ||
+      isKnightPreview
     const soundBadgePosition = isFootballPreview
       ? footballSoundBadgePosition
       : isImageLedPreview
@@ -2033,6 +2050,32 @@ export default function Home() {
               label: "Kind words",
               background:
                 "bg-[radial-gradient(circle_at_24%_26%,rgba(253,224,71,0.56)_0_8%,transparent_9%),radial-gradient(circle_at_74%_72%,rgba(191,219,254,0.44)_0_11%,transparent_12%),linear-gradient(135deg,#111047_0%,#2563eb_52%,#7c3aed_100%)]",
+            },
+          ]
+      : isPrincessPreview
+        ? [
+            {
+              label: "Wish bubble",
+              background:
+                "bg-[radial-gradient(circle_at_76%_22%,rgba(253,224,71,0.88)_0_7%,transparent_8%),radial-gradient(circle_at_26%_72%,rgba(251,207,232,0.44)_0_12%,transparent_13%),linear-gradient(135deg,#831843_0%,#db2777_48%,#fbbf24_100%)]",
+            },
+            {
+              label: "Royal plan",
+              background:
+                "bg-[radial-gradient(circle_at_24%_26%,rgba(254,240,138,0.56)_0_8%,transparent_9%),radial-gradient(circle_at_74%_72%,rgba(244,114,182,0.42)_0_11%,transparent_12%),linear-gradient(135deg,#701a75_0%,#be185d_52%,#f59e0b_100%)]",
+            },
+          ]
+      : isKnightPreview
+        ? [
+            {
+              label: "Shield call",
+              background:
+                "bg-[radial-gradient(circle_at_76%_22%,rgba(254,243,199,0.94)_0_7%,transparent_8%),radial-gradient(circle_at_26%_72%,rgba(147,197,253,0.44)_0_12%,transparent_13%),linear-gradient(135deg,#172554_0%,#1d4ed8_48%,#fbbf24_100%)]",
+            },
+            {
+              label: "Kind courage",
+              background:
+                "bg-[radial-gradient(circle_at_24%_26%,rgba(253,224,71,0.56)_0_8%,transparent_9%),radial-gradient(circle_at_74%_72%,rgba(191,219,254,0.42)_0_11%,transparent_12%),linear-gradient(135deg,#0f172a_0%,#1e40af_52%,#f59e0b_100%)]",
             },
           ]
       : [
@@ -2341,6 +2384,34 @@ export default function Home() {
                     ) : (
                       <>
                         <div className="absolute left-8 top-8 h-12 w-12 rounded-full border-4 border-violet-100/58 bg-white/14" />
+                        <div className="absolute right-8 bottom-8 h-12 w-20 rounded-[50%] border-4 border-amber-100/48 bg-amber-100/12" />
+                        <div className="absolute left-[28%] top-[48%] h-1.5 w-[50%] rotate-6 rounded-full bg-white/44" />
+                      </>
+                    )
+                  ) : isPrincessPreview ? (
+                    index === 0 ? (
+                      <>
+                        <div className="absolute right-8 top-8 h-12 w-12 rounded-full bg-amber-100/82 shadow-[0_0_30px_rgba(253,224,71,0.7)]" />
+                        <div className="absolute left-7 bottom-8 h-14 w-24 rounded-[50%] border-4 border-white/44 bg-white/12" />
+                        <div className="absolute left-[34%] top-[45%] h-1.5 w-[46%] -rotate-12 rounded-full bg-white/46" />
+                      </>
+                    ) : (
+                      <>
+                        <div className="absolute left-8 top-8 h-12 w-12 rounded-full border-4 border-rose-100/58 bg-white/14" />
+                        <div className="absolute right-8 bottom-8 h-12 w-20 rounded-2xl border-4 border-amber-100/48 bg-amber-100/12" />
+                        <div className="absolute left-[28%] top-[48%] h-1.5 w-[50%] rotate-6 rounded-full bg-white/44" />
+                      </>
+                    )
+                  ) : isKnightPreview ? (
+                    index === 0 ? (
+                      <>
+                        <div className="absolute right-8 top-8 h-14 w-12 rounded-b-2xl border-4 border-amber-100/58 bg-amber-100/18 shadow-[0_0_30px_rgba(253,224,71,0.62)]" />
+                        <div className="absolute left-7 bottom-8 h-16 w-10 rounded-t-full border-4 border-white/42 bg-white/10" />
+                        <div className="absolute left-[34%] top-[45%] h-1.5 w-[46%] -rotate-12 rounded-full bg-white/46" />
+                      </>
+                    ) : (
+                      <>
+                        <div className="absolute left-8 top-8 h-12 w-12 rounded-lg border-4 border-blue-100/58 bg-white/14" />
                         <div className="absolute right-8 bottom-8 h-12 w-20 rounded-[50%] border-4 border-amber-100/48 bg-amber-100/12" />
                         <div className="absolute left-[28%] top-[48%] h-1.5 w-[50%] rotate-6 rounded-full bg-white/44" />
                       </>
