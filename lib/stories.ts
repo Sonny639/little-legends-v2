@@ -192,6 +192,16 @@ export const getStoryForCharacter = (
     story = createFootballerStory(heroName, heroType)
   } else if (characterId === "dinosaur-expert") {
     story = createDinosaurExpertStory(heroName, heroType)
+  } else if (characterId === "race-driver") {
+    story = createRaceDriverStory(heroName, heroType)
+  } else if (characterId === "wizard") {
+    story = createWizardStory(heroName, heroType)
+  } else if (characterId === "fairy") {
+    story = createFairyStory(heroName, heroType)
+  } else if (characterId === "princess") {
+    story = createPrincessStory(heroName, heroType)
+  } else if (characterId === "knight") {
+    story = createKnightStory(heroName, heroType)
   } else if (characterId === "superhero") {
     story = createSuperheroStory(heroName, heroType)
   } else {
@@ -930,6 +940,120 @@ const starterStoryThemes: Record<string, (heroName: string, heroType: string) =>
     bedtimeScene: "As evening arrives, the shield becomes a bedtime star above the window.",
     finalTitle: "The Gates Open Kindly",
     finalScene: `${heroName} helps Worry Wall feel safe, and Kindness Keep welcomes everyone in.`,
+    pageCopy: {
+      start: {
+        panels: [
+          `${heroName} notices the first sparkle is trembling, as if the adventure has been waiting for exactly the right helper.`,
+          `The glowing shield points toward Kindness Keep, where the castle windows blink softly under the moon.`,
+        ],
+        speech: ["I can help.", "Brave can be gentle too."],
+        sound: "KRA-KOOM!",
+      },
+      fountain: {
+        panels: [
+          `Nobody is hurt, but the quiet feels heavy, like everyone is holding their breath.`,
+          `${heroName} notices the Worry Wall looks lonely, not mean, and decides to listen before acting.`,
+        ],
+        speech: ["Let's listen first.", "Big problems can have gentle answers."],
+        sound: "GASP!",
+      },
+      "cloud-story": {
+        panels: [
+          `${heroName} listens without rushing, which makes the big problem feel smaller and safer to solve.`,
+          `A tiny squire carrying a velvet banner edges closer, trusting ${heroName} because the answer feels kind.`,
+        ],
+        speech: ["Everyone wants to belong.", "We can mend this together."],
+        sound: "SNIFF!",
+      },
+      "map-maker": {
+        title: "The Gentle Shield Plan",
+        scene: `${heroName} lifts the gentle shield, and it shows three glowing brave words hidden around Kindness Keep.`,
+        panels: [
+          `One brave word glows inside the castle story room, one sparkles above the banquet cakes, and one bounces around the courtyard.`,
+          `${heroName} draws the route carefully so the squire, the wall, and every worried helper can follow without feeling rushed.`,
+        ],
+        speech: ["A plan can feel peaceful.", "One brave word at a time."],
+        sound: "CLANG-SOFT!",
+      },
+      "library-laugh": {
+        title: "The Story Room Word",
+        scene: `Inside the castle story room, a brave word is tucked between pages about knights who protected first and charged last.`,
+        panels: [
+          `${heroName} reads the page slowly until the word Listen shines along the edge of the gentle shield.`,
+          `The squire smiles because this kind of bravery does not sound scary. It sounds safe.`,
+        ],
+        speech: ["Listen is a brave word.", "A shield can make room."],
+        sound: "PAGE!",
+      },
+      "bakery-bubble": {
+        title: "The Banquet Cake Courage",
+        scene: `At the banquet table, a courage bubble floats above the cakes, wobbling whenever the castle gets too loud.`,
+        panels: [
+          `${heroName} asks everyone to use soft voices, and the bubble drifts down without popping.`,
+          `The word Steady appears in sugar-spark letters, right where the squire can see it.`,
+        ],
+        speech: ["Soft voices, brave hearts.", "Steady has joined us."],
+        sound: "PLINK!",
+      },
+      "playground-chase": {
+        title: "The Courtyard Banner Run",
+        scene: `The final brave word races around hay bales, ribbon flags, and moonlit stepping stones in the castle courtyard.`,
+        panels: [
+          `${heroName} does not chase it wildly. Instead, everyone makes a safe path with banners and friendly waves.`,
+          `The word Together lands on the gentle shield, and the whole castle seems to breathe out.`,
+        ],
+        speech: ["Guide it kindly.", "Together is the strongest word."],
+        sound: "SWISH!",
+      },
+      "cloud-smile": {
+        title: "The First Open Gate",
+        scene: `When Listen, Steady, and Together glow on the shield, Worry Wall opens one tiny doorway and peeks out.`,
+        panels: [
+          `${heroName} keeps the shield low, not like a warning, but like a promise that nobody will be pushed.`,
+          `Worry Wall admits it closed the gates because it thought keeping everyone out was the only way to keep everyone safe.`,
+        ],
+        speech: ["You were trying to protect us.", "Now we can protect kindly."],
+        sound: "CREAK!",
+      },
+      "comet-test": {
+        title: "The Shield's Question",
+        scene: `The gentle shield glows and asks ${heroName} what brave knights should do when someone is scared.`,
+        panels: [
+          `${heroName} thinks about the squire, the quiet castle, and the wall that needed kindness more than noise.`,
+          `The answer shines before anyone says it: protect, listen, and help the scared feeling find a safer shape.`,
+        ],
+        speech: ["Bravery listens.", "Kind protection is strong."],
+        sound: "HMMM!",
+      },
+      "town-parade": {
+        title: "The Soft Banner Parade",
+        scene: `Kindness Keep celebrates with soft banners, warm lanterns, and gentle cheers that do not frighten Worry Wall.`,
+        panels: [
+          `${heroName} walks beside the squire instead of far ahead, making sure every helper gets thanked.`,
+          `Worry Wall wears the smallest banner and discovers that being included feels safer than being closed.`,
+        ],
+        speech: ["This cheer is for everyone.", "The wall helped too."],
+        sound: "HOORAY!",
+      },
+      "bedtime-star": {
+        title: "The Shield Star",
+        scene: `As evening settles, the gentle shield sends one soft gold star to rest above ${heroName}'s window.`,
+        panels: [
+          `${heroName} feels proud in the quiet way that comes after helping someone feel safe.`,
+          `The star glows with Listen, Steady, and Together, bright enough for courage and gentle enough for sleep.`,
+        ],
+        speech: ["Goodnight, Kindness Keep.", "I can be brave gently."],
+        sound: "TWINKLE!",
+      },
+      "full-ending": {
+        panels: [
+          `The castle gates open wide, not because anyone forced them, but because ${heroName} helped Worry Wall feel understood.`,
+          `At bedtime, the shield star shines above the window, reminding ${heroName} that gentle bravery can welcome the whole world in.`,
+        ],
+        speech: ["We opened them together.", "A kind shield is a strong shield."],
+        sound: "TA-DA!",
+      },
+    },
   }),
   mermaid: (heroName, heroType) => ({
     title: `${heroName} and the Pearl of Kindness`,
@@ -2932,6 +3056,245 @@ function createFootballerStory(heroName: string, heroType: string): CharacterSto
       },
     },
   }
+}
+
+function createRaceDriverStory(heroName: string, heroType: string): CharacterStory {
+  return {
+    characterId: "race-driver",
+    title: `${heroName} and the Rainbow Race`,
+    subtitle: `${heroName} the ${heroType} enters the brightest race of the year and learns that real champions keep everyone safe, brave, and included.`,
+    readingAge: "Ages 3 to 8",
+    lesson: "Fair play, safety, steady confidence, and kindness",
+    previewPageLimit: 3,
+    purchaseSummary: {
+      headline: "Unlock the full rainbow race",
+      body: `The full race continues through a wobbly start, a tricky oil-slick bend, a worried rival, and a final lap where ${heroName} discovers that winning kindly feels best of all.`,
+      includes: [
+        "A complete racing story with bright track tension and heart",
+        "Choices after every page about bravery, teamwork, and fair play",
+        "A positive ending about confidence, safety, and helping others shine",
+      ],
+    },
+    pages: {
+      start: {
+        id: "start",
+        kicker: "Page 1",
+        title: "Start Line at Rainbow Circuit",
+        scene: `Rainbow Circuit sparkles with flags, balloons, and tiny pit-lane lights as ${heroName} rolls up for the biggest race of the season.`,
+        artwork: artwork("race-driver", 1),
+        panels: [
+          `${heroName} feels the engine hum through the steering wheel and takes one slow breath before the starting lights begin to glow.`,
+          `Across the track, Turbo Tiger revs too loudly and shouts that only first place matters, which makes the rookie racers look nervous.`,
+        ],
+        speech: ["Fast can still be fair.", "I can race with care."],
+        sound: "VROOM!",
+        choices: [
+          choice("steady-start", "Make a steady start", "first-bend", "clever"),
+          choice("brave-start", "Zoom forward bravely", "first-bend", "brave"),
+        ],
+      },
+      "first-bend": {
+        id: "first-bend",
+        kicker: "Page 2",
+        title: "The Wobbly First Bend",
+        scene: `The first bend arrives quickly, and a little blue racer wobbles near the cones with wide, worried eyes.`,
+        artwork: artwork("race-driver", 2),
+        panels: [
+          `${heroName} could squeeze past, but the safe lane is narrow and the little racer is trying very hard not to panic.`,
+          `Turbo Tiger honks from behind, yet ${heroName} keeps both hands steady and remembers that no trophy is worth frightening a friend.`,
+        ],
+        speech: ["Room for everyone.", "Safety first, speed second."],
+        sound: "SKREE!",
+        choices: [
+          choice("give-space", "Give the racer extra space", "pit-lane-wobble", "kind"),
+          choice("signal-calmly", "Signal a calm safe line", "pit-lane-wobble", "teamwork"),
+        ],
+      },
+      "pit-lane-wobble": {
+        id: "pit-lane-wobble",
+        kicker: "Page 3",
+        title: "The Pit-Lane Wobble",
+        scene: `At the pit lane, ${heroName}'s crew spots a loose rainbow bolt just as the race gets louder and faster.`,
+        artwork: artwork("race-driver", 3),
+        panels: [
+          `The crew can fix it, but only if ${heroName} trusts the helpers instead of rushing back out too soon.`,
+          `The little blue racer waves thank you from the next lane, and ${heroName} feels braver because kindness already helped someone.`,
+        ],
+        speech: ["My team helps me go far.", "A quick check keeps us safe."],
+        sound: "CLINK!",
+        choices: [
+          choice("trust-crew", "Trust the pit crew", "pace-lap", "teamwork"),
+          choice("check-carefully", "Check the car carefully", "pace-lap", "clever"),
+        ],
+      },
+      "pace-lap": {
+        id: "pace-lap",
+        kicker: "Page 4",
+        title: "The Calm Pace Lap",
+        scene: `The safety car leads one calm lap while rainbow lights blink across the track like bedtime stars in racing helmets.`,
+        artwork: artwork("race-driver", 4),
+        panels: [
+          `${heroName} uses the quiet lap to notice where the track is dry, where it shines, and where the nervous racers need more room.`,
+          `Turbo Tiger grumbles about slowing down, but even his engine sounds less growly when everyone lines up safely.`,
+        ],
+        speech: ["Slow can be smart.", "I am learning the track."],
+        sound: "BEEP-BEEP!",
+        choices: [
+          choice("study-track", "Study the track carefully", "oil-slick", "clever"),
+          choice("encourage-rookies", "Encourage the rookie racers", "oil-slick", "kind"),
+        ],
+      },
+      "oil-slick": {
+        id: "oil-slick",
+        kicker: "Page 5",
+        title: "The Shiny Oil-Slick Bend",
+        scene: `A shiny patch glitters near Turn Seven, and the cars ahead wiggle like jelly on a plate.`,
+        artwork: artwork("race-driver", 5),
+        panels: [
+          `${heroName} eases off the speed, steers gently, and shows the racers behind a safer way around the slippery bend.`,
+          `Turbo Tiger tries to roar through, but his tyres squeak and he has to copy ${heroName}'s careful line after all.`,
+        ],
+        speech: ["Gentle steering.", "This way is safer."],
+        sound: "SPLISH!",
+        choices: [
+          choice("show-safe-line", "Show the safe racing line", "team-radio", "teamwork"),
+          choice("slow-for-grip", "Slow down for better grip", "team-radio", "clever"),
+        ],
+      },
+      "team-radio": {
+        id: "team-radio",
+        kicker: "Page 6",
+        title: "The Team Radio Plan",
+        scene: `The team radio crackles with news: storm clouds are coming, and the Rainbow Cup needs one driver who can think kindly under pressure.`,
+        artwork: artwork("race-driver", 6),
+        panels: [
+          `${heroName} listens to the crew chief, the tyre helper, and the little mechanic who notices tiny things others miss.`,
+          `Together they make a plan: stay smooth, share warnings, and help every racer finish proud.`,
+        ],
+        speech: ["I hear you, team.", "Everyone has useful ideas."],
+        sound: "CRACKLE!",
+        choices: [
+          choice("share-warning", "Share the storm warning", "tunnel-lights", "teamwork"),
+          choice("choose-smooth", "Choose the smooth tyres", "tunnel-lights", "clever"),
+        ],
+      },
+      "tunnel-lights": {
+        id: "tunnel-lights",
+        kicker: "Page 7",
+        title: "Lights in the Tunnel",
+        scene: `The cars zoom through Sparkle Tunnel, where the walls flash blue, green, gold, and pink around every careful turn.`,
+        artwork: artwork("race-driver", 7),
+        panels: [
+          `For one exciting moment, ${heroName} is side by side with Turbo Tiger, close enough to see his worried frown behind the visor.`,
+          `Turbo Tiger is not mean after all. He is scared that if he loses, nobody will clap for him.`,
+        ],
+        speech: ["There is space for both of us.", "You are still brave if you do not win."],
+        sound: "WHOOSH!",
+        choices: [
+          choice("leave-space", "Leave space in the tunnel", "red-flag", "kind"),
+          choice("race-side-by-side", "Race side by side fairly", "red-flag", "brave"),
+        ],
+      },
+      "red-flag": {
+        id: "red-flag",
+        kicker: "Page 8",
+        title: "The Red Flag Moment",
+        scene: `A red flag waves because a cone has rolled onto the track and the smallest racer is stuck beside it.`,
+        artwork: artwork("race-driver", 8),
+        panels: [
+          `${heroName} stops exactly when the marshal asks, even though the finish line suddenly feels very far away.`,
+          `The crowd goes quiet, then starts clapping when ${heroName} helps everyone wait calmly while the track is made safe.`,
+        ],
+        speech: ["Stopping can be heroic.", "We wait until everyone is safe."],
+        sound: "WHISTLE!",
+        choices: [
+          choice("wait-calmly", "Wait calmly for the marshal", "restart-lap", "kind"),
+          choice("help-signal", "Help signal the safe restart", "restart-lap", "teamwork"),
+        ],
+      },
+      "restart-lap": {
+        id: "restart-lap",
+        kicker: "Page 9",
+        title: "The Restart Lap",
+        scene: `The green flag waves again, and the final laps begin with every driver bunched together like bright beads on a racing string.`,
+        artwork: artwork("race-driver", 9),
+        panels: [
+          `${heroName} feels the old flutter in their tummy, but now it feels like excitement instead of fear.`,
+          `Turbo Tiger pulls alongside and gives one tiny nod, as if he is ready to race fairly this time.`,
+        ],
+        speech: ["Ready together.", "Kind racers can still be quick."],
+        sound: "GO!",
+        choices: [
+          choice("brave-accelerate", "Accelerate bravely", "last-lap", "brave"),
+          choice("smooth-accelerate", "Accelerate smoothly", "last-lap", "clever"),
+        ],
+      },
+      "last-lap": {
+        id: "last-lap",
+        kicker: "Page 10",
+        title: "The Last-Lap Choice",
+        scene: `The final lap bell rings, and ${heroName} sees two things at once: the open lane to the trophy and the little blue racer wobbling again.`,
+        artwork: artwork("race-driver", 10),
+        panels: [
+          `The crowd is loud, the tyres are warm, and the Rainbow Cup shines just beyond the last bend.`,
+          `${heroName} remembers every careful choice so far and knows the best finish is one where nobody feels forgotten.`,
+        ],
+        speech: ["I can help and still race.", "No one gets left behind."],
+        sound: "DING!",
+        choices: [
+          choice("guide-blue-racer", "Guide the blue racer safely", "finish-line", "kind"),
+          choice("call-team-plan", "Call out the team plan", "finish-line", "teamwork"),
+        ],
+      },
+      "finish-line": {
+        id: "finish-line",
+        kicker: "Page 11",
+        title: "Across the Finish Line",
+        scene: `${heroName}, Turbo Tiger, and the little blue racer sweep through the final bend with space, smiles, and sparkling wheels.`,
+        artwork: artwork("race-driver", 11),
+        panels: [
+          `The cars cross the line so close together that the crowd cheers for the race itself, not just the fastest bumper.`,
+          `Turbo Tiger laughs in surprise and says the fair race felt better than the scary race he had imagined.`,
+        ],
+        speech: ["What a race!", "Fair feels fantastic."],
+        sound: "CHEER!",
+        choices: [
+          choice("thank-racers", "Thank the other racers", "full-ending", "kind"),
+          choice("victory-lap", "Take a shared victory lap", "full-ending", "teamwork"),
+        ],
+      },
+      "full-ending": {
+        id: "full-ending",
+        kicker: "Page 12",
+        title: "The Victory Lap Everyone Shared",
+        scene: `${heroName} leads a gentle victory lap where every racer gets a cheer, from the fastest car to the bravest beginner.`,
+        artwork: artwork("race-driver", 12),
+        panels: [
+          `The Rainbow Cup gleams, but ${heroName} feels proudest when the little blue racer asks to practise together next time.`,
+          `At bedtime, the checkered flag becomes a soft window star, reminding ${heroName} that kind champions make the whole track shine.`,
+        ],
+        speech: ["We finished proud.", "A good race is good for everyone."],
+        sound: "TA-DA!",
+        choices: [choice("read-again", "Read the race again", "start", "brave")],
+      },
+    },
+  }
+}
+
+function createWizardStory(heroName: string, heroType: string): CharacterStory {
+  return createStarterStory("wizard", heroName, heroType)
+}
+
+function createFairyStory(heroName: string, heroType: string): CharacterStory {
+  return createStarterStory("fairy", heroName, heroType)
+}
+
+function createPrincessStory(heroName: string, heroType: string): CharacterStory {
+  return createStarterStory("princess", heroName, heroType)
+}
+
+function createKnightStory(heroName: string, heroType: string): CharacterStory {
+  return createStarterStory("knight", heroName, heroType)
 }
 
 function createDinosaurExpertStory(heroName: string, heroType: string): CharacterStory {
