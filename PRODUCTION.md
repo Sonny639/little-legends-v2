@@ -7,7 +7,7 @@ Use this before sending real customers through checkout.
 Set these in the production host:
 
 ```bash
-NEXT_PUBLIC_APP_URL=https://littlelegendsstory.com
+NEXT_PUBLIC_APP_URL=https://www.littlelegendsstory.com
 NEXT_PUBLIC_SUPABASE_URL=
 NEXT_PUBLIC_SUPABASE_ANON_KEY=
 SUPABASE_SERVICE_ROLE_KEY=
@@ -67,7 +67,7 @@ npm run db:import-json
 Configure a Stripe webhook endpoint:
 
 ```text
-POST https://littlelegendsstory.com/api/stripe/webhook
+POST https://www.littlelegendsstory.com/api/stripe/webhook
 ```
 
 Listen for:

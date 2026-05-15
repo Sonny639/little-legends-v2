@@ -23,7 +23,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: "Little Legends Story",
     description: "Personalised magical storybooks where your child becomes the hero.",
-    url: "https://littlelegendsstory.com",
+    url: "https://www.littlelegendsstory.com",
     siteName: "Little Legends Story",
     images: ["/inspiration/magic-reference.png"],
     type: "website",

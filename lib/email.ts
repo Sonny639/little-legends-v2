@@ -62,7 +62,7 @@ const appUrl = () => {
   }
 
   if (process.env.NODE_ENV === "production") {
-    return "https://littlelegendsstory.com"
+    return "https://www.littlelegendsstory.com"
   }
 
   return "http://localhost:3003"
