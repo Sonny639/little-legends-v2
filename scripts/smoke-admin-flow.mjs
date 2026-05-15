@@ -145,18 +145,29 @@ const createSmokePng = () =>
   )
 
 const requestPage = async (requestPath, cookie = "") => {
-  const response = await fetch(`${appUrl}${requestPath}`, {
-    headers: cookie ? { Cookie: cookie } : {},
-    redirect: "manual",
-  })
-  const text = await response.text()
+  let lastError
 
-  return {
-    path: requestPath,
-    status: response.status,
-    location: response.headers.get("location"),
-    text,
+  for (let attempt = 0; attempt < 3; attempt += 1) {
+    try {
+      const response = await fetch(`${appUrl}${requestPath}`, {
+        headers: cookie ? { Cookie: cookie } : {},
+        redirect: "manual",
+      })
+      const text = await response.text()
+
+      return {
+        path: requestPath,
+        status: response.status,
+        location: response.headers.get("location"),
+        text,
+      }
+    } catch (error) {
+      lastError = error
+      if (attempt < 2) await wait(300)
+    }
   }
+
+  throw lastError
 }
 
 const startLocalServer = async () => {

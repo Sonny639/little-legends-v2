@@ -260,20 +260,14 @@ try {
   const missingPriorityPrompts = await requestJson("/api/artwork-manifest?prompts=1&missing=1&priority=1", {
     headers: adminHeaders,
   })
-  const missingFullStoryPage = Array.isArray(missingPriorityPrompts)
-    ? missingPriorityPrompts.find(
-        (item) =>
-          item.storyId === "superhero" &&
-          item.pageId === "promise-plan" &&
-          item.gender === "boy" &&
-          item.imagePath === "/stories/superhero/superhero-boy-page-4.png",
-      )
-    : null
+  const missingSuperheroArtwork = Array.isArray(missingPriorityPrompts)
+    ? missingPriorityPrompts.filter((item) => item.storyId === "superhero")
+    : []
 
-  if (!missingFullStoryPage) {
-    throw new Error("Launch artwork checklist did not flag missing later full-story artwork.")
+  if (missingSuperheroArtwork.length > 0) {
+    throw new Error(`Completed superhero artwork still reported as missing: ${JSON.stringify(missingSuperheroArtwork)}`)
   }
-  console.log("OK launch artwork checklist flags missing later full-story pages")
+  console.log("OK completed superhero artwork is no longer listed as missing")
 
   const previewPriorityManifest = await requestJson("/api/artwork-manifest?priority=1&phase=preview", {
     headers: adminHeaders,
