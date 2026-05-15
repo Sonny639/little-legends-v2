@@ -2,7 +2,6 @@ import Link from "next/link"
 import { Sparkles } from "lucide-react"
 
 export default function HomePage() {
-
   return (
     <main className="min-h-screen w-full overflow-x-hidden bg-[#070820]">
       <h1 className="sr-only">Little Legends Story</h1>
@@ -20,13 +19,14 @@ export default function HomePage() {
 
         <div aria-hidden className="absolute right-[5.8%] top-[2.55%] h-[4.95%] w-[31%] rounded-full bg-[#17182f]" />
 
-        <div className="absolute left-[5.4%] top-[71.5%] z-10 flex h-[15.8%] w-[89.2%] flex-col justify-center rounded-[2rem] border border-white/14 bg-[#17182f]/96 p-[3.3%] shadow-[0_0_0_1px_rgba(255,255,255,0.04),0_18px_48px_rgba(0,0,0,0.32)] backdrop-blur-md">
+        <div className="absolute left-[7.5%] top-[75.1%] z-10 w-[85%]">
+          <div aria-hidden className="absolute inset-x-[8%] -inset-y-[18%] rounded-full bg-amber-200/20 blur-2xl" />
           <Link
             href="/create"
-            className="flex h-[52%] items-center justify-center gap-3 rounded-full bg-amber-200 text-[clamp(1rem,4.7vw,1.35rem)] font-black text-[#35165f] shadow-[0_0_28px_rgba(251,191,36,0.28)] transition hover:bg-amber-100 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-amber-200/45"
+            className="relative flex min-h-[4.7rem] items-center justify-center gap-3 rounded-full border border-amber-50/90 bg-[linear-gradient(135deg,#fff5cb_0%,#ffe08a_48%,#ffd56b_100%)] px-5 text-[clamp(1.15rem,5vw,1.5rem)] font-black tracking-normal text-[#35165f] shadow-[0_0_0_1px_rgba(255,255,255,0.25),0_16px_42px_rgba(251,191,36,0.36)] transition hover:-translate-y-0.5 hover:brightness-105 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-amber-200/45"
           >
-            <Sparkles className="h-[1em] w-[1em]" />
-            Enter the Story
+            <Sparkles className="h-[1.08em] w-[1.08em]" />
+            Begin the Magic
           </Link>
         </div>
       </section>
@@ -40,15 +40,16 @@ export default function HomePage() {
             draggable={false}
           />
 
-          <div aria-hidden className="absolute left-[4%] top-[75.4%] h-[15.2%] w-[38%] rounded-[2rem] bg-[#10132d]" />
-
-          <Link
-            href="/create"
-            className="absolute left-[4%] top-[75.4%] flex h-[8.2%] w-[37.6%] items-center justify-center gap-[1.4%] rounded-full bg-amber-200 text-[clamp(0.9rem,1.45vw,1.28rem)] font-black text-[#35165f] shadow-[0_0_28px_rgba(251,191,36,0.28)] transition hover:bg-amber-100 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-amber-200/45"
-          >
-            <Sparkles className="h-[1em] w-[1em]" />
-            Enter the Story
-          </Link>
+          <div className="absolute left-[4%] top-[75.05%] w-[37.6%]">
+            <div aria-hidden className="absolute inset-x-[10%] -inset-y-[34%] rounded-full bg-amber-200/18 blur-2xl" />
+            <Link
+              href="/create"
+              className="relative flex h-[9.1%] min-h-[4.7rem] items-center justify-center gap-[1.8%] rounded-full border border-amber-50/90 bg-[linear-gradient(135deg,#fff5cb_0%,#ffe08a_48%,#ffd56b_100%)] px-[4%] text-[clamp(1rem,1.7vw,1.52rem)] font-black tracking-normal text-[#35165f] shadow-[0_0_0_1px_rgba(255,255,255,0.24),0_18px_44px_rgba(251,191,36,0.36)] transition hover:-translate-y-0.5 hover:brightness-105 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-amber-200/45"
+            >
+              <Sparkles className="h-[1.08em] w-[1.08em]" />
+              Begin the Magic
+            </Link>
+          </div>
         </div>
       </section>
     </main>
