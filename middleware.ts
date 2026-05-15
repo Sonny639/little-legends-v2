@@ -11,7 +11,6 @@ const isProtectedPath = (request: NextRequest) => {
   if (pathname.startsWith("/admin")) return true
   if (pathname === "/artwork") return true
   if (pathname === "/api/admin/login" || pathname === "/api/admin/logout") return false
-  if (pathname === "/api/admin/diagnostics") return true
   if (pathname === "/api/artwork-manifest" || pathname === "/api/artwork-prompts.csv") return true
   if (pathname === "/api/order-photos" && request.method === "GET") return true
   if (pathname === "/api/orders/email") return true
@@ -69,7 +68,6 @@ export const config = {
     "/artwork",
     "/api/artwork-manifest",
     "/api/artwork-prompts.csv",
-    "/api/admin/diagnostics",
     "/api/order-photos",
     "/api/orders",
     "/api/orders/email",
