@@ -48,13 +48,12 @@ Set `ADMIN_PASSWORD` to enable the admin login screen on `/admin/login`. `POST /
 
 ## Main Routes
 
-- `/` - public Coming Soon landing page for the domain.
+- `/` - public homepage and main entry point into the story builder.
 - `/create` - story builder, customisation, preview, and checkout. This route is marked `noindex` while the public launch page is live.
 - `/admin/orders` - order list, fulfilment status updates, CSV export, and confirmation email resend.
 - `/admin` - admin dashboard for paid orders, revenue, print queue, enquiries, and email logs.
 - `/admin/print-queue` - paid hardback and upgrade orders with quick printer fulfilment status updates.
 - `/admin/enquiries` - customer enquiry inbox.
-- Launch page email signups are saved into `/admin/enquiries` with the subject `Coming soon launch list`.
 - Contact page enquiries are saved into `/admin/enquiries` and, when SMTP env vars are set, emailed to `CONTACT_TO_EMAIL`.
 - `/admin/email-log` - confirmation email log. Order confirmations are sent by SMTP when configured and still logged for support.
 - `/download/[orderId]` - locked until payment is confirmed, then renders the printable story.

@@ -19,7 +19,7 @@ export const metadata: Metadata = {
     template: "%s | Little Legends Story",
   },
   description:
-    "Launching soon: personalised magical storybooks where your child becomes the hero of a bedtime adventure.",
+    "Personalised magical storybooks where your child becomes the hero of a bedtime adventure.",
   openGraph: {
     title: "Little Legends Story",
     description: "Personalised magical storybooks where your child becomes the hero.",
