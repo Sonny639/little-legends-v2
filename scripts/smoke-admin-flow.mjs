@@ -31,7 +31,8 @@ const appUrl = (process.env.NEXT_PUBLIC_APP_URL || process.env.APP_URL || "http:
 const isLocalApp = /^https?:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/i.test(appUrl)
 const allowLiveWrites = process.env.SMOKE_ALLOW_LIVE_WRITES === "1"
 const skipCleanup = process.env.SMOKE_SKIP_CLEANUP === "1"
-const hasSupabaseCleanup = Boolean(process.env.NEXT_PUBLIC_SUPABASE_URL && process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY)
+const supabaseDataKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+const hasSupabaseCleanup = Boolean(process.env.NEXT_PUBLIC_SUPABASE_URL && supabaseDataKey)
 const smokeId = `SMOKE-ADMIN-${Date.now()}`
 const smokeEmail = `${smokeId.toLowerCase()}@example.com`
 const photoBucket = process.env.SUPABASE_STORAGE_BUCKET || "order-photos"
@@ -43,14 +44,20 @@ if (!isLocalApp && !allowLiveWrites) {
 }
 
 if (!hasSupabaseCleanup) {
-  throw new Error("Admin smoke testing needs NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_ANON_KEY for cleanup.")
+  throw new Error("Admin smoke testing needs Supabase env vars for cleanup.")
+}
+
+if (!isLocalApp && !skipCleanup && !process.env.SUPABASE_SERVICE_ROLE_KEY) {
+  throw new Error(
+    "Live admin smoke testing needs SUPABASE_SERVICE_ROLE_KEY for cleanup. Add it locally, or set SMOKE_SKIP_CLEANUP=1 to intentionally leave smoke records for manual removal.",
+  )
 }
 
 if (!process.env.ADMIN_PASSWORD) {
   throw new Error("Admin smoke testing needs ADMIN_PASSWORD in the environment.")
 }
 
-const supabase = createClient(process.env.NEXT_PUBLIC_SUPABASE_URL, process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY, {
+const supabase = createClient(process.env.NEXT_PUBLIC_SUPABASE_URL, supabaseDataKey, {
   auth: {
     autoRefreshToken: false,
     persistSession: false,

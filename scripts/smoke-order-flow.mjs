@@ -31,7 +31,8 @@ const appUrl = (process.env.NEXT_PUBLIC_APP_URL || process.env.APP_URL || "http:
 const isLocalApp = /^https?:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/i.test(appUrl)
 const allowLiveWrites = process.env.SMOKE_ALLOW_LIVE_WRITES === "1"
 const skipCleanup = process.env.SMOKE_SKIP_CLEANUP === "1"
-const hasSupabaseCleanup = Boolean(process.env.NEXT_PUBLIC_SUPABASE_URL && process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY)
+const supabaseCleanupKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+const hasSupabaseCleanup = Boolean(process.env.NEXT_PUBLIC_SUPABASE_URL && supabaseCleanupKey)
 const orderId = `SMOKE-ORDER-${Date.now()}`
 const smokeEmail = `${orderId.toLowerCase()}@example.com`
 const hasStripe = Boolean(process.env.STRIPE_SECRET_KEY)
@@ -42,9 +43,9 @@ if (!isLocalApp && !allowLiveWrites) {
   )
 }
 
-if (!isLocalApp && !skipCleanup && !hasSupabaseCleanup) {
+if (!isLocalApp && !skipCleanup && !process.env.SUPABASE_SERVICE_ROLE_KEY) {
   throw new Error(
-    "Live smoke testing needs local Supabase env vars for cleanup. Add NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_ANON_KEY locally, or set SMOKE_SKIP_CLEANUP=1 to intentionally leave smoke records for manual removal.",
+    "Live smoke testing needs SUPABASE_SERVICE_ROLE_KEY for cleanup. Add it locally, or set SMOKE_SKIP_CLEANUP=1 to intentionally leave smoke records for manual removal.",
   )
 }
 
@@ -98,7 +99,7 @@ const cleanupSmokeOrder = async () => {
   if (skipCleanup) return "skipped"
 
   if (hasSupabaseCleanup) {
-    const supabase = createClient(process.env.NEXT_PUBLIC_SUPABASE_URL, process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY, {
+    const supabase = createClient(process.env.NEXT_PUBLIC_SUPABASE_URL, supabaseCleanupKey, {
       auth: {
         autoRefreshToken: false,
         persistSession: false,

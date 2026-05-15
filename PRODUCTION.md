@@ -33,7 +33,7 @@ Required before launch:
 
 - `NEXT_PUBLIC_APP_URL` must be the real public URL.
 - `NEXT_PUBLIC_SUPABASE_URL` and `NEXT_PUBLIC_SUPABASE_ANON_KEY` must point to the production Supabase project.
-- `SUPABASE_SERVICE_ROLE_KEY` is required for private order photo uploads during checkout.
+- `SUPABASE_SERVICE_ROLE_KEY` is required for private order photo uploads and all trusted server-side table access in production.
 - `SUPABASE_STORAGE_BUCKET` should point to a private bucket such as `order-photos`.
 - Admin photo previews are served through short-lived signed URLs and require the admin session.
 - Use `hello@littlelegendsstory.com` as the public contact/reply inbox.
@@ -46,7 +46,7 @@ Required before launch:
 
 ## Database
 
-Create or migrate the production tables in Supabase using the SQL from `db/schema.sql`.
+Create or migrate the production tables in Supabase using the SQL from `db/schema.sql`, then run `db/supabase-security.sql` so RLS is enabled and public Supabase roles cannot read or mutate customer tables directly.
 
 For photo uploads, also create a private Supabase Storage bucket named `order-photos` or set `SUPABASE_STORAGE_BUCKET` to the bucket you want to use.
 

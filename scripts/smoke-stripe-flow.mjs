@@ -31,6 +31,7 @@ const appUrl = (process.env.NEXT_PUBLIC_APP_URL || process.env.APP_URL || "http:
 const isLocalApp = /^https?:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/i.test(appUrl)
 const allowLiveWrites = process.env.SMOKE_ALLOW_LIVE_WRITES === "1"
 const skipCleanup = process.env.SMOKE_SKIP_CLEANUP === "1"
+const supabaseDataKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
 const smokeId = `SMOKE-STRIPE-${Date.now()}`
 const smokeEmail = `${smokeId.toLowerCase()}@example.com`
 
@@ -48,8 +49,14 @@ if (!process.env.STRIPE_WEBHOOK_SECRET) {
   throw new Error("Stripe smoke testing needs STRIPE_WEBHOOK_SECRET.")
 }
 
-if (!process.env.NEXT_PUBLIC_SUPABASE_URL || !process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY) {
+if (!process.env.NEXT_PUBLIC_SUPABASE_URL || !supabaseDataKey) {
   throw new Error("Stripe smoke testing needs Supabase env vars for verification and cleanup.")
+}
+
+if (!isLocalApp && !skipCleanup && !process.env.SUPABASE_SERVICE_ROLE_KEY) {
+  throw new Error(
+    "Live Stripe smoke testing needs SUPABASE_SERVICE_ROLE_KEY for verification and cleanup. Add it locally, or set SMOKE_SKIP_CLEANUP=1 to intentionally leave smoke records for manual removal.",
+  )
 }
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY, {
@@ -58,7 +65,7 @@ const stripe = new Stripe(process.env.STRIPE_SECRET_KEY, {
   },
 })
 
-const supabase = createClient(process.env.NEXT_PUBLIC_SUPABASE_URL, process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY, {
+const supabase = createClient(process.env.NEXT_PUBLIC_SUPABASE_URL, supabaseDataKey, {
   auth: {
     autoRefreshToken: false,
     persistSession: false,

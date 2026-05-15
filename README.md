@@ -76,7 +76,7 @@ These files are useful for local testing only. Replace this file storage with a 
 
 ## Database
 
-When `NEXT_PUBLIC_SUPABASE_URL` and `NEXT_PUBLIC_SUPABASE_ANON_KEY` are set, orders, enquiries, and email logs use Supabase tables instead of local JSON files. The app uses the existing `orders`, `enquiries`, and `email_logs` tables from `db/schema.sql`.
+When `NEXT_PUBLIC_SUPABASE_URL` is set, orders, enquiries, and email logs use Supabase tables instead of local JSON files. In production, server-side table access requires `SUPABASE_SERVICE_ROLE_KEY`; this lets Supabase RLS stay locked down while the public app still submits orders and enquiries through trusted Next.js routes. The app uses the existing `orders`, `enquiries`, and `email_logs` tables from `db/schema.sql`.
 
 The older `DATABASE_URL` Postgres path remains as a fallback for non-Supabase deployments. Leave both Supabase and `DATABASE_URL` blank to keep using the local JSON fallback during development.
 
@@ -92,7 +92,7 @@ Import the current local JSON data:
 npm run db:import-json
 ```
 
-For Supabase production, make sure the schema in `db/schema.sql` has already been run in the Supabase SQL editor.
+For Supabase production, run `db/schema.sql` in the Supabase SQL editor, then run `db/supabase-security.sql` to enable RLS and remove direct `anon`/`authenticated` access to customer tables.
 
 ## Checks
 
