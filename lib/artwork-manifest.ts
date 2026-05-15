@@ -1,6 +1,4 @@
-import fs from "fs"
-import path from "path"
-
+import { artworkAssetPaths } from "@/lib/artwork-assets.generated"
 import { getStoryForCharacter } from "@/lib/stories"
 
 export type ArtworkManifestItem = {
@@ -49,12 +47,9 @@ const launchPriorityStoryIds = new Set([
 ])
 const launchStoryOrder = new Map(artworkStories.map((story, index) => [story.id, index]))
 
-const publicDirectory = path.join(process.cwd(), "public")
+const artworkAssetPathSet = new Set<string>(artworkAssetPaths)
 
-const fileExistsForPublicPath = (imagePath: string) => {
-  const normalisedPath = imagePath.replace(/^\//, "")
-  return fs.existsSync(path.join(publicDirectory, normalisedPath))
-}
+const fileExistsForPublicPath = (imagePath: string) => artworkAssetPathSet.has(imagePath)
 
 export const getArtworkManifest = (): ArtworkManifestItem[] => {
   return artworkStories.flatMap((storyConfig) => {

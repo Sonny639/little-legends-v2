@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "next dev --turbopack",
-    "build": "next build",
+    "build": "npm run artwork:sync && next build",
     "start": "next start",
     "lint": "tsc --noEmit -p tsconfig.typecheck.json",
     "db:init": "node scripts/init-db.mjs",
@@ -13,7 +13,8 @@
     "smoke:mvp": "node scripts/smoke-mvp-flow.mjs",
     "smoke:admin": "node scripts/smoke-admin-flow.mjs",
     "smoke:stripe": "node scripts/smoke-stripe-flow.mjs",
-    "smoke:all": "npm run smoke:mvp && npm run smoke:admin && npm run smoke:stripe"
+    "smoke:all": "npm run smoke:mvp && npm run smoke:admin && npm run smoke:stripe",
+    "artwork:sync": "node scripts/sync-artwork-assets.mjs"
   },
   "dependencies": {
     "@radix-ui/react-label": "^2.1.7",
