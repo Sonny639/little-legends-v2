@@ -1,6 +1,3 @@
-import fs from "fs"
-import path from "path"
-
 import Link from "next/link"
 import { BookOpen, Heart, Home, Lock, Sparkles, Star } from "lucide-react"
 
@@ -8,6 +5,7 @@ import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
 import { StoryArtPlaceholder } from "@/components/story-art-placeholder"
+import { artworkAssetPaths } from "@/lib/artwork-assets.generated"
 import { resolveFullStoryPages } from "@/lib/full-story"
 import { readOrders } from "@/lib/orders"
 import { getStoryArtworkFallback } from "@/lib/story-artwork-fallbacks"
@@ -22,12 +20,9 @@ type DownloadPageProps = {
 
 const isPaid = (status: string) => status === "paid" || status === "paid_demo"
 const pathTags: StoryChoice["pathTag"][] = ["brave", "kind", "clever", "teamwork"]
-const publicDirectory = path.join(process.cwd(), "public")
+const artworkAssetPathSet = new Set<string>(artworkAssetPaths)
 
-const publicAssetExists = (assetPath?: string) => {
-  if (!assetPath) return false
-  return fs.existsSync(path.join(publicDirectory, assetPath.replace(/^\//, "")))
-}
+const publicAssetExists = (assetPath?: string) => Boolean(assetPath && artworkAssetPathSet.has(assetPath))
 
 const resolveAvailableArtwork = (primaryPath?: string, fallbackPath?: string) => {
   if (publicAssetExists(primaryPath)) return primaryPath
