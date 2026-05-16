@@ -428,17 +428,7 @@ export default function Home() {
     setCurrentStep("story") // Skip character-type step
   }
 
-  const generateStoryPagePreview = async ({
-    storyId,
-    heroName,
-    heroType,
-    gender,
-  }: {
-    storyId: string
-    heroName: string
-    heroType: string
-    gender: "boy" | "girl"
-  }) => {
+  const generateLikenessPreview = async (characterType: string) => {
     if (!selectedCharacter || uploadedPhotos.length === 0 || isGeneratingLikenessPreview) return
 
     setIsGeneratingLikenessPreview(true)
@@ -448,24 +438,22 @@ export default function Home() {
       const previewPhotoDataUrls = await Promise.all(
         uploadedPhotos.map((photo) => readPhotoFileAsFalPreviewDataUrl(photo.file)),
       )
-      const response = await fetch("/api/generate-story-preview", {
+      const response = await fetch("/api/generate-character", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
           photos: previewPhotoDataUrls,
-          storyId,
-          heroName,
-          heroType,
-          gender,
+          characterType,
+          style: "storybook",
         }),
       })
       const result = await response.json()
-      const imageUrl = result.preview?.imageUrl
+      const imageUrl = result.character?.images?.[0]?.imageUrl
 
       if (!response.ok || !imageUrl) {
-        throw new Error(result.error || "Could not create the personalized story preview.")
+        throw new Error(result.error || "Could not create the likeness preview.")
       }
 
       setStoryPreview({
@@ -473,7 +461,7 @@ export default function Home() {
         imageUrl,
       })
     } catch (error) {
-      setLikenessPreviewMessage(error instanceof Error ? error.message : "Could not create the personalized story preview.")
+      setLikenessPreviewMessage(error instanceof Error ? error.message : "Could not create the likeness preview.")
     } finally {
       setIsGeneratingLikenessPreview(false)
     }
@@ -2344,8 +2332,8 @@ export default function Home() {
                 <h3 className="mt-1 text-xl font-black text-sky-950">{heroName} as the {heroType}</h3>
                 <p className="mt-1 text-sm font-semibold leading-6 text-slate-700">
                   {storyPreview?.characterId === selectedCharacter
-                    ? "This is the personalized first story page."
-                    : "Create the first story page with your child's likeness."}
+                    ? "Fast likeness preview generated from the selected photos."
+                    : "Create a quick likeness preview while we refine full-page personalization."}
                 </p>
                 {likenessPreviewMessage && (
                   <p className="mt-2 text-sm font-bold text-rose-700">{likenessPreviewMessage}</p>
@@ -2353,14 +2341,7 @@ export default function Home() {
               </div>
               <Button
                 type="button"
-                onClick={() =>
-                  generateStoryPagePreview({
-                    storyId: story.characterId,
-                    heroName,
-                    heroType,
-                    gender: artworkGender,
-                  })
-                }
+                onClick={() => generateLikenessPreview(heroType)}
                 disabled={isGeneratingLikenessPreview}
                 className="h-11 rounded-xl bg-rose-500 px-5 font-black text-white hover:bg-rose-600"
               >
