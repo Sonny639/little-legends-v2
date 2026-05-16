@@ -429,39 +429,42 @@ export default function Home() {
   }
 
   const generateLikenessPreview = async (characterType: string) => {
-    if (!selectedCharacter || uploadedPhotos.length === 0 || isGeneratingLikenessPreview) return
+    if (!selectedCharacter || !selectedGender || uploadedPhotos.length === 0 || isGeneratingLikenessPreview) return
 
     setIsGeneratingLikenessPreview(true)
-    setLikenessPreviewMessage("")
+    setLikenessPreviewMessage("Please be patient while we fit your child's face into the first story page.")
 
     try {
       const previewPhotoDataUrls = await Promise.all(
         uploadedPhotos.map((photo) => readPhotoFileAsFalPreviewDataUrl(photo.file)),
       )
-      const response = await fetch("/api/generate-character", {
+      const response = await fetch("/api/generate-story-preview", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
           photos: previewPhotoDataUrls,
-          characterType,
-          style: "storybook",
+          storyId: selectedCharacter,
+          heroName: selectedLegendName || childName || "Little Legend",
+          heroType: characterType,
+          gender: selectedGender,
         }),
       })
       const result = await response.json()
-      const imageUrl = result.character?.images?.[0]?.imageUrl
+      const imageUrl = result.preview?.imageUrl
 
       if (!response.ok || !imageUrl) {
-        throw new Error(result.error || "Could not create the likeness preview.")
+        throw new Error(result.error || "Could not create the first-page preview.")
       }
 
       setStoryPreview({
         characterId: selectedCharacter,
         imageUrl,
       })
+      setLikenessPreviewMessage("Your first story page is ready.")
     } catch (error) {
-      setLikenessPreviewMessage(error instanceof Error ? error.message : "Could not create the likeness preview.")
+      setLikenessPreviewMessage(error instanceof Error ? error.message : "Could not create the first-page preview.")
     } finally {
       setIsGeneratingLikenessPreview(false)
     }
@@ -2318,25 +2321,23 @@ export default function Home() {
             <div className="grid items-center gap-4 md:grid-cols-[auto_1fr_auto]">
               <div className="relative h-24 w-24 overflow-hidden rounded-2xl border-4 border-sky-950 bg-sky-50 shadow-[4px_4px_0_rgba(8,47,73,0.12)]">
                 <img
-                  src={
-                    storyPreview?.characterId === selectedCharacter
-                      ? storyPreview.imageUrl
-                      : uploadedPhotos[0].previewUrl
-                  }
+                  src={uploadedPhotos[0].previewUrl}
                   alt={`${heroName} likeness preview`}
                   className="h-full w-full object-cover"
                 />
               </div>
               <div className="text-left">
-                <p className="text-xs font-black uppercase tracking-widest text-sky-700">Personalized preview</p>
+                <p className="text-xs font-black uppercase tracking-widest text-sky-700">Page-one personalization</p>
                 <h3 className="mt-1 text-xl font-black text-sky-950">{heroName} as the {heroType}</h3>
                 <p className="mt-1 text-sm font-semibold leading-6 text-slate-700">
                   {storyPreview?.characterId === selectedCharacter
-                    ? "Fast likeness preview generated from the selected photos."
-                    : "Create a quick likeness preview while we refine full-page personalization."}
+                    ? "The first story page now uses the selected reference photo."
+                    : "Create the first story page using the real artwork and your selected photo."}
                 </p>
                 {likenessPreviewMessage && (
-                  <p className="mt-2 text-sm font-bold text-rose-700">{likenessPreviewMessage}</p>
+                  <p className={`mt-2 text-sm font-bold ${isGeneratingLikenessPreview ? "text-sky-700" : storyPreview?.characterId === selectedCharacter ? "text-emerald-700" : "text-rose-700"}`}>
+                    {likenessPreviewMessage}
+                  </p>
                 )}
               </div>
               <Button
@@ -2347,7 +2348,7 @@ export default function Home() {
               >
                 <Wand2 className="h-4 w-4" />
                 {isGeneratingLikenessPreview
-                  ? "Creating..."
+                  ? "Preparing page..."
                   : storyPreview?.characterId === selectedCharacter
                     ? "Refresh Preview"
                     : "Create Preview"}
