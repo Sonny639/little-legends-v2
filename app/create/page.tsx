@@ -76,6 +76,37 @@ const readPhotoFileAsDataUrl = (file: File) =>
     reader.readAsDataURL(file)
   })
 
+const readPhotoFileAsFalPreviewDataUrl = async (file: File) => {
+  const objectUrl = URL.createObjectURL(file)
+
+  try {
+    const image = await new Promise<HTMLImageElement>((resolve, reject) => {
+      const nextImage = new Image()
+      nextImage.onload = () => resolve(nextImage)
+      nextImage.onerror = () => reject(new Error("Could not read the reference photo."))
+      nextImage.src = objectUrl
+    })
+    const longestEdge = Math.max(image.naturalWidth, image.naturalHeight)
+    const scale = longestEdge > 1024 ? 1024 / longestEdge : 1
+    const width = Math.max(1, Math.round(image.naturalWidth * scale))
+    const height = Math.max(1, Math.round(image.naturalHeight * scale))
+    const canvas = document.createElement("canvas")
+    const context = canvas.getContext("2d")
+
+    if (!context) {
+      return readPhotoFileAsDataUrl(file)
+    }
+
+    canvas.width = width
+    canvas.height = height
+    context.drawImage(image, 0, 0, width, height)
+
+    return canvas.toDataURL("image/jpeg", 0.92)
+  } finally {
+    URL.revokeObjectURL(objectUrl)
+  }
+}
+
 export default function Home() {
   const [currentStep, setCurrentStep] = useState<Step>("welcome")
   const [selectedGender, setSelectedGender] = useState<"boy" | "girl" | null>(null)
@@ -398,22 +429,22 @@ export default function Home() {
   }
 
   const generateLikenessPreview = async (characterType: string) => {
-    const primaryPhoto = uploadedPhotos[0]
-
-    if (!selectedCharacter || !primaryPhoto || isGeneratingLikenessPreview) return
+    if (!selectedCharacter || uploadedPhotos.length === 0 || isGeneratingLikenessPreview) return
 
     setIsGeneratingLikenessPreview(true)
     setLikenessPreviewMessage("")
 
     try {
-      const primaryPhotoDataUrl = await readPhotoFileAsDataUrl(primaryPhoto.file)
+      const previewPhotoDataUrls = await Promise.all(
+        uploadedPhotos.map((photo) => readPhotoFileAsFalPreviewDataUrl(photo.file)),
+      )
       const response = await fetch("/api/generate-character", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          photos: [primaryPhotoDataUrl],
+          photos: previewPhotoDataUrls,
           characterType,
           style: "storybook",
         }),

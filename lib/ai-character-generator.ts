@@ -25,6 +25,16 @@ type FalFluxPulidResult = {
   }>
 }
 
+const isNoFaceDetectedError = (error: unknown) => {
+  const body = typeof error === "object" && error && "body" in error ? (error as { body?: unknown }).body : null
+  const detail =
+    typeof body === "object" && body && "detail" in body
+      ? (body as { detail?: unknown }).detail
+      : null
+
+  return typeof detail === "string" && /no face detected/i.test(detail)
+}
+
 const previewNegativePrompt =
   "text, captions, logo, watermark, deformed face, distorted eyes, extra limbs, duplicate person, side profile, face hidden, face covered, mask, helmet, scary mood, adult proportions"
 
@@ -66,26 +76,45 @@ export async function generateCharacterPreview(options: CharacterGenerationOptio
   fal.config({ credentials: apiKey })
 
   const pose = getPreviewPose(options.poses)
-  const result = await fal.subscribe("fal-ai/flux-pulid", {
-    input: {
-      prompt: getPrompt({
-        characterType: options.characterType,
-        style: options.style,
-        pose,
-      }),
-      reference_image_url: options.referencePhotos[0],
-      image_size: "portrait_4_3",
-      negative_prompt: previewNegativePrompt,
-      guidance_scale: 4,
-      id_weight: 1,
-      enable_safety_checker: true,
-      max_sequence_length: 256,
-    },
-  })
-  const data = result.data as FalFluxPulidResult
-  const imageUrl = data.images?.[0]?.url
+  let imageUrl = ""
+  let lastError: unknown
+
+  for (const referencePhoto of options.referencePhotos) {
+    try {
+      const result = await fal.subscribe("fal-ai/flux-pulid", {
+        input: {
+          prompt: getPrompt({
+            characterType: options.characterType,
+            style: options.style,
+            pose,
+          }),
+          reference_image_url: referencePhoto,
+          image_size: "portrait_4_3",
+          negative_prompt: previewNegativePrompt,
+          guidance_scale: 4,
+          id_weight: 1,
+          enable_safety_checker: true,
+          max_sequence_length: "256",
+        },
+      })
+      const data = result.data as FalFluxPulidResult
+      imageUrl = data.images?.[0]?.url || ""
+
+      if (imageUrl) break
+    } catch (error) {
+      lastError = error
+
+      if (!isNoFaceDetectedError(error)) {
+        throw error
+      }
+    }
+  }
 
   if (!imageUrl) {
+    if (lastError) {
+      throw lastError
+    }
+
     throw new Error("Face personalization did not return an image.")
   }
 

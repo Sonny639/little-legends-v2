@@ -5,6 +5,30 @@ import { checkRateLimit, getClientIp, rateLimitResponseHeaders } from "@/lib/rat
 
 const styles = ["storybook", "realistic"] as const
 
+const getGenerationErrorMessage = (error: unknown) => {
+  const body = typeof error === "object" && error && "body" in error ? (error as { body?: unknown }).body : null
+  const detail =
+    typeof body === "object" && body && "detail" in body
+      ? (body as { detail?: unknown }).detail
+      : null
+  const detailText =
+    typeof detail === "string"
+      ? detail
+      : Array.isArray(detail)
+        ? detail.map((item) => (typeof item === "object" && item && "msg" in item ? String(item.msg) : "")).join(" ")
+        : ""
+
+  if (/no face detected/i.test(detailText)) {
+    return "We could not find a clear face in that photo. Please try a front-facing photo in bright light."
+  }
+
+  if (/unprocessable entity/i.test(error instanceof Error ? error.message : "")) {
+    return "That photo format could not be used for the preview. Please try a clear JPG or PNG photo."
+  }
+
+  return error instanceof Error ? error.message : "Failed to generate character"
+}
+
 export async function POST(request: NextRequest) {
   try {
     const { photos, characterType, style } = await request.json()
@@ -51,7 +75,7 @@ export async function POST(request: NextRequest) {
       typeof error === "object" && error && "body" in error ? (error as { body?: unknown }).body : "",
     )
     return NextResponse.json(
-      { error: error instanceof Error ? error.message : "Failed to generate character" },
+      { error: getGenerationErrorMessage(error) },
       { status: 500 },
     )
   }
