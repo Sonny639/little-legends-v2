@@ -1,9 +1,10 @@
 import Link from "next/link"
-import { CheckCircle2, Download } from "lucide-react"
+import { CheckCircle2, Download, Truck } from "lucide-react"
 
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
+import { checkoutProducts } from "@/lib/checkout"
 import { sendOrderConfirmationEmail } from "@/lib/email"
 import { readOrders, updateOrderPaymentStatus } from "@/lib/orders"
 import { stripe } from "@/lib/stripe"
@@ -116,6 +117,14 @@ export default async function CheckoutSuccessPage({ searchParams }: CheckoutSucc
                   <Link href={`/download/${visibleOrder.id}`}>
                     <Download className="h-4 w-4" />
                     Read Story
+                  </Link>
+                </Button>
+              )}
+              {visibleOrder?.product === "digital" && isPaid && (
+                <Button asChild className="h-12 rounded-xl bg-rose-500 px-6 text-base font-black text-white hover:bg-rose-600">
+                  <Link href={`/upgrade/${visibleOrder.id}`}>
+                    <Truck className="h-4 w-4" />
+                    Add Hardback for {new Intl.NumberFormat("en-GB", { style: "currency", currency: "GBP" }).format(checkoutProducts.upgrade.price)}
                   </Link>
                 </Button>
               )}

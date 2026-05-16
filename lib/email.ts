@@ -69,6 +69,7 @@ const appUrl = () => {
 }
 
 export const getOrderDownloadUrl = (orderId: string) => `${appUrl()}/download/${encodeURIComponent(orderId)}`
+export const getOrderUpgradeUrl = (orderId: string) => `${appUrl()}/upgrade/${encodeURIComponent(orderId)}`
 
 const smtpPort = () => Number(process.env.SMTP_PORT || 587)
 
@@ -180,6 +181,7 @@ export const readEmailLog = async (): Promise<EmailLogEntry[]> => {
 
 export const sendOrderConfirmationEmail = async (order: OrderRecord) => {
   const downloadUrl = order.downloadUrl || getOrderDownloadUrl(order.id)
+  const upgradeUrl = order.product === "digital" ? getOrderUpgradeUrl(order.id) : ""
   const createdAt = new Date().toISOString()
   const subject = `Your Little Legends story is ready: ${order.storyTitle}`
   const photoCount = order.photoCount || 0
@@ -206,6 +208,12 @@ export const sendOrderConfirmationEmail = async (order: OrderRecord) => {
     order.product === "digital"
       ? `Your digital story is available straight away. Open the link above and use Download PDF to save a copy.`
       : `Your digital copy is available now. Your printed book order has also been logged for fulfilment.`,
+    ...(upgradeUrl
+      ? [
+          ``,
+          `Want the hardback later? You can upgrade this digital order here: ${upgradeUrl}`,
+        ]
+      : []),
     ...photoFollowUp,
     ``,
     `If anything looks wrong, reply via the contact page with your order reference and we will help.`,

@@ -36,6 +36,7 @@ const hasSupabaseCleanup = Boolean(process.env.NEXT_PUBLIC_SUPABASE_URL && supab
 const orderId = `SMOKE-ORDER-${Date.now()}`
 const smokeEmail = `${orderId.toLowerCase()}@example.com`
 const hasStripe = Boolean(process.env.STRIPE_SECRET_KEY)
+let upgradeOrderId = ""
 
 if (!isLocalApp && !allowLiveWrites) {
   throw new Error(
@@ -97,6 +98,7 @@ const removeFromJsonFile = async (filePath, predicate) => {
 
 const cleanupSmokeOrder = async () => {
   if (skipCleanup) return "skipped"
+  const smokeOrderIds = [orderId, upgradeOrderId].filter(Boolean)
 
   if (hasSupabaseCleanup) {
     const supabase = createClient(process.env.NEXT_PUBLIC_SUPABASE_URL, supabaseCleanupKey, {
@@ -106,8 +108,8 @@ const cleanupSmokeOrder = async () => {
       },
     })
     const results = await Promise.all([
-      supabase.from("email_logs").delete().eq("order_id", orderId),
-      supabase.from("orders").delete().eq("id", orderId),
+      supabase.from("email_logs").delete().in("order_id", smokeOrderIds),
+      supabase.from("orders").delete().in("id", smokeOrderIds),
     ])
     const error = results.find((result) => result.error)?.error
 
@@ -116,7 +118,7 @@ const cleanupSmokeOrder = async () => {
     return "supabase"
   }
 
-  await removeFromJsonFile(localOrdersFile, (order) => order.id === orderId)
+  await removeFromJsonFile(localOrdersFile, (order) => smokeOrderIds.includes(order.id))
   return "local-json"
 }
 
@@ -163,7 +165,7 @@ const order = {
   id: orderId,
   createdAt: new Date().toISOString(),
   product: "digital",
-  total: 4.99,
+  total: 6.99,
   email: smokeEmail,
   heroName: "Smoke Star",
   heroType: "Wizard",
@@ -216,6 +218,37 @@ try {
 
     await requestPage(`/download/${encodeURIComponent(orderId)}`)
     console.log("OK download page unlocked")
+
+    const upgrade = await requestJson("/api/orders/upgrade", {
+      method: "POST",
+      body: JSON.stringify({
+        orderId,
+        postage: {
+          fullName: "Smoke Upgrade",
+          addressLine1: "2 Test Street",
+          addressLine2: "",
+          city: "Testville",
+          postcode: "TE1 2ST",
+          country: "United Kingdom",
+        },
+      }),
+    })
+    upgradeOrderId = upgrade.order?.id || ""
+
+    if (upgrade.order?.product !== "upgrade" || upgrade.order?.total !== 23) {
+      throw new Error(`Upgrade order was not created correctly: ${JSON.stringify(upgrade.order)}`)
+    }
+    console.log("OK paid digital order can create hardback upgrade")
+
+    const upgradeCheckout = await requestJson("/api/checkout", {
+      method: "POST",
+      body: JSON.stringify({ order: upgrade.order }),
+    })
+
+    if (upgradeCheckout.checkout?.amountTotal !== 2300) {
+      throw new Error(`Upgrade checkout amount was wrong: ${JSON.stringify(upgradeCheckout.checkout)}`)
+    }
+    console.log("OK hardback upgrade checkout uses the price difference")
   } else {
     console.log("SKIP paid/download check because Stripe checkout requires external payment confirmation")
   }

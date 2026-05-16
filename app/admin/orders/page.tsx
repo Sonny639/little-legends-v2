@@ -62,9 +62,9 @@ type OrderPhoto = {
 }
 
 const productLabel: Record<CheckoutProduct, string> = {
-  digital: "Digital PDF",
-  hardback: "Hardback Book",
-  upgrade: "Hard Copy Upgrade",
+  digital: "Digital Storybook",
+  hardback: "Hardback Keepsake",
+  upgrade: "Hardback Upgrade",
 }
 
 const fulfilmentOptions: { value: FulfilmentStatus; label: string; className: string }[] = [

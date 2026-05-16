@@ -1320,10 +1320,10 @@ export default function Home() {
             <p className="text-lg text-gray-700 mb-6">Your amazing personalised story is ready to download!</p>
             <div className="space-y-4">
               <Button className="bg-gradient-to-r from-green-500 to-blue-500 hover:from-green-600 hover:to-blue-600 text-white text-xl px-8 py-4 rounded-full">
-                📱 Download Digital Comic (£4.99)
+                📱 Download Digital Comic ({money.format(checkoutProducts.digital.price)})
               </Button>
               <Button className="bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white text-xl px-8 py-4 rounded-full">
-                📚 Order Printed Book (£14.99)
+                📚 Order Printed Book ({money.format(checkoutProducts.hardback.price)})
               </Button>
             </div>
           </Card>
@@ -1739,10 +1739,10 @@ export default function Home() {
                       <div className="grid h-12 w-12 place-items-center rounded-2xl border-4 border-sky-950 bg-white text-sky-600 shadow-[3px_3px_0_rgba(8,47,73,0.14)]">
                         <Download className="h-6 w-6" />
                       </div>
-                      <h4 className="text-2xl font-black text-sky-950">Digital PDF</h4>
+                      <h4 className="text-2xl font-black text-sky-950">Digital Storybook</h4>
                     </div>
                     <p className="mt-2 text-sm font-semibold text-slate-700">Download the finished personalised comic.</p>
-                    <p className="mt-4 text-3xl font-black text-rose-600">£4.99</p>
+                    <p className="mt-4 text-3xl font-black text-rose-600">{money.format(checkoutProducts.digital.price)}</p>
                     <p className="mt-1 text-sm font-black text-amber-700">Bitcoin Hero edition ready</p>
                     <Button className="mt-4 w-full rounded-xl bg-sky-500 font-black text-white hover:bg-sky-600">
                       Buy Digital
@@ -1754,10 +1754,10 @@ export default function Home() {
                       <div className="grid h-12 w-12 place-items-center rounded-2xl border-4 border-sky-950 bg-white text-amber-600 shadow-[3px_3px_0_rgba(8,47,73,0.14)]">
                         <BookOpen className="h-6 w-6" />
                       </div>
-                      <h4 className="text-2xl font-black text-sky-950">Hardback Book</h4>
+                      <h4 className="text-2xl font-black text-sky-950">Hardback Keepsake</h4>
                     </div>
-                    <p className="mt-2 text-sm font-semibold text-slate-700">A printed keepsake version for bedtime reading.</p>
-                    <p className="mt-4 text-3xl font-black text-rose-600">£14.99</p>
+                    <p className="mt-2 text-sm font-semibold text-slate-700">A printed keepsake for bedtime reading, with digital included.</p>
+                    <p className="mt-4 text-3xl font-black text-rose-600">{money.format(checkoutProducts.hardback.price)}</p>
                     <p className="mt-1 text-sm font-black text-amber-700">Printable Bitcoin Hero story</p>
                     <Button className="mt-4 w-full rounded-xl bg-rose-500 font-black text-white hover:bg-rose-600">
                       Order Hardback
@@ -2164,10 +2164,10 @@ export default function Home() {
                       <div className="grid h-10 w-10 place-items-center rounded-xl border-4 border-sky-950 bg-white text-sky-600 shadow-[3px_3px_0_rgba(8,47,73,0.14)]">
                         <Download className="h-5 w-5" />
                       </div>
-                      <h4 className="text-xl font-black text-sky-950">Digital PDF</h4>
+                      <h4 className="text-xl font-black text-sky-950">Digital Storybook</h4>
                     </div>
                     <p className="mt-4 min-h-[3rem] text-sm font-semibold leading-6 text-slate-700">Instant access to read on your phone and save as a PDF.</p>
-                    <p className="mt-3 text-3xl font-black text-rose-600">£4.99</p>
+                    <p className="mt-3 text-3xl font-black text-rose-600">{money.format(checkoutProducts.digital.price)}</p>
                     <Button
                       onClick={() => startCheckout("digital")}
                       className="mt-auto h-10 w-full rounded-xl bg-sky-500 font-black text-white hover:bg-sky-600"
@@ -2184,10 +2184,10 @@ export default function Home() {
                       <div className="grid h-10 w-10 place-items-center rounded-xl border-4 border-sky-950 bg-white text-amber-600 shadow-[3px_3px_0_rgba(8,47,73,0.14)]">
                         <BookOpen className="h-5 w-5" />
                       </div>
-                      <h4 className="text-xl font-black text-sky-950">Hardback Book</h4>
+                      <h4 className="text-xl font-black text-sky-950">Hardback Keepsake</h4>
                     </div>
                     <p className="mt-4 min-h-[3rem] text-sm font-semibold leading-6 text-slate-700">A posted keepsake for bedtime reading, with digital access included.</p>
-                    <p className="mt-3 text-3xl font-black text-rose-600">£14.99</p>
+                    <p className="mt-3 text-3xl font-black text-rose-600">{money.format(checkoutProducts.hardback.price)}</p>
                     <Button
                       onClick={() => startCheckout("hardback")}
                       className="mt-auto h-10 w-full rounded-xl bg-rose-500 font-black text-white hover:bg-rose-600"
@@ -2653,7 +2653,7 @@ export default function Home() {
                       Email follow-up
                     </div>
                     <p className="text-sm font-semibold leading-6 text-slate-700">
-                      The confirmation email includes the download link and, for digital orders, a hard copy upgrade link.
+                      The confirmation email includes the download link and, for digital orders, a hardback upgrade link.
                       {uploadedPhotos.length > 0
                         ? " Your reference photos are safely stored with the order for the personalised artwork stage."
                         : ""}
@@ -2668,19 +2668,19 @@ export default function Home() {
                   </div>
                 </div>
 
-                {checkoutProduct === "digital" && (
+                {checkoutProduct === "digital" && (latestOrder?.status === "paid_demo" || latestOrder?.status === "paid") && (
                   <Card className="border-4 border-sky-950 bg-amber-50 p-4 shadow-[6px_6px_0_rgba(8,47,73,0.12)]">
                     <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                       <div>
-                        <h4 className="text-lg font-black text-sky-950">Want the hard copy too?</h4>
-                        <p className="mt-1 text-sm font-semibold text-slate-700">Add a posted keepsake copy for {money.format(10)}.</p>
+                        <h4 className="text-lg font-black text-sky-950">Want the hardback too?</h4>
+                        <p className="mt-1 text-sm font-semibold text-slate-700">Add the posted hardback keepsake for {money.format(checkoutProducts.upgrade.price)}.</p>
                       </div>
                       <Button
                         onClick={() => startCheckout("upgrade")}
                         className="h-11 rounded-xl bg-rose-500 px-5 font-black text-white hover:bg-rose-600"
                       >
                         <Truck className="h-4 w-4" />
-                        Add Hard Copy
+                        Add Hardback
                       </Button>
                     </div>
                   </Card>

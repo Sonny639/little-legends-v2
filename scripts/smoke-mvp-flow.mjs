@@ -190,7 +190,7 @@ const order = {
   id: smokeId,
   createdAt: new Date().toISOString(),
   product: "digital",
-  total: 4.99,
+  total: 6.99,
   email: smokeEmail,
   heroName: "Smoke Star",
   heroType: "Wizard",
@@ -328,7 +328,7 @@ try {
   })
 
   if (
-    tamperedSave.order?.total !== 4.99 ||
+    tamperedSave.order?.total !== 6.99 ||
     tamperedSave.order?.status !== "payment_pending" ||
     tamperedSave.order?.fulfilmentStatus !== "new" ||
     tamperedSave.order?.emailSentAt

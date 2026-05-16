@@ -34,6 +34,7 @@ const skipCleanup = process.env.SMOKE_SKIP_CLEANUP === "1"
 const supabaseDataKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
 const smokeId = `SMOKE-STRIPE-${Date.now()}`
 const smokeEmail = `${smokeId.toLowerCase()}@example.com`
+let upgradeSmokeId = ""
 
 if (!isLocalApp && !allowLiveWrites) {
   throw new Error(
@@ -76,10 +77,11 @@ const wait = (ms) => new Promise((resolve) => setTimeout(resolve, ms))
 
 const cleanupSmokeData = async () => {
   if (skipCleanup) return "skipped"
+  const smokeOrderIds = [smokeId, upgradeSmokeId].filter(Boolean)
 
   const results = await Promise.all([
-    supabase.from("email_logs").delete().eq("order_id", smokeId),
-    supabase.from("orders").delete().eq("id", smokeId),
+    supabase.from("email_logs").delete().in("order_id", smokeOrderIds),
+    supabase.from("orders").delete().in("id", smokeOrderIds),
     supabase.from("enquiries").delete().eq("email", smokeEmail),
   ])
   const error = results.find((result) => result.error)?.error
@@ -163,7 +165,7 @@ const order = {
   id: smokeId,
   createdAt: new Date().toISOString(),
   product: "digital",
-  total: 4.99,
+  total: 6.99,
   email: smokeEmail,
   heroName: "Stripe Smoke",
   heroType: "Wizard",
@@ -213,7 +215,7 @@ try {
       order: {
         ...order,
         product: "hardback",
-        total: 14.99,
+        total: 29.99,
         email: "tampered@example.com",
         storyId: "tampered-story",
       },
@@ -223,7 +225,7 @@ try {
   const tamperedSession = await stripe.checkout.sessions.retrieve(tamperedCheckoutData.sessionId)
 
   if (
-    tamperedSession.amount_total !== 499 ||
+    tamperedSession.amount_total !== 699 ||
     tamperedSession.customer_email !== smokeEmail ||
     tamperedSession.metadata?.product !== "digital" ||
     tamperedSession.metadata?.storyId !== "wizard"
@@ -258,7 +260,7 @@ try {
     throw new Error("Stripe session metadata/client reference did not preserve the order id.")
   }
 
-  if (stripeSession.amount_total !== 499 || stripeSession.currency !== "gbp") {
+  if (stripeSession.amount_total !== 699 || stripeSession.currency !== "gbp") {
     throw new Error(`Stripe amount/currency mismatch: ${stripeSession.amount_total} ${stripeSession.currency}`)
   }
 
@@ -340,7 +342,7 @@ try {
           storyId: "wizard",
         },
         payment_status: "paid",
-        amount_total: 499,
+        amount_total: 699,
         currency: "gbp",
       },
     },
@@ -369,6 +371,44 @@ try {
   if (emailError) throw new Error(`Could not verify email log: ${emailError.message}`)
   if (!emailLogs?.length) throw new Error("Expected a confirmation email log for the paid order.")
   console.log("OK order marked paid and confirmation email logged")
+
+  const upgradePage = await requestPage(`/upgrade/${encodeURIComponent(smokeId)}`)
+  if (upgradePage.response.status !== 200 || !upgradePage.text.includes("Add the hardback")) {
+    throw new Error("Paid digital order did not expose the hardback upgrade page.")
+  }
+  console.log("OK paid digital order exposes hardback upgrade page")
+
+  const upgrade = await requestJson("/api/orders/upgrade", {
+    method: "POST",
+    body: JSON.stringify({
+      orderId: smokeId,
+      postage: {
+        fullName: "Stripe Upgrade",
+        addressLine1: "2 Test Street",
+        addressLine2: "",
+        city: "Testville",
+        postcode: "TE1 2ST",
+        country: "United Kingdom",
+      },
+    }),
+  })
+  upgradeSmokeId = upgrade.data.order?.id || ""
+
+  if (upgrade.data.order?.product !== "upgrade" || upgrade.data.order?.total !== 23) {
+    throw new Error(`Hardback upgrade order was not created correctly: ${JSON.stringify(upgrade.data.order)}`)
+  }
+  console.log("OK paid digital order can create hardback upgrade")
+
+  const upgradeCheckout = await requestJson("/api/checkout", {
+    method: "POST",
+    body: JSON.stringify({ order: upgrade.data.order }),
+  })
+  const upgradeSession = await stripe.checkout.sessions.retrieve(upgradeCheckout.data.checkout.sessionId)
+
+  if (upgradeSession.amount_total !== 2300 || upgradeSession.metadata?.product !== "upgrade") {
+    throw new Error(`Hardback upgrade checkout mismatch: ${upgradeSession.amount_total} ${upgradeSession.metadata?.product}`)
+  }
+  console.log("OK hardback upgrade checkout uses the price difference")
 
   const successPage = await requestPage(`/checkout/success?orderId=${encodeURIComponent(smokeId)}`)
   if (successPage.response.status !== 200 || !successPage.text.includes("Payment confirmed")) {
