@@ -68,6 +68,14 @@ const getHeroInitials = (name?: string) =>
     .slice(0, 2)
     .toUpperCase()
 
+const readPhotoFileAsDataUrl = (file: File) =>
+  new Promise<string>((resolve, reject) => {
+    const reader = new FileReader()
+    reader.onload = () => resolve(reader.result as string)
+    reader.onerror = () => reject(new Error("Could not read the reference photo."))
+    reader.readAsDataURL(file)
+  })
+
 export default function Home() {
   const [currentStep, setCurrentStep] = useState<Step>("welcome")
   const [selectedGender, setSelectedGender] = useState<"boy" | "girl" | null>(null)
@@ -91,6 +99,12 @@ export default function Home() {
   const [orderSubmitted, setOrderSubmitted] = useState(false)
   const [isPreparingCheckout, setIsPreparingCheckout] = useState(false)
   const [failedArtwork, setFailedArtwork] = useState<Record<string, boolean>>({})
+  const [likenessPreview, setLikenessPreview] = useState<{
+    characterId: string
+    imageUrl: string
+  } | null>(null)
+  const [isGeneratingLikenessPreview, setIsGeneratingLikenessPreview] = useState(false)
+  const [likenessPreviewMessage, setLikenessPreviewMessage] = useState("")
   const [latestOrder, setLatestOrder] = useState<OrderRecord | null>(null)
   const [checkoutReturnMessage, setCheckoutReturnMessage] = useState("")
   const [checkoutError, setCheckoutError] = useState("")
@@ -375,10 +389,51 @@ export default function Home() {
     if (!launchHeroIds.has(characterId)) return
 
     setSelectedCharacter(characterId)
+    setLikenessPreview(null)
+    setLikenessPreviewMessage("")
     setStoryPage(1)
     setStoryPageId("start")
     setStoryPath([])
     setCurrentStep("story") // Skip character-type step
+  }
+
+  const generateLikenessPreview = async (characterType: string) => {
+    const primaryPhoto = uploadedPhotos[0]
+
+    if (!selectedCharacter || !primaryPhoto || isGeneratingLikenessPreview) return
+
+    setIsGeneratingLikenessPreview(true)
+    setLikenessPreviewMessage("")
+
+    try {
+      const primaryPhotoDataUrl = await readPhotoFileAsDataUrl(primaryPhoto.file)
+      const response = await fetch("/api/generate-character", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          photos: [primaryPhotoDataUrl],
+          characterType,
+          style: "storybook",
+        }),
+      })
+      const result = await response.json()
+      const imageUrl = result.character?.images?.[0]?.imageUrl
+
+      if (!response.ok || !imageUrl) {
+        throw new Error(result.error || "Could not create the likeness preview.")
+      }
+
+      setLikenessPreview({
+        characterId: selectedCharacter,
+        imageUrl,
+      })
+    } catch (error) {
+      setLikenessPreviewMessage(error instanceof Error ? error.message : "Could not create the likeness preview.")
+    } finally {
+      setIsGeneratingLikenessPreview(false)
+    }
   }
 
   // AI Legend Name Generator
@@ -431,6 +486,8 @@ export default function Home() {
 
     if (newPhotos.length > 0) {
       setUploadedPhotos((prev) => [...prev, ...newPhotos].slice(0, 3))
+      setLikenessPreview(null)
+      setLikenessPreviewMessage("")
     }
 
     if (remainingSlots === 0) {
@@ -456,6 +513,8 @@ export default function Home() {
       return currentPhotos.filter((_, index) => index !== imageIndex)
     })
     setPhotoUploadMessage(imageIndex === 0 ? "Main face match removed. Add the clearest front-facing photo first." : "Photo removed.")
+    setLikenessPreview(null)
+    setLikenessPreviewMessage("")
   }
 
   const clearUploadedImages = () => {
@@ -466,6 +525,8 @@ export default function Home() {
     })
     setUploadedPhotos([])
     setPhotoUploadMessage("Photos cleared. Add the clearest face photo first.")
+    setLikenessPreview(null)
+    setLikenessPreviewMessage("")
   }
 
   useEffect(() => {
@@ -2216,6 +2277,49 @@ export default function Home() {
 
     return (
       <div className="mx-auto max-w-6xl space-y-5">
+        {uploadedPhotos[0] && (
+          <Card className="border-4 border-sky-950 bg-white p-4 shadow-[8px_8px_0_rgba(8,47,73,0.14)] sm:p-5">
+            <div className="grid items-center gap-4 md:grid-cols-[auto_1fr_auto]">
+              <div className="relative h-24 w-24 overflow-hidden rounded-2xl border-4 border-sky-950 bg-sky-50 shadow-[4px_4px_0_rgba(8,47,73,0.12)]">
+                <img
+                  src={
+                    likenessPreview?.characterId === selectedCharacter
+                      ? likenessPreview.imageUrl
+                      : uploadedPhotos[0].previewUrl
+                  }
+                  alt={`${heroName} likeness preview`}
+                  className="h-full w-full object-cover"
+                />
+              </div>
+              <div className="text-left">
+                <p className="text-xs font-black uppercase tracking-widest text-sky-700">Likeness preview</p>
+                <h3 className="mt-1 text-xl font-black text-sky-950">{heroName} as the {heroType}</h3>
+                <p className="mt-1 text-sm font-semibold leading-6 text-slate-700">
+                  {likenessPreview?.characterId === selectedCharacter
+                    ? "Preview generated from the main face photo."
+                    : "Use the main face photo to create one storybook-style preview."}
+                </p>
+                {likenessPreviewMessage && (
+                  <p className="mt-2 text-sm font-bold text-rose-700">{likenessPreviewMessage}</p>
+                )}
+              </div>
+              <Button
+                type="button"
+                onClick={() => generateLikenessPreview(heroType)}
+                disabled={isGeneratingLikenessPreview}
+                className="h-11 rounded-xl bg-rose-500 px-5 font-black text-white hover:bg-rose-600"
+              >
+                <Wand2 className="h-4 w-4" />
+                {isGeneratingLikenessPreview
+                  ? "Creating..."
+                  : likenessPreview?.characterId === selectedCharacter
+                    ? "Refresh Preview"
+                    : "Create Preview"}
+              </Button>
+            </div>
+          </Card>
+        )}
+
         <div className="rounded-[2rem] border-4 border-sky-950 bg-white p-3 shadow-[8px_8px_0_rgba(8,47,73,0.18)] sm:p-4">
           <div className="flex flex-col items-center justify-between gap-2 border-b-4 border-sky-950 pb-3 text-center md:flex-row md:text-left">
             <div>

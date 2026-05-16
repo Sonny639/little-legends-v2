@@ -1,143 +1,113 @@
-// AI Character Generation using Hugging Face (FREE)
+import { fal } from "@fal-ai/client"
+
+export type CharacterStyle = "storybook" | "realistic"
 
 export interface CharacterGenerationOptions {
   referencePhotos: string[]
   characterType: string
-  style: "realistic" | "animated" | "cartoon"
+  style: CharacterStyle
   poses: string[]
 }
 
 export interface GeneratedCharacter {
   id: string
-  style: "realistic" | "animated"
+  style: CharacterStyle
+  provider: "fal-flux-pulid"
   images: {
     pose: string
     imageUrl: string
   }[]
 }
 
-// Hugging Face API integration (FREE)
-export async function generateCharacterWithHuggingFace(
-  options: CharacterGenerationOptions,
-): Promise<GeneratedCharacter[]> {
-  const API_URL = "https://api-inference.huggingface.co/models/"
-
-  try {
-    // Generate both realistic and animated versions
-    const characters: GeneratedCharacter[] = []
-
-    // Realistic version using face-swapping model
-    const realisticCharacter = await generateRealisticCharacter(options)
-    characters.push(realisticCharacter)
-
-    // Animated version using cartoon generation model
-    const animatedCharacter = await generateAnimatedCharacter(options)
-    characters.push(animatedCharacter)
-
-    return characters
-  } catch (error) {
-    console.error("Character generation failed:", error)
-    // Fallback to placeholder characters
-    return generateFallbackCharacters(options)
-  }
+type FalFluxPulidResult = {
+  images?: Array<{
+    url?: string
+  }>
 }
 
-async function generateRealisticCharacter(options: CharacterGenerationOptions): Promise<GeneratedCharacter> {
-  // Use InstantID or similar face-swapping model
-  const model = "InstantX/InstantID"
+const previewNegativePrompt =
+  "text, captions, logo, watermark, deformed face, distorted eyes, extra limbs, duplicate person, side profile, face hidden, face covered, mask, helmet, scary mood, adult proportions"
 
-  const poses = ["standing confidently", "in action pose", "smiling friendly", "heroic stance", "celebrating victory"]
+const getFalKey = () => process.env.FAL_KEY || process.env.FAL_API_KEY || ""
 
-  const images = []
+export const isFacePersonalizationConfigured = () => Boolean(getFalKey())
 
-  for (const pose of poses) {
-    const prompt = `A ${options.characterType} ${pose}, professional photography, high quality, realistic. Match the child's visible skin tone and facial features from the reference photo.`
-
-    // This would call the actual Hugging Face API
-    const imageUrl = await callHuggingFaceAPI(model, {
-      prompt,
-      referenceImage: options.referencePhotos[0],
-      style: "realistic",
-    })
-
-    images.push({
-      pose,
-      imageUrl,
-    })
+const getPrompt = ({ characterType, style, pose }: { characterType: string; style: CharacterStyle; pose: string }) => {
+  if (style === "realistic") {
+    return [
+      `A child dressed as a ${characterType}, ${pose}.`,
+      "Bright premium portrait photography, warm natural light, front-facing expressive face, age-appropriate child proportions.",
+      "Preserve the child's visible facial identity, skin tone, eye shape, nose, mouth, and hair from the reference photo.",
+      "Clean background, face unobstructed, shoulders visible, polished family portrait quality.",
+    ].join(" ")
   }
 
-  return {
-    id: `realistic-${Date.now()}`,
-    style: "realistic",
-    images,
-  }
-}
-
-async function generateAnimatedCharacter(options: CharacterGenerationOptions): Promise<GeneratedCharacter> {
-  // Use cartoon/animation generation model
-  const model = "runwayml/stable-diffusion-v1-5"
-
-  const poses = ["standing confidently", "in action pose", "smiling friendly", "heroic stance", "celebrating victory"]
-
-  const images = []
-
-  for (const pose of poses) {
-    const prompt = `A cute cartoon ${options.characterType} ${pose}, Disney Pixar style, 3D animation, colorful, child-friendly. Match the child's visible skin tone and facial features from the reference photo.`
-
-    const imageUrl = await callHuggingFaceAPI(model, {
-      prompt,
-      referenceImage: options.referencePhotos[0],
-      style: "cartoon",
-    })
-
-    images.push({
-      pose,
-      imageUrl,
-    })
-  }
-
-  return {
-    id: `animated-${Date.now()}`,
-    style: "animated",
-    images,
-  }
-}
-
-async function callHuggingFaceAPI(model: string, options: any): Promise<string> {
-  // For demo purposes, return placeholder
-  // In production, this would call the actual Hugging Face API
-  return `/placeholder.svg?height=400&width=400&text=${options.style}-character`
-}
-
-function generateFallbackCharacters(options: CharacterGenerationOptions): GeneratedCharacter[] {
-  // Fallback to pre-made character templates if AI fails
   return [
-    {
-      id: "fallback-realistic",
-      style: "realistic",
-      images: [
-        { pose: "standing", imageUrl: "/characters/realistic-standing.png" },
-        { pose: "action", imageUrl: "/characters/realistic-action.png" },
-      ],
-    },
-    {
-      id: "fallback-animated",
-      style: "animated",
-      images: [
-        { pose: "standing", imageUrl: "/characters/animated-standing.png" },
-        { pose: "action", imageUrl: "/characters/animated-action.png" },
-      ],
-    },
-  ]
+    `A child hero dressed as a ${characterType}, ${pose}.`,
+    "Premium children's storybook illustration, magical warm light, rich colour, polished painterly detail, front-facing expressive face.",
+    "Preserve the child's visible facial identity, skin tone, eye shape, nose, mouth, and hair from the reference photo.",
+    "Single child only, face clear and unobstructed, shoulders visible, child-safe joyful tone.",
+  ].join(" ")
 }
 
-// Photo processing utilities
+const getPreviewPose = (poses: string[]) => poses[0] || "standing proudly"
+
+export async function generateCharacterPreview(options: CharacterGenerationOptions): Promise<GeneratedCharacter> {
+  if (!validatePhotos(options.referencePhotos)) {
+    throw new Error("At least one valid reference photo is required.")
+  }
+
+  const apiKey = getFalKey()
+
+  if (!apiKey) {
+    throw new Error("Face personalization is not configured yet.")
+  }
+
+  fal.config({ credentials: apiKey })
+
+  const pose = getPreviewPose(options.poses)
+  const result = await fal.subscribe("fal-ai/flux-pulid", {
+    input: {
+      prompt: getPrompt({
+        characterType: options.characterType,
+        style: options.style,
+        pose,
+      }),
+      reference_image_url: options.referencePhotos[0],
+      image_size: "portrait_4_3",
+      negative_prompt: previewNegativePrompt,
+      guidance_scale: 4,
+      id_weight: 1.05,
+      enable_safety_checker: true,
+      max_sequence_length: "256",
+    },
+  })
+  const data = result.data as FalFluxPulidResult
+  const imageUrl = data.images?.[0]?.url
+
+  if (!imageUrl) {
+    throw new Error("Face personalization did not return an image.")
+  }
+
+  return {
+    id: `preview-${Date.now()}`,
+    style: options.style,
+    provider: "fal-flux-pulid",
+    images: [
+      {
+        pose,
+        imageUrl,
+      },
+    ],
+  }
+}
+
 export function processUploadedPhotos(photos: File[]): Promise<string[]> {
   return Promise.all(
     photos.map((photo) => {
       return new Promise<string>((resolve) => {
         const reader = new FileReader()
-        reader.onload = (e) => resolve(e.target?.result as string)
+        reader.onload = (event) => resolve(event.target?.result as string)
         reader.readAsDataURL(photo)
       })
     }),
@@ -145,6 +115,5 @@ export function processUploadedPhotos(photos: File[]): Promise<string[]> {
 }
 
 export function validatePhotos(photos: string[]): boolean {
-  // Basic validation - ensure we have at least one photo
   return photos.length > 0 && photos.every((photo) => photo.startsWith("data:image/"))
 }

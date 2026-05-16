@@ -22,7 +22,7 @@ export default function CharacterGeneration({
 }: CharacterGenerationProps) {
   const [isGenerating, setIsGenerating] = useState(false)
   const [generatedCharacters, setGeneratedCharacters] = useState<GeneratedCharacter[]>([])
-  const [selectedStyle, setSelectedStyle] = useState<"realistic" | "animated" | null>(null)
+  const [selectedStyle, setSelectedStyle] = useState<"realistic" | "storybook" | null>(null)
   const [generationError, setGenerationError] = useState("")
 
   const handleGenerateCharacter = async () => {
@@ -55,7 +55,7 @@ export default function CharacterGeneration({
     }
   }
 
-  const handleStyleSelection = (style: "realistic" | "animated") => {
+  const handleStyleSelection = (style: "realistic" | "storybook") => {
     setSelectedStyle(style)
     const selectedCharacter = generatedCharacters.find((char) => char.style === style)
     if (selectedCharacter) {
@@ -71,7 +71,7 @@ export default function CharacterGeneration({
         </div>
         <div className="space-y-2">
           <h3 className="text-2xl font-bold text-gray-800">Creating {childName}'s Character!</h3>
-          <p className="text-gray-600">Our AI is working its magic to create both realistic and animated versions...</p>
+          <p className="text-gray-600">Our AI is working its magic to create your preview...</p>
           <div className="flex justify-center space-x-2 mt-4">
             <div className="w-2 h-2 bg-purple-500 rounded-full animate-bounce"></div>
             <div className="w-2 h-2 bg-pink-500 rounded-full animate-bounce" style={{ animationDelay: "0.1s" }}></div>
@@ -91,8 +91,7 @@ export default function CharacterGeneration({
           </div>
           <h3 className="text-2xl font-bold text-gray-800">Ready to Create {childName}'s Character?</h3>
           <p className="text-gray-600">
-            We'll use the uploaded photos to create both realistic and animated versions of {childName} as a{" "}
-            {characterType}!
+            We'll use the uploaded photos to create a storybook likeness of {childName} as a {characterType}!
           </p>
         </div>
 
@@ -111,8 +110,8 @@ export default function CharacterGeneration({
   return (
     <div className="space-y-8">
       <div className="text-center">
-        <h3 className="text-3xl font-bold text-gray-800 mb-2">Choose Your Style!</h3>
-        <p className="text-gray-600">We've created both realistic and animated versions of {childName}!</p>
+        <h3 className="text-3xl font-bold text-gray-800 mb-2">Preview Ready</h3>
+        <p className="text-gray-600">We've created a likeness preview for {childName}.</p>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
@@ -127,7 +126,7 @@ export default function CharacterGeneration({
             <div className="space-y-4">
               <div className="flex items-center justify-between">
                 <Badge className={`${character.style === "realistic" ? "bg-blue-500" : "bg-pink-500"} text-white`}>
-                  {character.style === "realistic" ? "Realistic" : "Animated"}
+                  {character.style === "realistic" ? "Realistic" : "Storybook"}
                 </Badge>
                 <Palette className="w-5 h-5 text-gray-400" />
               </div>
@@ -154,8 +153,8 @@ export default function CharacterGeneration({
                 </h4>
                 <p className="text-sm text-gray-600">
                   {character.style === "realistic"
-                    ? "Looks just like a real photo of " + childName
-                    : "Disney-Pixar style animated character"}
+                    ? "Looks like a real photo of " + childName
+                    : "Premium storybook-style character preview"}
                 </p>
               </div>
             </div>
@@ -169,7 +168,7 @@ export default function CharacterGeneration({
             onClick={() => onCharacterGenerated(generatedCharacters.filter((char) => char.style === selectedStyle))}
             className="bg-gradient-to-r from-green-500 to-blue-500 hover:from-green-600 hover:to-blue-600 text-white text-xl px-8 py-4 rounded-full"
           >
-            Perfect! Use {selectedStyle === "realistic" ? "Realistic" : "Animated"} {childName} 🚀
+            Perfect! Use {selectedStyle === "realistic" ? "Realistic" : "Storybook"} {childName} 🚀
           </Button>
         </div>
       )}

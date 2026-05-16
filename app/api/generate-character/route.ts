@@ -1,8 +1,9 @@
 import { type NextRequest, NextResponse } from "next/server"
 
-import { generateCharacterWithHuggingFace, validatePhotos } from "@/lib/ai-character-generator"
+import { generateCharacterPreview, isFacePersonalizationConfigured, validatePhotos } from "@/lib/ai-character-generator"
+import { checkRateLimit, getClientIp, rateLimitResponseHeaders } from "@/lib/rate-limit"
 
-const styles = ["realistic", "animated", "cartoon"] as const
+const styles = ["storybook", "realistic"] as const
 
 export async function POST(request: NextRequest) {
   try {
@@ -16,17 +17,38 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "Character type is required." }, { status: 400 })
     }
 
-    const requestedStyle = styles.includes(style) ? style : "realistic"
-    const characters = await generateCharacterWithHuggingFace({
+    const clientIp = getClientIp(request)
+    const rateLimit = checkRateLimit({
+      key: `face-preview:${clientIp}`,
+      limit: 3,
+      windowMs: 60 * 60 * 1000,
+    })
+
+    if (!rateLimit.ok) {
+      return NextResponse.json(
+        { error: "Preview limit reached. Please try again later." },
+        { status: 429, headers: rateLimitResponseHeaders(rateLimit.resetAt) },
+      )
+    }
+
+    if (!isFacePersonalizationConfigured()) {
+      return NextResponse.json({ error: "Face personalization is not configured yet." }, { status: 503 })
+    }
+
+    const requestedStyle = styles.includes(style) ? style : "storybook"
+    const character = await generateCharacterPreview({
       referencePhotos: photos,
       characterType: characterType.trim(),
       style: requestedStyle,
-      poses: ["standing", "action", "smiling", "heroic", "celebrating"],
+      poses: ["standing proudly"],
     })
 
-    return NextResponse.json({ character: characters[0], characters })
+    return NextResponse.json({ character })
   } catch (error) {
     console.error("Character generation error:", error)
-    return NextResponse.json({ error: "Failed to generate character" }, { status: 500 })
+    return NextResponse.json(
+      { error: error instanceof Error ? error.message : "Failed to generate character" },
+      { status: 500 },
+    )
   }
 }
