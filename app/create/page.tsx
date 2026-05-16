@@ -130,7 +130,7 @@ export default function Home() {
   const [orderSubmitted, setOrderSubmitted] = useState(false)
   const [isPreparingCheckout, setIsPreparingCheckout] = useState(false)
   const [failedArtwork, setFailedArtwork] = useState<Record<string, boolean>>({})
-  const [likenessPreview, setLikenessPreview] = useState<{
+  const [storyPreview, setStoryPreview] = useState<{
     characterId: string
     imageUrl: string
   } | null>(null)
@@ -420,7 +420,7 @@ export default function Home() {
     if (!launchHeroIds.has(characterId)) return
 
     setSelectedCharacter(characterId)
-    setLikenessPreview(null)
+    setStoryPreview(null)
     setLikenessPreviewMessage("")
     setStoryPage(1)
     setStoryPageId("start")
@@ -428,7 +428,17 @@ export default function Home() {
     setCurrentStep("story") // Skip character-type step
   }
 
-  const generateLikenessPreview = async (characterType: string) => {
+  const generateStoryPagePreview = async ({
+    storyId,
+    heroName,
+    heroType,
+    gender,
+  }: {
+    storyId: string
+    heroName: string
+    heroType: string
+    gender: "boy" | "girl"
+  }) => {
     if (!selectedCharacter || uploadedPhotos.length === 0 || isGeneratingLikenessPreview) return
 
     setIsGeneratingLikenessPreview(true)
@@ -438,30 +448,32 @@ export default function Home() {
       const previewPhotoDataUrls = await Promise.all(
         uploadedPhotos.map((photo) => readPhotoFileAsFalPreviewDataUrl(photo.file)),
       )
-      const response = await fetch("/api/generate-character", {
+      const response = await fetch("/api/generate-story-preview", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
           photos: previewPhotoDataUrls,
-          characterType,
-          style: "storybook",
+          storyId,
+          heroName,
+          heroType,
+          gender,
         }),
       })
       const result = await response.json()
-      const imageUrl = result.character?.images?.[0]?.imageUrl
+      const imageUrl = result.preview?.imageUrl
 
       if (!response.ok || !imageUrl) {
-        throw new Error(result.error || "Could not create the likeness preview.")
+        throw new Error(result.error || "Could not create the personalized story preview.")
       }
 
-      setLikenessPreview({
+      setStoryPreview({
         characterId: selectedCharacter,
         imageUrl,
       })
     } catch (error) {
-      setLikenessPreviewMessage(error instanceof Error ? error.message : "Could not create the likeness preview.")
+      setLikenessPreviewMessage(error instanceof Error ? error.message : "Could not create the personalized story preview.")
     } finally {
       setIsGeneratingLikenessPreview(false)
     }
@@ -517,7 +529,7 @@ export default function Home() {
 
     if (newPhotos.length > 0) {
       setUploadedPhotos((prev) => [...prev, ...newPhotos].slice(0, 3))
-      setLikenessPreview(null)
+      setStoryPreview(null)
       setLikenessPreviewMessage("")
     }
 
@@ -544,7 +556,7 @@ export default function Home() {
       return currentPhotos.filter((_, index) => index !== imageIndex)
     })
     setPhotoUploadMessage(imageIndex === 0 ? "Main face match removed. Add the clearest front-facing photo first." : "Photo removed.")
-    setLikenessPreview(null)
+    setStoryPreview(null)
     setLikenessPreviewMessage("")
   }
 
@@ -556,7 +568,7 @@ export default function Home() {
     })
     setUploadedPhotos([])
     setPhotoUploadMessage("Photos cleared. Add the clearest face photo first.")
-    setLikenessPreview(null)
+    setStoryPreview(null)
     setLikenessPreviewMessage("")
   }
 
@@ -1998,12 +2010,17 @@ export default function Home() {
     const artworkGender = selectedGender === "girl" ? "girl" : "boy"
     const pageArtwork = currentPage.artwork?.[artworkGender]
     const fallbackPageArtwork = getStoryArtworkFallback(story.characterId, artworkGender)
+    const personalizedStartArtwork =
+      currentPage.id === "start" && storyPreview?.characterId === selectedCharacter
+        ? storyPreview.imageUrl
+        : null
     const visiblePageArtwork =
-      pageArtwork && !failedArtwork[pageArtwork]
+      personalizedStartArtwork ||
+      (pageArtwork && !failedArtwork[pageArtwork]
         ? pageArtwork
         : fallbackPageArtwork && fallbackPageArtwork !== pageArtwork && !failedArtwork[fallbackPageArtwork]
           ? fallbackPageArtwork
-          : null
+          : null)
     const pathSummary = getStoryPathSummary(storyPath)
     const isFootballPreview =
       selectedCharacter === "footballer" ||
@@ -2314,8 +2331,8 @@ export default function Home() {
               <div className="relative h-24 w-24 overflow-hidden rounded-2xl border-4 border-sky-950 bg-sky-50 shadow-[4px_4px_0_rgba(8,47,73,0.12)]">
                 <img
                   src={
-                    likenessPreview?.characterId === selectedCharacter
-                      ? likenessPreview.imageUrl
+                    storyPreview?.characterId === selectedCharacter
+                      ? storyPreview.imageUrl
                       : uploadedPhotos[0].previewUrl
                   }
                   alt={`${heroName} likeness preview`}
@@ -2323,12 +2340,12 @@ export default function Home() {
                 />
               </div>
               <div className="text-left">
-                <p className="text-xs font-black uppercase tracking-widest text-sky-700">Likeness preview</p>
+                <p className="text-xs font-black uppercase tracking-widest text-sky-700">Personalized preview</p>
                 <h3 className="mt-1 text-xl font-black text-sky-950">{heroName} as the {heroType}</h3>
                 <p className="mt-1 text-sm font-semibold leading-6 text-slate-700">
-                  {likenessPreview?.characterId === selectedCharacter
-                    ? "Preview generated from the main face photo."
-                    : "Use the main face photo to create one storybook-style preview."}
+                  {storyPreview?.characterId === selectedCharacter
+                    ? "This is the personalized first story page."
+                    : "Create the first story page with your child's likeness."}
                 </p>
                 {likenessPreviewMessage && (
                   <p className="mt-2 text-sm font-bold text-rose-700">{likenessPreviewMessage}</p>
@@ -2336,14 +2353,21 @@ export default function Home() {
               </div>
               <Button
                 type="button"
-                onClick={() => generateLikenessPreview(heroType)}
+                onClick={() =>
+                  generateStoryPagePreview({
+                    storyId: story.characterId,
+                    heroName,
+                    heroType,
+                    gender: artworkGender,
+                  })
+                }
                 disabled={isGeneratingLikenessPreview}
                 className="h-11 rounded-xl bg-rose-500 px-5 font-black text-white hover:bg-rose-600"
               >
                 <Wand2 className="h-4 w-4" />
                 {isGeneratingLikenessPreview
                   ? "Creating..."
-                  : likenessPreview?.characterId === selectedCharacter
+                  : storyPreview?.characterId === selectedCharacter
                     ? "Refresh Preview"
                     : "Create Preview"}
               </Button>
