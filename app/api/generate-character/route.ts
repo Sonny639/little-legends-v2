@@ -45,7 +45,11 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json({ character })
   } catch (error) {
-    console.error("Character generation error:", error)
+    console.error(
+      "Character generation error:",
+      error instanceof Error ? error.message : error,
+      typeof error === "object" && error && "body" in error ? (error as { body?: unknown }).body : "",
+    )
     return NextResponse.json(
       { error: error instanceof Error ? error.message : "Failed to generate character" },
       { status: 500 },

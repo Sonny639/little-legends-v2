@@ -77,9 +77,9 @@ export async function generateCharacterPreview(options: CharacterGenerationOptio
       image_size: "portrait_4_3",
       negative_prompt: previewNegativePrompt,
       guidance_scale: 4,
-      id_weight: 1.05,
+      id_weight: 1,
       enable_safety_checker: true,
-      max_sequence_length: "256",
+      max_sequence_length: 256,
     },
   })
   const data = result.data as FalFluxPulidResult
