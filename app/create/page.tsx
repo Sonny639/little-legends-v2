@@ -470,8 +470,12 @@ export default function Home() {
       const result = await readJsonResponse(response)
       const requestId = result.preview?.requestId
 
-      if (!response.ok || !requestId) {
+      if (!response.ok) {
         throw new Error(result.error || "Could not create the first-page preview.")
+      }
+
+      if (!requestId) {
+        throw new Error("The preview started without a tracking id. Please try again.")
       }
 
       for (let attempt = 0; attempt < 60; attempt += 1) {

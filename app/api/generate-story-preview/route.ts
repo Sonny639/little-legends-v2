@@ -13,6 +13,22 @@ const genders = ["boy", "girl"] as const
 
 export const maxDuration = 300
 
+const getPreviewErrorMessage = (error: unknown) => {
+  if (error instanceof Error && error.message) {
+    return error.message
+  }
+
+  if (typeof error === "object" && error && "body" in error) {
+    const body = (error as { body?: unknown }).body
+
+    if (typeof body === "object" && body && "detail" in body) {
+      return String((body as { detail?: unknown }).detail || "Failed to create story preview")
+    }
+  }
+
+  return "Failed to create story preview"
+}
+
 const getAppUrl = (request: Request) => {
   const origin = request.headers.get("origin")
 
@@ -89,7 +105,7 @@ export async function POST(request: NextRequest) {
   } catch (error) {
     console.error("Story preview generation error:", error)
     return NextResponse.json(
-      { error: error instanceof Error ? error.message : "Failed to generate story preview" },
+      { error: getPreviewErrorMessage(error) },
       { status: 500 },
     )
   }
@@ -129,7 +145,7 @@ export async function GET(request: NextRequest) {
   } catch (error) {
     console.error("Story preview status error:", error)
     return NextResponse.json(
-      { error: error instanceof Error ? error.message : "Failed to read story preview status" },
+      { error: getPreviewErrorMessage(error) },
       { status: 500 },
     )
   }
