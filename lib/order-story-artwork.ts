@@ -61,7 +61,7 @@ const normaliseChoices = (choices: OrderRecord["choices"]): StoryPathChoice[] =>
         : "brave",
   }))
 
-const getPrompt = (pageTitle: string) =>
+const getPrompt = (pageTitle: string, storyId: string) =>
   [
     "Use image 1 as the exact base storybook illustration.",
     "Use image 2 only as the child's facial reference.",
@@ -69,11 +69,16 @@ const getPrompt = (pageTitle: string) =>
     "Keep the original pose, body, hairstyle silhouette, costume, background, composition, lighting, framing, and storybook art style from image 1 unchanged.",
     "Preserve the child likeness from image 2: face shape, exact skin tone and complexion, undertone, eyes, nose, mouth, and expression.",
     "Match the visible neck and hands to the child's complexion from image 2 so the hero looks naturally like one child.",
+    storyId === "footballer"
+      ? "Football kit continuity requirement: keep the hero and their teammates in the same red-and-blue kit colours used throughout the football story; do not recolour them green."
+      : "",
     "Do not add text, speech bubbles, extra people, extra limbs, new props, or a new scene.",
-  ].join(" ")
+  ]
+    .filter(Boolean)
+    .join(" ")
 
-const getPreviewInput = (baseArtworkUrl: string, referencePhoto: string, pageTitle: string) => ({
-  prompt: getPrompt(pageTitle),
+const getPreviewInput = (baseArtworkUrl: string, referencePhoto: string, pageTitle: string, storyId: string) => ({
+  prompt: getPrompt(pageTitle, storyId),
   image_urls: [baseArtworkUrl, referencePhoto],
   image_size: "auto" as const,
   num_inference_steps: 20,
@@ -171,7 +176,7 @@ export const startOrderStoryArtwork = async (order: OrderRecord, appUrl: string)
       }
 
       const queuedRequest = await fal.queue.submit(artworkEndpoint, {
-        input: getPreviewInput(`${appUrl.replace(/\/$/, "")}${baseArtworkPath}`, referencePhoto, page.title),
+        input: getPreviewInput(`${appUrl.replace(/\/$/, "")}${baseArtworkPath}`, referencePhoto, page.title, order.storyId),
       })
 
       return {

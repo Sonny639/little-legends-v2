@@ -361,6 +361,11 @@ nextjs-portal {
     page-break-after: auto;
   }
 
+  .full-story-print > :last-child {
+    break-after: auto !important;
+    page-break-after: auto !important;
+  }
+
   .book-page-header {
     margin-bottom: 2.5mm !important;
     padding-bottom: 2.5mm !important;
