@@ -174,7 +174,7 @@ export default async function DownloadPage({ params }: DownloadPageProps) {
               </p>
             </div>
             <div className="flex justify-start md:justify-end md:pr-4">
-              <PrintButton />
+              <PrintButton heroName={order.heroName} />
             </div>
           </div>
         </div>
