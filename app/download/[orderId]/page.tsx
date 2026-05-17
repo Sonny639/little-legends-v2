@@ -5,8 +5,14 @@ import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
 import { StoryArtPlaceholder } from "@/components/story-art-placeholder"
+import { StoryPreparation } from "@/components/story-preparation"
 import { artworkAssetPaths } from "@/lib/artwork-assets.generated"
 import { resolveFullStoryPages } from "@/lib/full-story"
+import {
+  createOrderStoryArtworkLinks,
+  getOrderStoryArtworkSummary,
+  readOrderStoryArtworkManifest,
+} from "@/lib/order-story-artwork"
 import { readOrders } from "@/lib/orders"
 import { getStoryArtworkFallback } from "@/lib/story-artwork-fallbacks"
 import { getStoryForCharacter, getStoryPathSummary, type StoryChoice, type StoryPathChoice } from "@/lib/stories"
@@ -125,10 +131,35 @@ export default async function DownloadPage({ params }: DownloadPageProps) {
   const artworkGender = order.gender === "girl" ? "girl" : "boy"
   const pathSummary = getStoryPathSummary(storyChoices)
   const fallbackArtworkPath = getStoryArtworkFallback(story.characterId, artworkGender)
+  const rawArtworkManifest = await readOrderStoryArtworkManifest(order.id)
+  const artworkManifest = rawArtworkManifest ? await createOrderStoryArtworkLinks(rawArtworkManifest) : null
+  const artworkSummary = artworkManifest ? getOrderStoryArtworkSummary(artworkManifest) : null
+  const personalizedArtworkByPage = new Map(
+    artworkManifest?.pages
+      .filter((page) => page.status === "ready" && page.imageUrl)
+      .map((page) => [page.pageId, page.imageUrl]) || [],
+  )
+  const requiresPersonalizedArtwork = (order.photoCount || 0) > 0
+  const personalizedArtworkReady = Boolean(artworkSummary?.complete)
   const coverArtworkPath = storyPages[0]?.artwork?.[artworkGender]
-  const coverArtwork = resolveAvailableArtwork(coverArtworkPath, fallbackArtworkPath)
+  const coverArtwork =
+    personalizedArtworkByPage.get(storyPages[0]?.id || "") ||
+    resolveAvailableArtwork(coverArtworkPath, fallbackArtworkPath)
   const heroMark = getHeroInitials(order.heroName)
   const qualityTags = ["Personalised", story.readingAge, `${storyPages.length} story pages`]
+
+  if (requiresPersonalizedArtwork && !personalizedArtworkReady) {
+    return (
+      <main className="storybook-app-bg min-h-screen overflow-x-hidden px-4 py-6 sm:py-8">
+        <div className="mx-auto max-w-3xl space-y-5">
+          <StoryPreparation orderId={order.id} heroName={order.heroName} />
+          <Card className="border-4 border-sky-950 bg-white p-5 text-sm font-bold leading-6 text-slate-700 shadow-[8px_8px_0_rgba(8,47,73,0.14)]">
+            Once every personalised page is ready, this page will refresh automatically and your full storybook will appear here.
+          </Card>
+        </div>
+      </main>
+    )
+  }
 
   return (
     <main id="top" className="storybook-app-bg min-h-screen overflow-x-hidden px-4 py-6 sm:py-8">
@@ -213,7 +244,9 @@ export default async function DownloadPage({ params }: DownloadPageProps) {
 
         {storyPages.map((page) => {
           const pageArtworkPath = page.artwork?.[artworkGender]
-          const pageArtwork = resolveAvailableArtwork(pageArtworkPath, fallbackArtworkPath)
+          const pageArtwork =
+            personalizedArtworkByPage.get(page.id) ||
+            resolveAvailableArtwork(pageArtworkPath, fallbackArtworkPath)
 
           return (
             <section

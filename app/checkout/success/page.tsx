@@ -4,8 +4,10 @@ import { CheckCircle2, Download, Truck } from "lucide-react"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
+import { StoryPreparation } from "@/components/story-preparation"
 import { checkoutProducts } from "@/lib/checkout"
 import { sendOrderConfirmationEmail } from "@/lib/email"
+import { getOrderStoryArtworkSummary, readOrderStoryArtworkManifest } from "@/lib/order-story-artwork"
 import { readOrders, updateOrderPaymentStatus } from "@/lib/orders"
 import { stripe } from "@/lib/stripe"
 import { getStripeSessionOrderIssue } from "@/lib/stripe-order-validation"
@@ -64,6 +66,14 @@ export default async function CheckoutSuccessPage({ searchParams }: CheckoutSucc
   const fallbackOrder = orderId ? orders.find((savedOrder) => savedOrder.id === orderId) : null
   const visibleOrder = order || fallbackOrder || null
   const isPaid = visibleOrder?.status === "paid" || visibleOrder?.status === "paid_demo"
+  const artworkManifest = visibleOrder && isPaid ? await readOrderStoryArtworkManifest(visibleOrder.id) : null
+  const artworkSummary = artworkManifest ? getOrderStoryArtworkSummary(artworkManifest) : null
+  const needsArtworkPreparation = Boolean(
+    visibleOrder &&
+      isPaid &&
+      (visibleOrder.photoCount || 0) > 0 &&
+      !artworkSummary?.complete,
+  )
 
   return (
     <main className="storybook-app-bg min-h-screen overflow-x-hidden px-4 py-6 sm:py-8">
@@ -83,7 +93,9 @@ export default async function CheckoutSuccessPage({ searchParams }: CheckoutSucc
                 </h1>
                 <p className="mx-auto mt-3 max-w-lg text-sm font-bold leading-6 text-slate-700 sm:text-base sm:leading-7">
                   {isPaid
-                    ? "Your personalised story is unlocked. You can download it now, and we have logged the order for any print follow-up."
+                    ? needsArtworkPreparation
+                      ? "Your payment is confirmed. We are now preparing the fully personalised storybook before download."
+                      : "Your personalised story is unlocked. You can download it now, and we have logged the order for any print follow-up."
                     : "We are waiting for payment confirmation. This page will show the download once the order is marked as paid."}
                 </p>
               </div>
@@ -112,7 +124,10 @@ export default async function CheckoutSuccessPage({ searchParams }: CheckoutSucc
             )}
 
             <div className="grid gap-3">
-              {visibleOrder && isPaid && (
+              {needsArtworkPreparation && visibleOrder && (
+                <StoryPreparation orderId={visibleOrder.id} heroName={visibleOrder.heroName} />
+              )}
+              {visibleOrder && isPaid && !needsArtworkPreparation && (
                 <Button asChild className="h-12 rounded-xl bg-emerald-500 px-6 text-base font-black text-white hover:bg-emerald-600">
                   <Link href={`/download/${visibleOrder.id}`}>
                     <Download className="h-4 w-4" />

@@ -183,8 +183,11 @@ export const sendOrderConfirmationEmail = async (order: OrderRecord) => {
   const downloadUrl = order.downloadUrl || getOrderDownloadUrl(order.id)
   const upgradeUrl = order.product === "digital" ? getOrderUpgradeUrl(order.id) : ""
   const createdAt = new Date().toISOString()
-  const subject = `Your Little Legends story is ready: ${order.storyTitle}`
   const photoCount = order.photoCount || 0
+  const requiresArtworkPreparation = photoCount > 0
+  const subject = requiresArtworkPreparation
+    ? `Your Little Legends order is confirmed: ${order.storyTitle}`
+    : `Your Little Legends story is ready: ${order.storyTitle}`
   const photoFollowUp =
     photoCount > 0
       ? [
@@ -196,18 +199,22 @@ export const sendOrderConfirmationEmail = async (order: OrderRecord) => {
   const body = [
     `Hi there,`,
     ``,
-    `Your Little Legends story is ready.`,
+    requiresArtworkPreparation ? `Your Little Legends order is confirmed.` : `Your Little Legends story is ready.`,
     ``,
-    `${order.heroName}'s personalised adventure has been created and is ready to read, print, or save.`,
+    requiresArtworkPreparation
+      ? `${order.heroName}'s personalised adventure is now being prepared. This may take a little while while each page is finished with their likeness.`
+      : `${order.heroName}'s personalised adventure has been created and is ready to read, print, or save.`,
     ``,
     `Story: ${order.storyTitle}`,
     `Hero: ${order.heroName} the ${order.heroType}`,
     `Order reference: ${order.id}`,
     `Download link: ${downloadUrl}`,
     ``,
-    order.product === "digital"
-      ? `Your digital story is available straight away. Open the link above and use Download PDF to save a copy.`
-      : `Your digital copy is available now. Your printed book order has also been logged for fulfilment.`,
+    requiresArtworkPreparation
+      ? `Open the link above to watch the personalised storybook prepare. Please keep that page open while the artwork is being finished.`
+      : order.product === "digital"
+        ? `Your digital story is available straight away. Open the link above and use Download PDF to save a copy.`
+        : `Your digital copy is available now. Your printed book order has also been logged for fulfilment.`,
     ...(upgradeUrl
       ? [
           ``,
