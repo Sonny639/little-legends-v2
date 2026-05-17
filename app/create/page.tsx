@@ -2379,8 +2379,8 @@ export default function Home() {
                 <h3 className="mt-1 text-xl font-black text-sky-950">{heroName} as the {heroType}</h3>
                 <p className="mt-1 text-sm font-semibold leading-6 text-slate-700">
                   {storyPreview?.characterId === selectedCharacter
-                    ? "The first story page now uses the selected reference photo."
-                    : "Create the first story page using the real artwork and your selected photo."}
+                    ? "Preview page 1 now uses the selected reference photo. After purchase, the finished storybook is personalised across the full adventure."
+                    : "Create preview page 1 using the real artwork and your selected photo. After purchase, the finished storybook is personalised across the full adventure."}
                 </p>
                 {likenessPreviewMessage && (
                   <p className={`mt-2 text-sm font-bold ${isGeneratingLikenessPreview ? "text-sky-700" : storyPreview?.characterId === selectedCharacter ? "text-emerald-700" : "text-rose-700"}`}>
@@ -2425,6 +2425,12 @@ export default function Home() {
             />
           </div>
         </div>
+
+        {storyPreview?.characterId === selectedCharacter && (
+          <Card className="border-4 border-sky-950 bg-amber-50 p-4 text-sm font-bold leading-6 text-sky-950 shadow-[6px_6px_0_rgba(8,47,73,0.12)]">
+            This free preview personalises page 1 so you can see your child in the story. After purchase, the finished storybook is personalised across the full adventure.
+          </Card>
+        )}
 
         <Card className="border-4 border-sky-950 bg-[#fffdf5] p-3 shadow-[12px_12px_0_rgba(8,47,73,0.2)] sm:p-5">
           <div className="grid gap-4 lg:grid-cols-[1.1fr_0.9fr]">
