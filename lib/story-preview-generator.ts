@@ -17,6 +17,8 @@ type FalEditResult = {
   }>
 }
 
+const storyPreviewEndpoint = "fal-ai/hy-wu-edit"
+
 const getFalKey = () => process.env.FAL_KEY || process.env.FAL_API_KEY || ""
 
 export const isStoryPreviewConfigured = () => Boolean(getFalKey())
@@ -33,13 +35,7 @@ const getPrompt = () =>
     "Do not add text, speech bubbles, extra people, extra limbs, new props, or a new scene.",
   ].join(" ")
 
-export async function generateStoryPreview(options: StoryPreviewOptions) {
-  const apiKey = getFalKey()
-
-  if (!apiKey) {
-    throw new Error("Story preview personalization is not configured yet.")
-  }
-
+const getBaseArtwork = (options: StoryPreviewOptions) => {
   const story = getStoryForCharacter(options.storyId, {
     heroName: options.heroName,
     heroType: options.heroType,
@@ -50,43 +46,64 @@ export async function generateStoryPreview(options: StoryPreviewOptions) {
     throw new Error("This story does not have a preview artwork image yet.")
   }
 
-  fal.config({ credentials: apiKey })
+  return {
+    baseArtworkPath,
+    baseArtworkUrl: `${trimTrailingSlash(options.appUrl)}${baseArtworkPath}`,
+  }
+}
 
-  const baseArtworkUrl = `${trimTrailingSlash(options.appUrl)}${baseArtworkPath}`
-  let imageUrl = ""
-  let lastError: unknown
+const getPreviewInput = (baseArtworkUrl: string, referencePhoto: string) => ({
+  prompt: getPrompt(),
+  image_urls: [baseArtworkUrl, referencePhoto],
+  image_size: "auto" as const,
+  num_inference_steps: 20,
+  num_images: 1,
+  enable_thinking: false,
+  enable_safety_checker: true,
+  output_format: "png" as const,
+})
 
-  for (const referencePhoto of options.referencePhotos) {
-    try {
-      const result = await fal.subscribe("fal-ai/hy-wu-edit", {
-        input: {
-          prompt: getPrompt(),
-          image_urls: [baseArtworkUrl, referencePhoto],
-          image_size: "auto",
-          num_inference_steps: 20,
-          num_images: 1,
-          enable_thinking: false,
-          enable_safety_checker: true,
-          output_format: "png",
-        },
-      })
-      const data = result.data as FalEditResult
-      imageUrl = data.images?.[0]?.url || ""
+export async function submitStoryPreview(options: StoryPreviewOptions) {
+  const apiKey = getFalKey()
 
-      if (imageUrl) break
-    } catch (error) {
-      lastError = error
-    }
+  if (!apiKey) {
+    throw new Error("Story preview personalization is not configured yet.")
   }
 
+  fal.config({ credentials: apiKey })
+
+  const { baseArtworkPath, baseArtworkUrl } = getBaseArtwork(options)
+  const referencePhoto = options.referencePhotos[0]
+  const queuedRequest = await fal.queue.submit(storyPreviewEndpoint, {
+    input: getPreviewInput(baseArtworkUrl, referencePhoto),
+  })
+
+  return {
+    requestId: queuedRequest.request_id,
+    baseArtworkPath,
+  }
+}
+
+export async function getStoryPreviewStatus(requestId: string) {
+  fal.config({ credentials: getFalKey() })
+  return fal.queue.status(storyPreviewEndpoint, {
+    requestId,
+    logs: false,
+  })
+}
+
+export async function getStoryPreviewResult(requestId: string) {
+  fal.config({ credentials: getFalKey() })
+  const result = await fal.queue.result(storyPreviewEndpoint, { requestId })
+  const data = result.data as FalEditResult
+  const imageUrl = data.images?.[0]?.url || ""
+
   if (!imageUrl) {
-    if (lastError) throw lastError
     throw new Error("Story preview personalization did not return an image.")
   }
 
   return {
-    id: `story-preview-${Date.now()}`,
+    requestId,
     imageUrl,
-    baseArtworkPath,
   }
 }

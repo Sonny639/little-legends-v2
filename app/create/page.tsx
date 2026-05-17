@@ -107,6 +107,22 @@ const readPhotoFileAsFalPreviewDataUrl = async (file: File) => {
   }
 }
 
+const readJsonResponse = async (response: Response) => {
+  const text = await response.text()
+
+  try {
+    return text ? JSON.parse(text) : {}
+  } catch {
+    throw new Error(
+      response.ok
+        ? "The preview service returned an unreadable response."
+        : "The preview service stopped before it could finish. Please try again.",
+    )
+  }
+}
+
+const wait = (milliseconds: number) => new Promise((resolve) => setTimeout(resolve, milliseconds))
+
 export default function Home() {
   const [currentStep, setCurrentStep] = useState<Step>("welcome")
   const [selectedGender, setSelectedGender] = useState<"boy" | "girl" | null>(null)
@@ -451,18 +467,44 @@ export default function Home() {
           gender: selectedGender,
         }),
       })
-      const result = await response.json()
-      const imageUrl = result.preview?.imageUrl
+      const result = await readJsonResponse(response)
+      const requestId = result.preview?.requestId
 
-      if (!response.ok || !imageUrl) {
+      if (!response.ok || !requestId) {
         throw new Error(result.error || "Could not create the first-page preview.")
       }
 
-      setStoryPreview({
-        characterId: selectedCharacter,
-        imageUrl,
-      })
-      setLikenessPreviewMessage("Your first story page is ready.")
+      for (let attempt = 0; attempt < 60; attempt += 1) {
+        await wait(5000)
+
+        const statusResponse = await fetch(
+          `/api/generate-story-preview?requestId=${encodeURIComponent(requestId)}`,
+          { cache: "no-store" },
+        )
+        const statusResult = await readJsonResponse(statusResponse)
+        const preview = statusResult.preview
+
+        if (!statusResponse.ok) {
+          throw new Error(statusResult.error || "Could not read the first-page preview status.")
+        }
+
+        if (preview?.imageUrl) {
+          setStoryPreview({
+            characterId: selectedCharacter,
+            imageUrl: preview.imageUrl,
+          })
+          setLikenessPreviewMessage("Your first story page is ready.")
+          return
+        }
+
+        setLikenessPreviewMessage(
+          preview?.status === "IN_QUEUE"
+            ? "Your child's page is queued and will begin shortly."
+            : "Please be patient while we fit your child's face into the first story page.",
+        )
+      }
+
+      throw new Error("The first-page preview is still taking longer than expected. Please try again in a moment.")
     } catch (error) {
       setLikenessPreviewMessage(error instanceof Error ? error.message : "Could not create the first-page preview.")
     } finally {

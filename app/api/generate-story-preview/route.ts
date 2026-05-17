@@ -2,7 +2,12 @@ import { type NextRequest, NextResponse } from "next/server"
 
 import { validatePhotos } from "@/lib/ai-character-generator"
 import { checkRateLimit, getClientIp, rateLimitResponseHeaders } from "@/lib/rate-limit"
-import { generateStoryPreview, isStoryPreviewConfigured } from "@/lib/story-preview-generator"
+import {
+  getStoryPreviewResult,
+  getStoryPreviewStatus,
+  isStoryPreviewConfigured,
+  submitStoryPreview,
+} from "@/lib/story-preview-generator"
 
 const genders = ["boy", "girl"] as const
 
@@ -71,7 +76,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "Story preview personalization is not configured yet." }, { status: 503 })
     }
 
-    const preview = await generateStoryPreview({
+    const preview = await submitStoryPreview({
       referencePhotos: photos,
       storyId: storyId.trim(),
       heroName: heroName.trim(),
@@ -85,6 +90,46 @@ export async function POST(request: NextRequest) {
     console.error("Story preview generation error:", error)
     return NextResponse.json(
       { error: error instanceof Error ? error.message : "Failed to generate story preview" },
+      { status: 500 },
+    )
+  }
+}
+
+export async function GET(request: NextRequest) {
+  try {
+    const requestId = request.nextUrl.searchParams.get("requestId")?.trim()
+
+    if (!requestId) {
+      return NextResponse.json({ error: "Missing preview request id." }, { status: 400 })
+    }
+
+    if (!isStoryPreviewConfigured()) {
+      return NextResponse.json({ error: "Story preview personalization is not configured yet." }, { status: 503 })
+    }
+
+    const status = await getStoryPreviewStatus(requestId)
+
+    if (status.status !== "COMPLETED") {
+      return NextResponse.json({
+        preview: {
+          requestId,
+          status: status.status,
+          queuePosition: status.status === "IN_QUEUE" ? status.queue_position : undefined,
+        },
+      })
+    }
+
+    const preview = await getStoryPreviewResult(requestId)
+    return NextResponse.json({
+      preview: {
+        ...preview,
+        status: status.status,
+      },
+    })
+  } catch (error) {
+    console.error("Story preview status error:", error)
+    return NextResponse.json(
+      { error: error instanceof Error ? error.message : "Failed to read story preview status" },
       { status: 500 },
     )
   }
