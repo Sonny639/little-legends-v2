@@ -448,7 +448,9 @@ export default function Home() {
     if (!selectedCharacter || !selectedGender || uploadedPhotos.length === 0 || isGeneratingLikenessPreview) return
 
     setIsGeneratingLikenessPreview(true)
-    setLikenessPreviewMessage("Please be patient while we fit your child's face into the first story page.")
+    setLikenessPreviewMessage(
+      "Please be patient while we fit your child's face into the first story page. This may take a few minutes. Please do not refresh the page.",
+    )
 
     try {
       const previewPhotoDataUrls = await Promise.all(
@@ -504,7 +506,7 @@ export default function Home() {
         setLikenessPreviewMessage(
           preview?.status === "IN_QUEUE"
             ? "Your child's page is queued and will begin shortly."
-            : "Please be patient while we fit your child's face into the first story page.",
+            : "Please be patient while we fit your child's face into the first story page. This may take a few minutes. Please do not refresh the page.",
         )
       }
 
@@ -2460,7 +2462,7 @@ export default function Home() {
                 {currentPage.sound}
               </div>
               <div
-                className={`absolute max-w-[58%] rounded-2xl rounded-bl-sm border-4 border-sky-950 bg-white px-3 py-2 text-left text-sm font-black leading-5 text-sky-950 shadow-[5px_5px_0_rgba(8,47,73,0.14)] sm:max-w-[62%] sm:px-4 sm:py-3 sm:text-base sm:leading-6 ${
+                className={`absolute max-w-[50%] rounded-2xl rounded-bl-sm border-4 border-sky-950 bg-white px-2.5 py-2 text-left text-xs font-black leading-4 text-sky-950 shadow-[5px_5px_0_rgba(8,47,73,0.14)] sm:max-w-[62%] sm:px-4 sm:py-3 sm:text-base sm:leading-6 ${
                   speechBubblePosition
                 }`}
               >
@@ -2474,8 +2476,8 @@ export default function Home() {
                 }
               >
                 <div className={isImageLedPreview ? "max-w-xl" : ""}>
-                  <h3 className={`${isImageLedPreview ? "inline-block" : "mt-6"} -rotate-1 bg-white px-4 py-2 text-2xl font-black uppercase text-sky-950 shadow-[5px_5px_0_rgba(8,47,73,0.12)] sm:text-3xl`}>{currentPage.title}</h3>
-                  <p className={`${isImageLedPreview ? "mt-2" : "mx-auto mt-4 sm:mt-5"} max-w-md rounded-2xl border-4 border-sky-950 bg-white/90 px-4 py-3 text-base font-bold leading-6 text-sky-900 shadow-[5px_5px_0_rgba(8,47,73,0.14)] sm:px-5 sm:py-4 sm:text-lg sm:leading-7`}>{currentPage.scene}</p>
+                  <h3 className={`${isImageLedPreview ? "inline-block" : "mt-6"} -rotate-1 bg-white px-3 py-1.5 text-xl font-black uppercase text-sky-950 shadow-[5px_5px_0_rgba(8,47,73,0.12)] sm:px-4 sm:py-2 sm:text-3xl`}>{currentPage.title}</h3>
+                  <p className={`${isImageLedPreview ? "mt-2" : "mx-auto mt-4 sm:mt-5"} max-w-md rounded-2xl border-4 border-sky-950 bg-white/90 px-3 py-2.5 text-sm font-bold leading-5 text-sky-900 shadow-[5px_5px_0_rgba(8,47,73,0.14)] sm:px-5 sm:py-4 sm:text-lg sm:leading-7`}>{currentPage.scene}</p>
                 </div>
               </div>
             </div>

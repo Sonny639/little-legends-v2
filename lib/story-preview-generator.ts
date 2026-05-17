@@ -31,7 +31,8 @@ const getPrompt = () =>
     "Use image 2 only as the child's facial reference.",
     "Replace only the face of the main hero child in image 1 with the child likeness from image 2.",
     "Keep the original pose, body, hairstyle silhouette, costume, background, composition, lighting, framing, and storybook art style from image 1 unchanged.",
-    "Preserve the child likeness from image 2: face shape, skin tone, eyes, nose, mouth, and expression.",
+    "Preserve the child likeness from image 2: face shape, exact skin tone and complexion, undertone, eyes, nose, mouth, and expression.",
+    "Match the visible neck and hands to the child's complexion from image 2 so the hero looks naturally like one child.",
     "Do not add text, speech bubbles, extra people, extra limbs, new props, or a new scene.",
   ].join(" ")
 
