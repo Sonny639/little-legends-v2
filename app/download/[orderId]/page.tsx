@@ -1,4 +1,5 @@
 import Link from "next/link"
+import { cookies } from "next/headers"
 import { BookOpen, Heart, Home, Lock, Sparkles, Star } from "lucide-react"
 
 import { Badge } from "@/components/ui/badge"
@@ -6,6 +7,7 @@ import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
 import { StoryArtPlaceholder } from "@/components/story-art-placeholder"
 import { StoryPreparation } from "@/components/story-preparation"
+import { adminSessionCookieName, getAdminSessionToken, isAdminAuthEnabled } from "@/lib/admin-auth"
 import { artworkAssetPaths } from "@/lib/artwork-assets.generated"
 import { resolveFullStoryPages } from "@/lib/full-story"
 import {
@@ -14,6 +16,7 @@ import {
   readOrderStoryArtworkManifest,
 } from "@/lib/order-story-artwork"
 import { readOrders } from "@/lib/orders"
+import { getOrderAccessToken, hasValidOrderAccess } from "@/lib/order-access"
 import { getStoryArtworkFallback } from "@/lib/story-artwork-fallbacks"
 import { getStoryForCharacter, getStoryPathSummary, type StoryChoice, type StoryPathChoice } from "@/lib/stories"
 import { PrintButton } from "./print-button"
@@ -21,6 +24,9 @@ import { PrintButton } from "./print-button"
 type DownloadPageProps = {
   params: Promise<{
     orderId: string
+  }>
+  searchParams: Promise<{
+    access?: string
   }>
 }
 
@@ -49,8 +55,33 @@ const getHeroInitials = (name?: string) =>
     .slice(0, 2)
     .toUpperCase()
 
-export default async function DownloadPage({ params }: DownloadPageProps) {
+export default async function DownloadPage({ params, searchParams }: DownloadPageProps) {
   const { orderId } = await params
+  const { access } = await searchParams
+  const cookieStore = await cookies()
+  const hasAdminAccess =
+    isAdminAuthEnabled() && cookieStore.get(adminSessionCookieName)?.value === (await getAdminSessionToken())
+  const effectiveAccessToken = hasValidOrderAccess(orderId, access) ? access || "" : getOrderAccessToken(orderId)
+
+  if (!hasValidOrderAccess(orderId, access) && !hasAdminAccess) {
+    return (
+      <main className="storybook-app-bg min-h-screen px-4 py-6 sm:py-8">
+        <div className="mx-auto max-w-3xl">
+          <Card className="border-4 border-sky-950 bg-white p-6 text-center shadow-[12px_12px_0_rgba(8,47,73,0.18)]">
+            <Lock className="mx-auto h-12 w-12 text-rose-500" />
+            <h1 className="mt-4 text-3xl font-black uppercase text-sky-950">Link expired</h1>
+            <p className="mx-auto mt-3 max-w-lg text-sm font-bold leading-6 text-slate-700">
+              This story link is missing its secure access code. Please open the latest link from your confirmation email.
+            </p>
+            <Button asChild className="mt-5 h-11 rounded-xl bg-sky-500 px-5 font-black text-white hover:bg-sky-600">
+              <Link href="/contact">Contact support</Link>
+            </Button>
+          </Card>
+        </div>
+      </main>
+    )
+  }
+
   const ordersResult = await readOrders()
     .then((orders) => ({ orders, issue: "" }))
     .catch(() => ({
@@ -152,7 +183,7 @@ export default async function DownloadPage({ params }: DownloadPageProps) {
     return (
       <main className="storybook-app-bg min-h-screen overflow-x-hidden px-4 py-6 sm:py-8">
         <div className="mx-auto max-w-3xl space-y-5">
-          <StoryPreparation orderId={order.id} heroName={order.heroName} />
+          <StoryPreparation orderId={order.id} accessToken={effectiveAccessToken} heroName={order.heroName} />
           <Card className="border-4 border-sky-950 bg-white p-5 text-sm font-bold leading-6 text-slate-700 shadow-[8px_8px_0_rgba(8,47,73,0.14)]">
             Once every personalised page is ready, this page will refresh automatically and your full storybook will appear here.
           </Card>

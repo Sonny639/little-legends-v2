@@ -2,10 +2,12 @@ import { NextResponse } from "next/server"
 
 import { checkoutProducts } from "@/lib/checkout"
 import { getOrderDownloadUrl } from "@/lib/email"
+import { hasValidOrderAccess } from "@/lib/order-access"
 import { readOrders, saveOrder, type OrderRecord } from "@/lib/orders"
 
 type UpgradeRequest = {
   orderId?: string
+  accessToken?: string
   postage?: Partial<NonNullable<OrderRecord["postage"]>>
 }
 
@@ -19,9 +21,10 @@ export async function POST(request: Request) {
   try {
     const body = (await request.json()) as UpgradeRequest
     const sourceOrderId = typeof body.orderId === "string" ? cleanText(body.orderId, 80) : ""
+    const accessToken = typeof body.accessToken === "string" ? body.accessToken : ""
     const postage = body.postage
 
-    if (!sourceOrderId || !postage) {
+    if (!sourceOrderId || !postage || !hasValidOrderAccess(sourceOrderId, accessToken)) {
       return NextResponse.json({ error: "Invalid upgrade request" }, { status: 400 })
     }
 

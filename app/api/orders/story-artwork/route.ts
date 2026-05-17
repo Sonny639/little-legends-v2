@@ -7,6 +7,7 @@ import {
   startOrderStoryArtwork,
   syncOrderStoryArtwork,
 } from "@/lib/order-story-artwork"
+import { hasValidOrderAccess } from "@/lib/order-access"
 import { readOrders } from "@/lib/orders"
 
 export const maxDuration = 300
@@ -38,10 +39,14 @@ const getPaidOrder = async (orderId: string) => {
 
 export async function POST(request: NextRequest) {
   try {
-    const { orderId } = await request.json()
+    const { orderId, accessToken } = await request.json()
 
     if (typeof orderId !== "string" || !orderId.trim()) {
       return NextResponse.json({ error: "Order id is required." }, { status: 400 })
+    }
+
+    if (typeof accessToken !== "string" || !hasValidOrderAccess(orderId, accessToken)) {
+      return NextResponse.json({ error: "Order access is invalid." }, { status: 403 })
     }
 
     const order = await getPaidOrder(orderId)
@@ -61,9 +66,14 @@ export async function POST(request: NextRequest) {
 export async function GET(request: NextRequest) {
   try {
     const orderId = request.nextUrl.searchParams.get("orderId")?.trim()
+    const accessToken = request.nextUrl.searchParams.get("access")?.trim()
 
     if (!orderId) {
       return NextResponse.json({ error: "Order id is required." }, { status: 400 })
+    }
+
+    if (!hasValidOrderAccess(orderId, accessToken)) {
+      return NextResponse.json({ error: "Order access is invalid." }, { status: 403 })
     }
 
     await getPaidOrder(orderId)

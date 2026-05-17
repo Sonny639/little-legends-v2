@@ -2,6 +2,7 @@ import { NextResponse } from "next/server"
 
 import { checkoutProducts } from "@/lib/checkout"
 import { getOrderDownloadUrl, sendOrderConfirmationEmail } from "@/lib/email"
+import { getOrderAccessToken } from "@/lib/order-access"
 import { clearOrders, readOrders, saveOrder, updateOrderFulfilmentStatus, updateOrderPaymentStatus, type FulfilmentStatus, type OrderRecord, type PaymentStatus } from "@/lib/orders"
 import { checkRateLimit, getClientIp, rateLimitResponseHeaders } from "@/lib/rate-limit"
 
@@ -143,7 +144,13 @@ export async function POST(request: Request) {
     }
 
     const savedOrder = await saveOrder(normalisedOrder)
-    return NextResponse.json({ order: savedOrder }, { status: 201 })
+    return NextResponse.json(
+      {
+        order: savedOrder,
+        accessToken: getOrderAccessToken(savedOrder.id),
+      },
+      { status: 201 },
+    )
   } catch (error) {
     console.error("Failed to save order:", error)
     return NextResponse.json({ error: "Failed to save order" }, { status: 500 })

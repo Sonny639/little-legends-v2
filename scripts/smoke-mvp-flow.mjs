@@ -337,10 +337,11 @@ try {
   }
   console.log("OK order creation normalises payment fields")
 
-  await requestJson("/api/orders", {
+  const savedOrder = await requestJson("/api/orders", {
     method: "POST",
     body: JSON.stringify(order),
   })
+  const orderAccessToken = savedOrder.accessToken
   console.log("OK order saved")
 
   await requestJson(
@@ -371,7 +372,7 @@ try {
     await requestPage(`/checkout/success?orderId=${encodeURIComponent(smokeId)}`)
     console.log("OK demo checkout success")
 
-    await requestPage(`/download/${encodeURIComponent(smokeId)}`)
+    await requestPage(`/download/${encodeURIComponent(smokeId)}?access=${encodeURIComponent(orderAccessToken)}`)
     console.log("OK download page unlocked")
   } else {
     console.log("SKIP paid/download check because Stripe checkout requires external payment confirmation")

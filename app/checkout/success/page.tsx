@@ -7,6 +7,7 @@ import { Card } from "@/components/ui/card"
 import { StoryPreparation } from "@/components/story-preparation"
 import { checkoutProducts } from "@/lib/checkout"
 import { sendOrderConfirmationEmail } from "@/lib/email"
+import { getOrderAccessToken } from "@/lib/order-access"
 import { getOrderStoryArtworkSummary, readOrderStoryArtworkManifest } from "@/lib/order-story-artwork"
 import { readOrders, updateOrderPaymentStatus } from "@/lib/orders"
 import { stripe } from "@/lib/stripe"
@@ -24,12 +25,16 @@ export default async function CheckoutSuccessPage({ searchParams }: CheckoutSucc
   let order: Awaited<ReturnType<typeof updateOrderPaymentStatus>> = null
   let orderIssue = ""
 
-  if (orderId && !stripe) {
+  if (orderId && !stripe && process.env.NODE_ENV !== "production") {
     try {
       order = await updateOrderPaymentStatus(orderId, "paid_demo")
     } catch (error) {
       orderIssue = error instanceof Error ? error.message : "Payment confirmation is temporarily unavailable."
     }
+  }
+
+  if (orderId && !stripe && process.env.NODE_ENV === "production") {
+    orderIssue = "Payment confirmation is not configured."
   }
 
   if (orderId && sessionId && stripe) {
@@ -65,6 +70,7 @@ export default async function CheckoutSuccessPage({ searchParams }: CheckoutSucc
       })
   const fallbackOrder = orderId ? orders.find((savedOrder) => savedOrder.id === orderId) : null
   const visibleOrder = order || fallbackOrder || null
+  const accessToken = visibleOrder ? getOrderAccessToken(visibleOrder.id) : ""
   const isPaid = visibleOrder?.status === "paid" || visibleOrder?.status === "paid_demo"
   const artworkManifest = visibleOrder && isPaid ? await readOrderStoryArtworkManifest(visibleOrder.id) : null
   const artworkSummary = artworkManifest ? getOrderStoryArtworkSummary(artworkManifest) : null
@@ -125,11 +131,11 @@ export default async function CheckoutSuccessPage({ searchParams }: CheckoutSucc
 
             <div className="grid gap-3">
               {needsArtworkPreparation && visibleOrder && (
-                <StoryPreparation orderId={visibleOrder.id} heroName={visibleOrder.heroName} />
+                <StoryPreparation orderId={visibleOrder.id} accessToken={accessToken} heroName={visibleOrder.heroName} />
               )}
               {visibleOrder && isPaid && !needsArtworkPreparation && (
                 <Button asChild className="h-12 rounded-xl bg-emerald-500 px-6 text-base font-black text-white hover:bg-emerald-600">
-                  <Link href={`/download/${visibleOrder.id}`}>
+                  <Link href={`/download/${visibleOrder.id}?access=${encodeURIComponent(accessToken)}`}>
                     <Download className="h-4 w-4" />
                     Read Story
                   </Link>
@@ -137,7 +143,7 @@ export default async function CheckoutSuccessPage({ searchParams }: CheckoutSucc
               )}
               {visibleOrder?.product === "digital" && isPaid && (
                 <Button asChild className="h-12 rounded-xl bg-rose-500 px-6 text-base font-black text-white hover:bg-rose-600">
-                  <Link href={`/upgrade/${visibleOrder.id}`}>
+                  <Link href={`/upgrade/${visibleOrder.id}?access=${encodeURIComponent(accessToken)}`}>
                     <Truck className="h-4 w-4" />
                     Add Hardback for {new Intl.NumberFormat("en-GB", { style: "currency", currency: "GBP" }).format(checkoutProducts.upgrade.price)}
                   </Link>

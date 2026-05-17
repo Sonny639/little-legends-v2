@@ -268,10 +268,11 @@ try {
   })
   console.log("OK smoke enquiry saved")
 
-  await requestJson("/api/orders", {
+  const savedOrder = await requestJson("/api/orders", {
     method: "POST",
     body: JSON.stringify(order),
   })
+  const orderAccessToken = savedOrder.data.accessToken
   console.log("OK smoke hardback order saved")
 
   const login = await fetch(`${appUrl}/api/admin/login`, {
@@ -308,6 +309,7 @@ try {
 
   const photoForm = new FormData()
   photoForm.set("orderId", smokeId)
+  photoForm.set("accessToken", orderAccessToken)
   photoForm.append("photos", new File([createSmokePng()], `${smokeId}.png`, { type: "image/png" }))
 
   const photoUpload = await requestMultipart("/api/order-photos", photoForm, { method: "POST" }, [200])

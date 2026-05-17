@@ -193,10 +193,11 @@ try {
   console.log(`Smoke id ${smokeId}`)
   console.log(`Cleanup target: ${await cleanupSmokeData()}`)
 
-  await requestJson("/api/orders", {
+  const savedOrderResponse = await requestJson("/api/orders", {
     method: "POST",
     body: JSON.stringify(order),
   })
+  const orderAccessToken = savedOrderResponse.data.accessToken
   console.log("OK smoke order saved")
 
   await requestJson(
@@ -372,17 +373,20 @@ try {
   if (!emailLogs?.length) throw new Error("Expected a confirmation email log for the paid order.")
   console.log("OK order marked paid and confirmation email logged")
 
-  const upgradePage = await requestPage(`/upgrade/${encodeURIComponent(smokeId)}`)
+  const upgradePage = await requestPage(
+    `/upgrade/${encodeURIComponent(smokeId)}?access=${encodeURIComponent(orderAccessToken)}`,
+  )
   if (upgradePage.response.status !== 200 || !upgradePage.text.includes("Add the hardback")) {
     throw new Error("Paid digital order did not expose the hardback upgrade page.")
   }
   console.log("OK paid digital order exposes hardback upgrade page")
 
   const upgrade = await requestJson("/api/orders/upgrade", {
-    method: "POST",
-    body: JSON.stringify({
-      orderId: smokeId,
-      postage: {
+      method: "POST",
+      body: JSON.stringify({
+        orderId: smokeId,
+        accessToken: orderAccessToken,
+        postage: {
         fullName: "Stripe Upgrade",
         addressLine1: "2 Test Street",
         addressLine2: "",
@@ -416,7 +420,9 @@ try {
   }
   console.log("OK success page shows paid order")
 
-  const downloadPage = await requestPage(`/download/${encodeURIComponent(smokeId)}`)
+  const downloadPage = await requestPage(
+    `/download/${encodeURIComponent(smokeId)}?access=${encodeURIComponent(orderAccessToken)}`,
+  )
   if (
     downloadPage.response.status !== 200 ||
     !downloadPage.text.includes("Little Legends Story") ||

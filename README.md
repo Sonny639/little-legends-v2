@@ -29,6 +29,7 @@ FAL_API_KEY=
 ADMIN_USERNAME=admin
 ADMIN_PASSWORD=
 ADMIN_SESSION_SECRET=
+ORDER_ACCESS_SECRET=
 CONTACT_TO_EMAIL=hello@littlelegendsstory.com
 SMTP_HOST=smtp.porkbun.com
 SMTP_PORT=587
@@ -38,13 +39,13 @@ SMTP_FROM_EMAIL=hello@littlelegendsstory.com
 SMTP_FROM_NAME=Little Legends Story
 ```
 
-When `STRIPE_SECRET_KEY` is empty, checkout runs in demo mode and the success page marks the order as `paid_demo`.
+When `STRIPE_SECRET_KEY` is empty in local development, checkout runs in demo mode and the success page marks the order as `paid_demo`. In production, checkout fails closed until Stripe is configured.
 
 When Stripe is configured, checkout creates a real Stripe Checkout Session. Paid orders are confirmed by the Stripe webhook, and the checkout success page also verifies the returned Stripe session as a fallback.
 
 When `SUPABASE_SERVICE_ROLE_KEY` is set, uploaded child reference photos are stored privately before checkout continues. Admin photo previews use short-lived signed links and require the admin session. In local development without that key, uploads fall back to the local `data/order-photos` folder.
 
-Set `ADMIN_PASSWORD` to enable the admin login screen on `/admin/login`. `POST /api/orders` stays public so checkout can save new orders; order management, enquiries, email logs, artwork planning tools, and admin pages require the admin session. In production, protected routes fail closed if `ADMIN_PASSWORD` is missing.
+Set `ADMIN_PASSWORD` to enable the admin login screen on `/admin/login`. Set `ORDER_ACCESS_SECRET` to a long random value before launch; customer download, upgrade, photo upload, and full-story generation links are signed with it. `POST /api/orders` stays public so checkout can save new orders; order management, enquiries, email logs, artwork planning tools, and admin pages require the admin session. In production, protected routes fail closed if `ADMIN_PASSWORD` is missing.
 
 ## Main Routes
 
@@ -56,7 +57,7 @@ Set `ADMIN_PASSWORD` to enable the admin login screen on `/admin/login`. `POST /
 - `/admin/enquiries` - customer enquiry inbox.
 - Contact page enquiries are saved into `/admin/enquiries` and, when SMTP env vars are set, emailed to `CONTACT_TO_EMAIL`.
 - `/admin/email-log` - confirmation email log. Order confirmations are sent by SMTP when configured and still logged for support.
-- `/download/[orderId]` - locked until payment is confirmed, then renders the printable story.
+- `/download/[orderId]?access=...` - locked until payment is confirmed and the signed customer access token is present, then renders the printable story.
 - `/artwork` - protected artwork manifest and prompt review.
 
 ## Design Priority

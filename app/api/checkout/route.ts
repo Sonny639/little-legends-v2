@@ -116,6 +116,10 @@ export async function POST(request: Request) {
       })
     }
 
+    if (process.env.NODE_ENV === "production") {
+      return NextResponse.json({ error: "Secure checkout is not configured" }, { status: 503 })
+    }
+
     return NextResponse.json({
       checkout: {
         id: `mock_checkout_${savedOrder.id}`,

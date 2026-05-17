@@ -2712,6 +2712,8 @@ export default function Home() {
           body: JSON.stringify(order),
         })
 
+        const orderData = await orderResponse.json().catch(() => null)
+
         if (!orderResponse.ok) {
           throw new Error("Order could not be saved")
         }
@@ -2719,6 +2721,7 @@ export default function Home() {
         if (uploadedPhotos.length > 0) {
           const photoUploadForm = new FormData()
           photoUploadForm.set("orderId", order.id)
+          photoUploadForm.set("accessToken", orderData?.accessToken || "")
           uploadedPhotos.forEach((photo) => {
             photoUploadForm.append("photos", photo.file)
           })

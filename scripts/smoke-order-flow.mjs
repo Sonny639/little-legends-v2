@@ -196,10 +196,11 @@ try {
   await requestPage("/")
   console.log("OK homepage")
 
-  await requestJson("/api/orders", {
+  const savedOrder = await requestJson("/api/orders", {
     method: "POST",
     body: JSON.stringify(order),
   })
+  const orderAccessToken = savedOrder.accessToken
   console.log(`OK order saved: ${orderId}`)
 
   const checkout = await requestJson("/api/checkout", {
@@ -216,13 +217,14 @@ try {
     await requestPage(`/checkout/success?orderId=${encodeURIComponent(orderId)}`)
     console.log("OK demo checkout success")
 
-    await requestPage(`/download/${encodeURIComponent(orderId)}`)
+    await requestPage(`/download/${encodeURIComponent(orderId)}?access=${encodeURIComponent(orderAccessToken)}`)
     console.log("OK download page unlocked")
 
     const upgrade = await requestJson("/api/orders/upgrade", {
       method: "POST",
       body: JSON.stringify({
         orderId,
+        accessToken: orderAccessToken,
         postage: {
           fullName: "Smoke Upgrade",
           addressLine1: "2 Test Street",

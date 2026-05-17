@@ -68,6 +68,38 @@ export const validateOrderPhotos = (files: File[]) => {
   }
 }
 
+const hasBytes = (buffer: Buffer, expected: number[], offset = 0) =>
+  expected.every((byte, index) => buffer[offset + index] === byte)
+
+const getDetectedMimeType = (buffer: Buffer) => {
+  if (hasBytes(buffer, [0xff, 0xd8, 0xff])) return "image/jpeg"
+  if (hasBytes(buffer, [0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a])) return "image/png"
+  if (
+    buffer.toString("ascii", 0, 4) === "RIFF" &&
+    buffer.toString("ascii", 8, 12) === "WEBP"
+  ) {
+    return "image/webp"
+  }
+
+  const brand = buffer.toString("ascii", 8, 12)
+  if (buffer.toString("ascii", 4, 8) === "ftyp" && ["heic", "heix", "hevc", "hevx"].includes(brand)) {
+    return "image/heic"
+  }
+  if (buffer.toString("ascii", 4, 8) === "ftyp" && ["mif1", "msf1"].includes(brand)) {
+    return "image/heif"
+  }
+
+  return ""
+}
+
+const validatePhotoBuffer = (file: File, buffer: Buffer) => {
+  const detectedMimeType = getDetectedMimeType(buffer)
+
+  if (!detectedMimeType || detectedMimeType !== file.type) {
+    throw new Error("Uploaded photos must be valid JPG, PNG, WEBP, HEIC, or HEIF image files")
+  }
+}
+
 export const saveOrderPhotos = async (orderId: string, files: File[]): Promise<StoredOrderPhoto[]> => {
   validateOrderPhotos(files)
 
@@ -82,6 +114,7 @@ export const saveOrderPhotos = async (orderId: string, files: File[]): Promise<S
       const safeName = sanitizeFileName(file.name || `photo-${index + 1}${extension || ".jpg"}`)
       const storagePath = `${orderId}/${String(index + 1).padStart(2, "0")}-${Date.now()}-${safeName}`
       const buffer = Buffer.from(await file.arrayBuffer())
+      validatePhotoBuffer(file, buffer)
 
       const { error } = await client.storage.from(bucket).upload(storagePath, buffer, {
         contentType: file.type,
@@ -118,6 +151,7 @@ export const saveOrderPhotos = async (orderId: string, files: File[]): Promise<S
       const safeName = sanitizeFileName(file.name || `photo-${index + 1}${extension || ".jpg"}`)
       const storagePath = path.join(orderDirectory, `${String(index + 1).padStart(2, "0")}-${safeName}`)
       const buffer = Buffer.from(await file.arrayBuffer())
+      validatePhotoBuffer(file, buffer)
 
       await fs.writeFile(storagePath, buffer)
 

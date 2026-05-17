@@ -4,6 +4,7 @@ import path from "path"
 import nodemailer from "nodemailer"
 
 import { hasDatabase, query } from "@/lib/db"
+import { getOrderAccessToken } from "@/lib/order-access"
 import { type OrderRecord, updateOrderEmailSentAt } from "@/lib/orders"
 import { getSupabase, hasSupabase } from "@/lib/supabase"
 
@@ -68,8 +69,12 @@ const appUrl = () => {
   return "http://localhost:3003"
 }
 
-export const getOrderDownloadUrl = (orderId: string) => `${appUrl()}/download/${encodeURIComponent(orderId)}`
-export const getOrderUpgradeUrl = (orderId: string) => `${appUrl()}/upgrade/${encodeURIComponent(orderId)}`
+const getOrderAccessQuery = (orderId: string) => `?access=${encodeURIComponent(getOrderAccessToken(orderId))}`
+
+export const getOrderDownloadUrl = (orderId: string) =>
+  `${appUrl()}/download/${encodeURIComponent(orderId)}${getOrderAccessQuery(orderId)}`
+export const getOrderUpgradeUrl = (orderId: string) =>
+  `${appUrl()}/upgrade/${encodeURIComponent(orderId)}${getOrderAccessQuery(orderId)}`
 
 const smtpPort = () => Number(process.env.SMTP_PORT || 587)
 
@@ -180,7 +185,7 @@ export const readEmailLog = async (): Promise<EmailLogEntry[]> => {
 }
 
 export const sendOrderConfirmationEmail = async (order: OrderRecord) => {
-  const downloadUrl = order.downloadUrl || getOrderDownloadUrl(order.id)
+  const downloadUrl = getOrderDownloadUrl(order.id)
   const upgradeUrl = order.product === "digital" ? getOrderUpgradeUrl(order.id) : ""
   const createdAt = new Date().toISOString()
   const photoCount = order.photoCount || 0

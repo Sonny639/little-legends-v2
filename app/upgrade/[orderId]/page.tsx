@@ -5,6 +5,7 @@ import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
 import { checkoutProducts } from "@/lib/checkout"
+import { hasValidOrderAccess } from "@/lib/order-access"
 import { readOrders } from "@/lib/orders"
 import { UpgradeCheckoutForm } from "./upgrade-form"
 
@@ -12,15 +13,21 @@ type UpgradePageProps = {
   params: Promise<{
     orderId: string
   }>
+  searchParams: Promise<{
+    access?: string
+  }>
 }
 
 const money = new Intl.NumberFormat("en-GB", { style: "currency", currency: "GBP" })
 
-export default async function UpgradePage({ params }: UpgradePageProps) {
+export default async function UpgradePage({ params, searchParams }: UpgradePageProps) {
   const { orderId } = await params
+  const { access } = await searchParams
   const orders = await readOrders().catch(() => [])
   const order = orders.find((candidate) => candidate.id === orderId)
-  const isPaidDigitalOrder = order?.product === "digital" && (order.status === "paid" || order.status === "paid_demo")
+  const hasAccess = Boolean(order && hasValidOrderAccess(order.id, access))
+  const isPaidDigitalOrder =
+    hasAccess && order?.product === "digital" && (order.status === "paid" || order.status === "paid_demo")
 
   return (
     <main className="storybook-app-bg min-h-screen overflow-x-hidden px-4 py-6 sm:py-8">
@@ -54,7 +61,7 @@ export default async function UpgradePage({ params }: UpgradePageProps) {
                   </p>
                 </div>
                 <Button asChild variant="outline" className="h-11 rounded-xl border-sky-200 bg-white font-black text-sky-700">
-                  <Link href={`/download/${order.id}`}>
+                  <Link href={`/download/${order.id}?access=${encodeURIComponent(access || "")}`}>
                     <BookOpen className="h-4 w-4" />
                     Read digital story
                   </Link>
@@ -62,13 +69,17 @@ export default async function UpgradePage({ params }: UpgradePageProps) {
               </div>
             </Card>
 
-            <UpgradeCheckoutForm sourceOrderId={order.id} upgradePriceLabel={money.format(checkoutProducts.upgrade.price)} />
+            <UpgradeCheckoutForm
+              sourceOrderId={order.id}
+              accessToken={access || ""}
+              upgradePriceLabel={money.format(checkoutProducts.upgrade.price)}
+            />
           </>
         ) : (
           <Card className="border-4 border-sky-950 bg-[#fffdf5] p-5 shadow-[10px_10px_0_rgba(8,47,73,0.16)]">
             <h2 className="text-2xl font-black text-sky-950">Upgrade unavailable</h2>
             <p className="mt-2 text-sm font-semibold leading-6 text-slate-700">
-              This upgrade link only works for paid digital orders. If you think this is a mistake, please contact support with your order reference.
+              This secure upgrade link only works for paid digital orders. If you think this is a mistake, please contact support with your order reference.
             </p>
             <Button asChild className="mt-4 h-11 rounded-xl bg-sky-500 px-5 font-black text-white hover:bg-sky-600">
               <Link href="/contact">Contact support</Link>

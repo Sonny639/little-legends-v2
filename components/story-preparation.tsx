@@ -15,6 +15,7 @@ type ArtworkSummary = {
 
 type StoryPreparationProps = {
   orderId: string
+  accessToken: string
   heroName: string
   onReady?: "refresh"
 }
@@ -31,7 +32,7 @@ const readJsonResponse = async (response: Response) => {
 
 const wait = (milliseconds: number) => new Promise((resolve) => setTimeout(resolve, milliseconds))
 
-export function StoryPreparation({ orderId, heroName, onReady = "refresh" }: StoryPreparationProps) {
+export function StoryPreparation({ orderId, accessToken, heroName, onReady = "refresh" }: StoryPreparationProps) {
   const router = useRouter()
   const startedRef = useRef(false)
   const [summary, setSummary] = useState<ArtworkSummary>({
@@ -56,7 +57,7 @@ export function StoryPreparation({ orderId, heroName, onReady = "refresh" }: Sto
             headers: {
               "Content-Type": "application/json",
             },
-            body: JSON.stringify({ orderId }),
+            body: JSON.stringify({ orderId, accessToken }),
           })
           const startResult = await readJsonResponse(startResponse)
 
@@ -66,9 +67,12 @@ export function StoryPreparation({ orderId, heroName, onReady = "refresh" }: Sto
         }
 
         while (!cancelled) {
-          const statusResponse = await fetch(`/api/orders/story-artwork?orderId=${encodeURIComponent(orderId)}`, {
+          const statusResponse = await fetch(
+            `/api/orders/story-artwork?orderId=${encodeURIComponent(orderId)}&access=${encodeURIComponent(accessToken)}`,
+            {
             cache: "no-store",
-          })
+            },
+          )
           const statusResult = await readJsonResponse(statusResponse)
 
           if (!statusResponse.ok) {
@@ -103,7 +107,7 @@ export function StoryPreparation({ orderId, heroName, onReady = "refresh" }: Sto
     return () => {
       cancelled = true
     }
-  }, [heroName, onReady, orderId, router])
+  }, [accessToken, heroName, onReady, orderId, router])
 
   return (
     <Card className="border-4 border-sky-950 bg-amber-50 p-5 shadow-[8px_8px_0_rgba(8,47,73,0.14)]">

@@ -11,10 +11,11 @@ import { Label } from "@/components/ui/label"
 
 type UpgradeCheckoutFormProps = {
   sourceOrderId: string
+  accessToken: string
   upgradePriceLabel: string
 }
 
-export function UpgradeCheckoutForm({ sourceOrderId, upgradePriceLabel }: UpgradeCheckoutFormProps) {
+export function UpgradeCheckoutForm({ sourceOrderId, accessToken, upgradePriceLabel }: UpgradeCheckoutFormProps) {
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [error, setError] = useState("")
   const [form, setForm] = useState({
@@ -45,6 +46,7 @@ export function UpgradeCheckoutForm({ sourceOrderId, upgradePriceLabel }: Upgrad
         },
         body: JSON.stringify({
           orderId: sourceOrderId,
+          accessToken,
           postage: form,
         }),
       })
