@@ -539,15 +539,15 @@ export default async function DownloadPage({ params, searchParams }: DownloadPag
             </section>
 
             <section className="book-page print-page keepsake-page overflow-hidden rounded-[2rem] border-4 border-sky-950 bg-[#fffdf5] p-6 shadow-[10px_10px_0_rgba(8,47,73,0.16)] sm:p-8">
-              <div className="keepsake-page-inner grid min-h-[520px] grid-cols-1 place-items-center rounded-[1.5rem] border-4 border-sky-950 bg-white p-6">
-                <div className="w-full max-w-4xl text-center">
-                  <div className="mx-auto grid h-20 w-20 place-items-center rounded-full border-4 border-sky-950 bg-rose-100 text-rose-500">
-                    <Palette className="h-9 w-9" />
+              <div className="keepsake-page-inner draw-page flex min-h-[520px] flex-col rounded-[1.5rem] border-4 border-sky-950 bg-white p-6">
+                <div className="w-full text-center">
+                  <div className="mx-auto grid h-16 w-16 place-items-center rounded-full border-4 border-sky-950 bg-rose-100 text-rose-500">
+                    <Palette className="h-8 w-8" />
                   </div>
-                  <p className="mt-5 text-xs font-black uppercase tracking-[0.24em] text-sky-700">Draw your own adventure</p>
-                  <h2 className="mt-3 text-3xl font-black uppercase leading-tight text-sky-950 sm:text-5xl">What happens next?</h2>
-                  <div className="mt-6 h-56 rounded-[1.5rem] border-4 border-dashed border-sky-200 bg-[#fffdf5]" />
+                  <p className="mt-4 text-xs font-black uppercase tracking-[0.24em] text-sky-700">Draw your own adventure</p>
+                  <h2 className="mt-2 text-3xl font-black uppercase leading-tight text-sky-950 sm:text-5xl">What happens next?</h2>
                 </div>
+                <div className="draw-page-canvas mt-5 flex-1 rounded-[1.5rem] border-4 border-dashed border-sky-200 bg-[#fffdf5]" />
               </div>
             </section>
 

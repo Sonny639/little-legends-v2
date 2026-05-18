@@ -257,6 +257,10 @@ nextjs-portal {
   border-right: 3px solid;
 }
 
+.draw-page-canvas {
+  min-height: 300px;
+}
+
 @media (max-width: 640px) {
   .book-page {
     border-width: 3px !important;
@@ -338,6 +342,10 @@ nextjs-portal {
   .certificate-corner {
     height: 2rem;
     width: 2rem;
+  }
+
+  .draw-page-canvas {
+    min-height: 240px;
   }
 }
 
@@ -617,5 +625,9 @@ nextjs-portal {
 
   .certificate-frame p {
     font-size: 11pt !important;
+  }
+
+  .draw-page-canvas {
+    min-height: 0 !important;
   }
 }
