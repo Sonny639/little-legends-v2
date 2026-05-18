@@ -64,10 +64,11 @@ const normaliseChoices = (choices: OrderRecord["choices"]): StoryPathChoice[] =>
 const getPrompt = (pageTitle: string, storyId: string) =>
   [
     "Use image 1 as the exact base storybook illustration.",
-    "Use image 2 only as the child's facial reference.",
-    `Replace only the face of the main hero child in image 1 for the page "${pageTitle}" with the child likeness from image 2.`,
-    "Keep the original pose, body, hairstyle silhouette, costume, background, composition, lighting, framing, and storybook art style from image 1 unchanged.",
-    "Preserve the child likeness from image 2: face shape, exact skin tone and complexion, undertone, eyes, nose, mouth, and expression.",
+    "Use image 2 only as the child's likeness reference.",
+    `Replace the face, hairline, visible hairstyle, and visible hair silhouette of the main hero child in image 1 for the page "${pageTitle}" with the child likeness from image 2.`,
+    "Remove any original hero hair that conflicts with the child's hairstyle from image 2, including spikes, tufts, or extra strands that would show through behind the new hair.",
+    "Keep the original pose, body, costume, background, composition, lighting, framing, and storybook art style from image 1 unchanged.",
+    "Preserve the child likeness from image 2: face shape, exact skin tone and complexion, undertone, eyes, nose, mouth, expression, hairline, hair colour, and visible hairstyle.",
     "Match the visible neck and hands to the child's complexion from image 2 so the hero looks naturally like one child.",
     storyId === "footballer"
       ? "Football kit continuity requirement: keep the hero and their teammates in the same red-and-blue kit colours used throughout the football story; do not recolour them green."
