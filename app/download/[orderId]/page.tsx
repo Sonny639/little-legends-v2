@@ -1,6 +1,6 @@
 import Link from "next/link"
 import { cookies } from "next/headers"
-import { BookOpen, Heart, Home, Lock, Sparkles, Star } from "lucide-react"
+import { Award, BookOpen, Compass, Heart, Home, Lock, Palette, Sparkles, Star } from "lucide-react"
 
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
@@ -54,6 +54,13 @@ const getHeroInitials = (name?: string) =>
     .join("")
     .slice(0, 2)
     .toUpperCase()
+
+const printableTraitLabels: Record<StoryChoice["pathTag"], string> = {
+  brave: "Brave",
+  kind: "Kind",
+  clever: "Clever",
+  teamwork: "Teamwork",
+}
 
 export default async function DownloadPage({ params, searchParams }: DownloadPageProps) {
   const { orderId } = await params
@@ -177,7 +184,22 @@ export default async function DownloadPage({ params, searchParams }: DownloadPag
     personalizedArtworkByPage.get(storyPages[0]?.id || "") ||
     resolveAvailableArtwork(coverArtworkPath, fallbackArtworkPath)
   const heroMark = getHeroInitials(order.heroName)
-  const qualityTags = ["Personalised", story.readingAge, `${storyPages.length} story pages`]
+  const isHardbackEdition = order.product === "hardback" || order.product === "upgrade"
+  const hardbackFrontMatterPageCount = 6
+  const hardbackBackMatterPageCount = 4
+  const totalPrintEditionPages = isHardbackEdition
+    ? 1 + hardbackFrontMatterPageCount + storyPages.length + 1 + hardbackBackMatterPageCount
+    : storyPages.length + 2
+  const qualityTags = [
+    "Personalised",
+    story.readingAge,
+    `${storyPages.length} story pages`,
+    ...(isHardbackEdition ? ["Hardback print edition"] : []),
+  ]
+  const selectedTraits = Array.from(
+    new Set(storyChoices.map((choice) => printableTraitLabels[choice.pathTag])),
+  )
+  const printableTraits = selectedTraits.length > 0 ? selectedTraits : ["Brave", "Kind", "Clever"]
 
   if (requiresPersonalizedArtwork && !personalizedArtworkReady) {
     return (
@@ -201,7 +223,9 @@ export default async function DownloadPage({ params, searchParams }: DownloadPag
               <Badge className="mb-2 bg-emerald-100 px-3 py-1 text-emerald-800">Your story is ready</Badge>
               <h1 className="text-3xl font-black uppercase leading-tight text-sky-950 sm:text-5xl">{story.title}</h1>
               <p className="mt-2 max-w-2xl text-sm font-bold leading-6 text-slate-700">
-                Read it below, or use Download PDF to save a printable copy.
+                {isHardbackEdition
+                  ? `Read it below, or use Download PDF to save the ${totalPrintEditionPages}-page hardback print edition.`
+                  : "Read it below, or use Download PDF to save a printable copy."}
               </p>
             </div>
             <div className="flex justify-start md:justify-end md:pr-4">
@@ -272,6 +296,108 @@ export default async function DownloadPage({ params, searchParams }: DownloadPag
             </div>
           </div>
         </section>
+
+        {isHardbackEdition && (
+          <>
+            <section className="book-page print-page keepsake-page overflow-hidden rounded-[2rem] border-4 border-sky-950 bg-[#fffdf5] p-6 shadow-[10px_10px_0_rgba(8,47,73,0.16)] sm:p-8">
+              <div className="keepsake-page-inner grid min-h-[520px] place-items-center rounded-[1.5rem] border-4 border-sky-950 bg-[linear-gradient(135deg,#fef3c7_0%,#ecfeff_56%,#ffe4e6_100%)] p-6 text-center">
+                <div className="mx-auto max-w-2xl">
+                  <p className="text-xs font-black uppercase tracking-[0.24em] text-rose-500">This book belongs to</p>
+                  <h2 className="mt-6 text-4xl font-black uppercase leading-tight text-sky-950 sm:text-6xl">{order.heroName}</h2>
+                  <div className="mx-auto mt-8 h-0.5 max-w-md bg-sky-950/20" />
+                  <p className="mt-8 text-lg font-bold leading-8 text-slate-700">
+                    A one-of-a-kind Little Legends adventure made especially for {order.heroName}.
+                  </p>
+                </div>
+              </div>
+            </section>
+
+            <section className="book-page print-page keepsake-page overflow-hidden rounded-[2rem] border-4 border-sky-950 bg-[#fffdf5] p-6 shadow-[10px_10px_0_rgba(8,47,73,0.16)] sm:p-8">
+              <div className="keepsake-page-inner grid min-h-[520px] place-items-center rounded-[1.5rem] border-4 border-sky-950 bg-white p-6 text-center">
+                <div className="mx-auto max-w-2xl">
+                  <p className="text-xs font-black uppercase tracking-[0.24em] text-sky-700">A special dedication</p>
+                  <h2 className="mt-4 text-3xl font-black leading-tight text-sky-950 sm:text-5xl">For {order.heroName}</h2>
+                  <p className="mx-auto mt-6 max-w-xl text-lg font-bold leading-8 text-slate-700">
+                    May this story remind you that courage can be gentle, kindness can be powerful, and every great adventure begins with believing in yourself.
+                  </p>
+                </div>
+              </div>
+            </section>
+
+            <section className="book-page print-page keepsake-page overflow-hidden rounded-[2rem] border-4 border-sky-950 bg-[#fffdf5] p-6 shadow-[10px_10px_0_rgba(8,47,73,0.16)] sm:p-8">
+              <div className="keepsake-page-inner grid min-h-[520px] place-items-center rounded-[1.5rem] border-4 border-sky-950 bg-[linear-gradient(135deg,#dbeafe_0%,#fff7ed_48%,#fef3c7_100%)] p-6 text-center">
+                <div className="mx-auto max-w-3xl">
+                  <p className="text-xs font-black uppercase tracking-[0.24em] text-amber-700">Little Legends presents</p>
+                  <h2 className="mt-5 text-4xl font-black uppercase leading-tight text-sky-950 sm:text-6xl">{story.title}</h2>
+                  <p className="mx-auto mt-5 max-w-xl text-lg font-bold leading-8 text-slate-700">{story.subtitle}</p>
+                  <p className="mt-8 text-base font-black uppercase tracking-[0.18em] text-rose-500">
+                    Starring {order.heroName} the {order.heroType}
+                  </p>
+                </div>
+              </div>
+            </section>
+
+            <section className="book-page print-page keepsake-page overflow-hidden rounded-[2rem] border-4 border-sky-950 bg-[#fffdf5] p-6 shadow-[10px_10px_0_rgba(8,47,73,0.16)] sm:p-8">
+              <div className="keepsake-page-inner grid min-h-[520px] place-items-center rounded-[1.5rem] border-4 border-sky-950 bg-white p-6">
+                <div className="mx-auto max-w-3xl text-center">
+                  <div className="mx-auto grid h-20 w-20 place-items-center rounded-full border-4 border-sky-950 bg-amber-100 text-amber-700">
+                    <Sparkles className="h-9 w-9" />
+                  </div>
+                  <p className="mt-5 text-xs font-black uppercase tracking-[0.24em] text-sky-700">Meet the hero</p>
+                  <h2 className="mt-3 text-4xl font-black uppercase leading-tight text-sky-950 sm:text-5xl">{order.heroName}</h2>
+                  <p className="mx-auto mt-5 max-w-2xl text-lg font-bold leading-8 text-slate-700">
+                    {order.heroName} steps into this adventure as a {order.heroType}, ready to learn that {story.lesson.toLowerCase()}
+                  </p>
+                </div>
+              </div>
+            </section>
+
+            <section className="book-page print-page keepsake-page overflow-hidden rounded-[2rem] border-4 border-sky-950 bg-[#fffdf5] p-6 shadow-[10px_10px_0_rgba(8,47,73,0.16)] sm:p-8">
+              <div className="keepsake-page-inner grid min-h-[520px] place-items-center rounded-[1.5rem] border-4 border-sky-950 bg-[linear-gradient(135deg,#fff7ed_0%,#fef3c7_52%,#ecfeff_100%)] p-6 text-center">
+                <div className="mx-auto max-w-3xl">
+                  <div className="mx-auto grid h-24 w-24 place-items-center rounded-full border-4 border-sky-950 bg-white text-amber-600 shadow-xl">
+                    <Award className="h-12 w-12" />
+                  </div>
+                  <p className="mt-6 text-xs font-black uppercase tracking-[0.24em] text-rose-500">Official hero certificate</p>
+                  <h2 className="mt-4 text-4xl font-black uppercase leading-tight text-sky-950 sm:text-5xl">{order.heroName}</h2>
+                  <p className="mx-auto mt-5 max-w-2xl text-lg font-bold leading-8 text-slate-700">
+                    is hereby recognised as a true Little Legend for showing heart, imagination, and hero-sized spirit.
+                  </p>
+                  <div className="mx-auto mt-8 grid max-w-xl gap-3 sm:grid-cols-3">
+                    {printableTraits.slice(0, 3).map((trait) => (
+                      <div key={trait} className="rounded-2xl border-2 border-sky-100 bg-white px-4 py-3 text-sm font-black text-sky-900">
+                        <Star className="mx-auto mb-2 h-5 w-5 fill-amber-300 text-amber-400" />
+                        {trait}
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            </section>
+
+            <section className="book-page print-page keepsake-page overflow-hidden rounded-[2rem] border-4 border-sky-950 bg-[#fffdf5] p-6 shadow-[10px_10px_0_rgba(8,47,73,0.16)] sm:p-8">
+              <div className="keepsake-page-inner grid min-h-[520px] place-items-center rounded-[1.5rem] border-4 border-sky-950 bg-white p-6">
+                <div className="mx-auto max-w-3xl text-center">
+                  <div className="mx-auto grid h-20 w-20 place-items-center rounded-full border-4 border-sky-950 bg-sky-100 text-sky-700">
+                    <Compass className="h-9 w-9" />
+                  </div>
+                  <p className="mt-5 text-xs font-black uppercase tracking-[0.24em] text-sky-700">Adventure guide</p>
+                  <h2 className="mt-3 text-3xl font-black uppercase leading-tight text-sky-950 sm:text-5xl">Follow the story path</h2>
+                  <p className="mx-auto mt-5 max-w-2xl text-lg font-bold leading-8 text-slate-700">
+                    {pathSummary}
+                  </p>
+                  <div className="mx-auto mt-8 flex max-w-xl flex-wrap justify-center gap-3">
+                    {printableTraits.map((trait) => (
+                      <span key={trait} className="rounded-full border-2 border-sky-100 bg-[#fffdf5] px-4 py-2 text-sm font-black uppercase text-sky-900">
+                        {trait}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            </section>
+          </>
+        )}
 
         {storyPages.map((page) => {
           const pageArtworkPath = page.artwork?.[artworkGender]
@@ -367,6 +493,66 @@ export default async function DownloadPage({ params, searchParams }: DownloadPag
             </div>
           </div>
         </section>
+
+        {isHardbackEdition && (
+          <>
+            <section className="book-page print-page keepsake-page overflow-hidden rounded-[2rem] border-4 border-sky-950 bg-[#fffdf5] p-6 shadow-[10px_10px_0_rgba(8,47,73,0.16)] sm:p-8">
+              <div className="keepsake-page-inner grid min-h-[520px] place-items-center rounded-[1.5rem] border-4 border-sky-950 bg-white p-6 text-center">
+                <div className="mx-auto max-w-3xl">
+                  <p className="text-xs font-black uppercase tracking-[0.24em] text-sky-700">What I learned</p>
+                  <h2 className="mt-4 text-3xl font-black uppercase leading-tight text-sky-950 sm:text-5xl">{story.lesson}</h2>
+                  <p className="mx-auto mt-6 max-w-2xl text-lg font-bold leading-8 text-slate-700">
+                    Every adventure leaves a little wisdom behind. The best heroes notice what they learned and carry it into the next day.
+                  </p>
+                </div>
+              </div>
+            </section>
+
+            <section className="book-page print-page keepsake-page overflow-hidden rounded-[2rem] border-4 border-sky-950 bg-[#fffdf5] p-6 shadow-[10px_10px_0_rgba(8,47,73,0.16)] sm:p-8">
+              <div className="keepsake-page-inner grid min-h-[520px] place-items-center rounded-[1.5rem] border-4 border-sky-950 bg-[linear-gradient(135deg,#fef3c7_0%,#ecfeff_50%,#dbeafe_100%)] p-6 text-center">
+                <div className="mx-auto max-w-3xl">
+                  <p className="text-xs font-black uppercase tracking-[0.24em] text-rose-500">Hero strengths</p>
+                  <h2 className="mt-4 text-4xl font-black uppercase leading-tight text-sky-950 sm:text-5xl">
+                    {order.heroName}'s shining qualities
+                  </h2>
+                  <div className="mx-auto mt-8 grid max-w-2xl gap-4 sm:grid-cols-3">
+                    {printableTraits.slice(0, 3).map((trait) => (
+                      <div key={trait} className="rounded-2xl border-4 border-sky-950 bg-white p-5 text-lg font-black text-sky-950 shadow-[5px_5px_0_rgba(8,47,73,0.12)]">
+                        <Star className="mx-auto mb-3 h-7 w-7 fill-amber-300 text-amber-400" />
+                        {trait}
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            </section>
+
+            <section className="book-page print-page keepsake-page overflow-hidden rounded-[2rem] border-4 border-sky-950 bg-[#fffdf5] p-6 shadow-[10px_10px_0_rgba(8,47,73,0.16)] sm:p-8">
+              <div className="keepsake-page-inner grid min-h-[520px] grid-cols-1 place-items-center rounded-[1.5rem] border-4 border-sky-950 bg-white p-6">
+                <div className="w-full max-w-4xl text-center">
+                  <div className="mx-auto grid h-20 w-20 place-items-center rounded-full border-4 border-sky-950 bg-rose-100 text-rose-500">
+                    <Palette className="h-9 w-9" />
+                  </div>
+                  <p className="mt-5 text-xs font-black uppercase tracking-[0.24em] text-sky-700">Draw your own adventure</p>
+                  <h2 className="mt-3 text-3xl font-black uppercase leading-tight text-sky-950 sm:text-5xl">What happens next?</h2>
+                  <div className="mt-6 h-56 rounded-[1.5rem] border-4 border-dashed border-sky-200 bg-[#fffdf5]" />
+                </div>
+              </div>
+            </section>
+
+            <section className="book-page print-page keepsake-page overflow-hidden rounded-[2rem] border-4 border-sky-950 bg-[#fffdf5] p-6 shadow-[10px_10px_0_rgba(8,47,73,0.16)] sm:p-8">
+              <div className="keepsake-page-inner grid min-h-[520px] place-items-center rounded-[1.5rem] border-4 border-sky-950 bg-white p-6 text-center">
+                <div className="mx-auto max-w-3xl">
+                  <p className="text-xs font-black uppercase tracking-[0.24em] text-sky-700">A note to keep</p>
+                  <h2 className="mt-4 text-3xl font-black uppercase leading-tight text-sky-950 sm:text-5xl">There is always another adventure waiting</h2>
+                  <p className="mx-auto mt-6 max-w-2xl text-lg font-bold leading-8 text-slate-700">
+                    Read this story again whenever you need a reminder that imagination, kindness, and courage are never far away.
+                  </p>
+                </div>
+              </div>
+            </section>
+          </>
+        )}
 
         <div className="no-print rounded-[2rem] border-4 border-sky-950 bg-white p-5 shadow-[8px_8px_0_rgba(8,47,73,0.18)]">
           <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">

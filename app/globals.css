@@ -218,6 +218,10 @@ nextjs-portal {
   min-height: 0;
 }
 
+.keepsake-page-inner {
+  min-height: 520px;
+}
+
 @media (max-width: 640px) {
   .book-page {
     border-width: 3px !important;
@@ -280,6 +284,12 @@ nextjs-portal {
   }
 
   .book-ending-inner {
+    min-height: 420px !important;
+    border-width: 3px !important;
+    padding: 1rem !important;
+  }
+
+  .keepsake-page-inner {
     min-height: 420px !important;
     border-width: 3px !important;
     padding: 1rem !important;
@@ -522,12 +532,29 @@ nextjs-portal {
     border-width: 2px !important;
   }
 
+  .keepsake-page-inner {
+    min-height: 0 !important;
+    height: 100% !important;
+    padding: 4mm !important;
+    border-width: 2px !important;
+  }
+
   .book-ending-inner h2 {
     font-size: 32pt !important;
     line-height: 1.05 !important;
   }
 
   .book-ending-inner p {
+    font-size: 12pt !important;
+    line-height: 1.4 !important;
+  }
+
+  .keepsake-page-inner h2 {
+    font-size: 28pt !important;
+    line-height: 1.08 !important;
+  }
+
+  .keepsake-page-inner p {
     font-size: 12pt !important;
     line-height: 1.4 !important;
   }
