@@ -44,7 +44,9 @@ export default function TermsPage() {
 
               <section className="rounded-2xl bg-white/70 p-4">
                 <h2 className="text-lg font-black text-sky-950">Artwork</h2>
-                <p className="mt-1">Personalised artwork is illustrative and storybook styled, designed to feel recognisable and magical.</p>
+                <p className="mt-1">
+                  Personalised artwork is illustrative and storybook styled, designed to feel recognisable and magical. It is created from submitted reference photos using automated creative tools, so it may be stylised rather than an exact photographic likeness. While we aim for a close and recognisable result, exact facial features, hair, skin tone, clothing, and other visual details may vary.
+                </p>
               </section>
 
               <section className="rounded-2xl bg-white/70 p-4">
