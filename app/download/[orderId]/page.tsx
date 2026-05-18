@@ -185,8 +185,8 @@ export default async function DownloadPage({ params, searchParams }: DownloadPag
     resolveAvailableArtwork(coverArtworkPath, fallbackArtworkPath)
   const heroMark = getHeroInitials(order.heroName)
   const isHardbackEdition = order.product === "hardback" || order.product === "upgrade"
-  const hardbackFrontMatterPageCount = 6
-  const hardbackBackMatterPageCount = 4
+  const hardbackFrontMatterPageCount = 5
+  const hardbackBackMatterPageCount = 5
   const totalPrintEditionPages = isHardbackEdition
     ? 1 + hardbackFrontMatterPageCount + storyPages.length + 1 + hardbackBackMatterPageCount
     : storyPages.length + 2
@@ -307,18 +307,6 @@ export default async function DownloadPage({ params, searchParams }: DownloadPag
                   <div className="mx-auto mt-8 h-0.5 max-w-md bg-sky-950/20" />
                   <p className="mt-8 text-lg font-bold leading-8 text-slate-700">
                     A one-of-a-kind Little Legends adventure made especially for {order.heroName}.
-                  </p>
-                </div>
-              </div>
-            </section>
-
-            <section className="book-page print-page keepsake-page overflow-hidden rounded-[2rem] border-4 border-sky-950 bg-[#fffdf5] p-6 shadow-[10px_10px_0_rgba(8,47,73,0.16)] sm:p-8">
-              <div className="keepsake-page-inner grid min-h-[520px] place-items-center rounded-[1.5rem] border-4 border-sky-950 bg-white p-6 text-center">
-                <div className="mx-auto max-w-2xl">
-                  <p className="text-xs font-black uppercase tracking-[0.24em] text-sky-700">A special dedication</p>
-                  <h2 className="mt-4 text-3xl font-black leading-tight text-sky-950 sm:text-5xl">For {order.heroName}</h2>
-                  <p className="mx-auto mt-6 max-w-xl text-lg font-bold leading-8 text-slate-700">
-                    May this story remind you that courage can be gentle, kindness can be powerful, and every great adventure begins with believing in yourself.
                   </p>
                 </div>
               </div>
@@ -507,6 +495,18 @@ export default async function DownloadPage({ params, searchParams }: DownloadPag
 
         {isHardbackEdition && (
           <>
+            <section className="book-page print-page keepsake-page overflow-hidden rounded-[2rem] border-4 border-sky-950 bg-[#fffdf5] p-6 shadow-[10px_10px_0_rgba(8,47,73,0.16)] sm:p-8">
+              <div className="keepsake-page-inner grid min-h-[520px] place-items-center rounded-[1.5rem] border-4 border-sky-950 bg-white p-6 text-center">
+                <div className="mx-auto max-w-2xl">
+                  <p className="text-xs font-black uppercase tracking-[0.24em] text-sky-700">A special dedication</p>
+                  <h2 className="mt-4 text-3xl font-black leading-tight text-sky-950 sm:text-5xl">For {order.heroName}</h2>
+                  <p className="mx-auto mt-6 max-w-xl text-lg font-bold leading-8 text-slate-700">
+                    May this story remind you that courage can be gentle, kindness can be powerful, and every great adventure begins with believing in yourself.
+                  </p>
+                </div>
+              </div>
+            </section>
+
             <section className="book-page print-page keepsake-page overflow-hidden rounded-[2rem] border-4 border-sky-950 bg-[#fffdf5] p-6 shadow-[10px_10px_0_rgba(8,47,73,0.16)] sm:p-8">
               <div className="keepsake-page-inner grid min-h-[520px] place-items-center rounded-[1.5rem] border-4 border-sky-950 bg-white p-6 text-center">
                 <div className="mx-auto max-w-3xl">
