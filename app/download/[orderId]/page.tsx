@@ -193,8 +193,8 @@ export default async function DownloadPage({ params, searchParams }: DownloadPag
   const qualityTags = [
     "Personalised",
     story.readingAge,
-    `${storyPages.length} story pages`,
-    ...(isHardbackEdition ? ["Hardback print edition"] : []),
+    isHardbackEdition ? `${totalPrintEditionPages}-page keepsake edition` : `${storyPages.length} story pages`,
+    ...(isHardbackEdition ? ["12-page story adventure"] : []),
   ]
   const selectedTraits = Array.from(
     new Set(storyChoices.map((choice) => printableTraitLabels[choice.pathTag])),
