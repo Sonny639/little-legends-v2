@@ -353,23 +353,34 @@ export default async function DownloadPage({ params, searchParams }: DownloadPag
             </section>
 
             <section className="book-page print-page keepsake-page overflow-hidden rounded-[2rem] border-4 border-sky-950 bg-[#fffdf5] p-6 shadow-[10px_10px_0_rgba(8,47,73,0.16)] sm:p-8">
-              <div className="keepsake-page-inner grid min-h-[520px] place-items-center rounded-[1.5rem] border-4 border-sky-950 bg-[linear-gradient(135deg,#fff7ed_0%,#fef3c7_52%,#ecfeff_100%)] p-6 text-center">
-                <div className="mx-auto max-w-3xl">
-                  <div className="mx-auto grid h-24 w-24 place-items-center rounded-full border-4 border-sky-950 bg-white text-amber-600 shadow-xl">
-                    <Award className="h-12 w-12" />
+              <div className="keepsake-page-inner certificate-page grid min-h-[520px] place-items-center rounded-[1.5rem] border-4 border-sky-950 bg-[linear-gradient(135deg,#fff7ed_0%,#fef3c7_52%,#ecfeff_100%)] p-6 text-center">
+                <div className="certificate-frame relative mx-auto flex min-h-[430px] w-full max-w-4xl flex-col items-center justify-center overflow-hidden rounded-[1.25rem] border-[6px] border-double border-amber-500 bg-white/94 px-5 py-6 shadow-[inset_0_0_0_3px_rgba(8,47,73,0.92),0_16px_40px_rgba(8,47,73,0.16)] sm:px-10">
+                  <div className="certificate-corner certificate-corner-top-left" />
+                  <div className="certificate-corner certificate-corner-top-right" />
+                  <div className="certificate-corner certificate-corner-bottom-left" />
+                  <div className="certificate-corner certificate-corner-bottom-right" />
+
+                  <div className="grid h-20 w-20 place-items-center rounded-full border-4 border-sky-950 bg-amber-100 text-amber-700 shadow-[4px_4px_0_rgba(8,47,73,0.12)]">
+                    <Award className="h-10 w-10" />
                   </div>
-                  <p className="mt-6 text-xs font-black uppercase tracking-[0.24em] text-rose-500">Official hero certificate</p>
-                  <h2 className="mt-4 text-4xl font-black uppercase leading-tight text-sky-950 sm:text-5xl">{order.heroName}</h2>
+                  <p className="mt-5 text-xs font-black uppercase tracking-[0.28em] text-rose-500">Certificate of heroism</p>
+                  <p className="mt-4 text-sm font-black uppercase tracking-[0.22em] text-sky-700">This proudly certifies that</p>
+                  <h2 className="mt-3 text-4xl font-black uppercase leading-tight text-sky-950 sm:text-6xl">{order.heroName}</h2>
+                  <div className="mt-3 h-1 w-40 rounded-full bg-amber-400 sm:w-56" />
                   <p className="mx-auto mt-5 max-w-2xl text-lg font-bold leading-8 text-slate-700">
-                    is hereby recognised as a true Little Legend for showing heart, imagination, and hero-sized spirit.
+                    is recognised as a true Little Legend for showing heart, imagination, and hero-sized spirit throughout this adventure.
                   </p>
-                  <div className="mx-auto mt-8 grid max-w-xl gap-3 sm:grid-cols-3">
+                  <div className="mx-auto mt-7 grid w-full max-w-2xl gap-3 sm:grid-cols-3">
                     {printableTraits.slice(0, 3).map((trait) => (
-                      <div key={trait} className="rounded-2xl border-2 border-sky-100 bg-white px-4 py-3 text-sm font-black text-sky-900">
+                      <div key={trait} className="rounded-2xl border-2 border-sky-100 bg-[#fffdf5] px-4 py-3 text-sm font-black text-sky-900">
                         <Star className="mx-auto mb-2 h-5 w-5 fill-amber-300 text-amber-400" />
                         {trait}
                       </div>
                     ))}
+                  </div>
+                  <div className="mt-7 flex w-full max-w-2xl items-end justify-between gap-6 text-left text-xs font-black uppercase tracking-[0.18em] text-sky-800">
+                    <div className="flex-1 border-t-2 border-sky-950/35 pt-2">Little Legends</div>
+                    <div className="flex-1 border-t-2 border-sky-950/35 pt-2 text-right">Official keepsake edition</div>
                   </div>
                 </div>
               </div>
