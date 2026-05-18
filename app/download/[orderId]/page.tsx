@@ -1,6 +1,6 @@
 import Link from "next/link"
 import { cookies } from "next/headers"
-import { Award, BookOpen, Compass, Heart, Home, Lock, Palette, Sparkles, Star } from "lucide-react"
+import { Award, BookOpen, Compass, Heart, Home, Lock, Palette, Printer, Sparkles, Star } from "lucide-react"
 
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
@@ -27,6 +27,7 @@ type DownloadPageProps = {
   }>
   searchParams: Promise<{
     access?: string
+    format?: string
   }>
 }
 
@@ -64,7 +65,7 @@ const printableTraitLabels: Record<StoryChoice["pathTag"], string> = {
 
 export default async function DownloadPage({ params, searchParams }: DownloadPageProps) {
   const { orderId } = await params
-  const { access } = await searchParams
+  const { access, format } = await searchParams
   const cookieStore = await cookies()
   const hasAdminAccess =
     isAdminAuthEnabled() && cookieStore.get(adminSessionCookieName)?.value === (await getAdminSessionToken())
@@ -185,6 +186,7 @@ export default async function DownloadPage({ params, searchParams }: DownloadPag
     resolveAvailableArtwork(coverArtworkPath, fallbackArtworkPath)
   const heroMark = getHeroInitials(order.heroName)
   const isHardbackEdition = order.product === "hardback" || order.product === "upgrade"
+  const isLuluPrintEdition = isHardbackEdition && format === "lulu"
   const hardbackFrontMatterPageCount = 5
   const hardbackBackMatterPageCount = 5
   const totalPrintEditionPages = isHardbackEdition
@@ -212,7 +214,54 @@ export default async function DownloadPage({ params, searchParams }: DownloadPag
   }
 
   return (
-    <main id="top" className="storybook-app-bg min-h-screen overflow-x-hidden px-4 py-6 sm:py-8">
+    <main
+      id="top"
+      className={`storybook-app-bg min-h-screen overflow-x-hidden px-4 py-6 sm:py-8 ${isLuluPrintEdition ? "lulu-print-edition" : ""}`}
+    >
+      {isLuluPrintEdition && (
+        <style>{`
+          @media print {
+            @page {
+              size: 303.35mm 216.35mm;
+              margin: 0;
+            }
+
+            html,
+            body {
+              width: 303.35mm !important;
+              background: #fffdf5 !important;
+            }
+
+            main.lulu-print-edition {
+              background: #fffdf5 !important;
+            }
+
+            .lulu-print-edition .print-page {
+              width: 303.35mm !important;
+              height: 216.35mm !important;
+              min-height: 216.35mm !important;
+              max-height: 216.35mm !important;
+              margin: 0 !important;
+              padding: 6.35mm !important;
+              border-width: 0 !important;
+              border-radius: 0 !important;
+              background: #fffdf5 !important;
+            }
+
+            .lulu-print-edition .book-cover-title-card,
+            .lulu-print-edition .certificate-frame {
+              background: #ffffff !important;
+              box-shadow: none !important;
+              backdrop-filter: none !important;
+            }
+
+            .lulu-print-edition .book-cover-overlay,
+            .lulu-print-edition .book-art-overlay {
+              display: none !important;
+            }
+          }
+        `}</style>
+      )}
       <div className="mx-auto max-w-6xl space-y-6 full-story-print">
         <div className="no-print rounded-[2rem] border-4 border-sky-950 bg-white p-5 shadow-[8px_8px_0_rgba(8,47,73,0.18)]">
           <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
@@ -226,7 +275,11 @@ export default async function DownloadPage({ params, searchParams }: DownloadPag
               </p>
             </div>
             <div className="flex justify-start md:justify-end md:pr-4">
-              <PrintButton heroName={order.heroName} />
+              <PrintButton
+                heroName={order.heroName}
+                fileSuffix={isLuluPrintEdition ? "Lulu_Interior" : ""}
+                label={isLuluPrintEdition ? "Print Lulu PDF" : "Print / Save PDF"}
+              />
             </div>
           </div>
         </div>
@@ -251,7 +304,7 @@ export default async function DownloadPage({ params, searchParams }: DownloadPag
                   />
                 </div>
               )}
-              <div className="absolute inset-0 -z-10 bg-[linear-gradient(180deg,rgba(8,47,73,0.06)_0%,rgba(8,47,73,0.08)_42%,rgba(8,47,73,0.82)_100%)]" />
+              <div className="book-cover-overlay absolute inset-0 -z-10 bg-[linear-gradient(180deg,rgba(8,47,73,0.06)_0%,rgba(8,47,73,0.08)_42%,rgba(8,47,73,0.82)_100%)]" />
               <div className="book-cover-title-card w-full rounded-[1.5rem] border-4 border-white/80 bg-white/92 p-5 shadow-[0_18px_45px_rgba(8,47,73,0.24)] backdrop-blur-sm">
                 <div className="mx-auto mb-4 inline-flex items-center gap-2 rounded-full bg-amber-200 px-4 py-2 text-xs font-black uppercase text-sky-950">
                   <Sparkles className="h-4 w-4 text-amber-600" />
@@ -434,7 +487,7 @@ export default async function DownloadPage({ params, searchParams }: DownloadPag
                       showFaceZone
                     />
                   )}
-                  {pageArtwork && <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(255,255,255,0.04)_0%,rgba(255,255,255,0.18)_62%,rgba(255,255,255,0.72)_100%)]" />}
+                  {pageArtwork && <div className="book-art-overlay absolute inset-0 bg-[linear-gradient(180deg,rgba(255,255,255,0.04)_0%,rgba(255,255,255,0.18)_62%,rgba(255,255,255,0.72)_100%)]" />}
                   <div className="relative grid h-full min-h-[320px] place-items-center text-center sm:min-h-[390px]" />
                 </div>
 
@@ -571,6 +624,14 @@ export default async function DownloadPage({ params, searchParams }: DownloadPag
               </p>
             </div>
             <div className="grid gap-2 sm:grid-cols-2">
+              {isHardbackEdition && !isLuluPrintEdition && (
+                <Button asChild variant="outline" className="h-11 rounded-xl border-sky-200 bg-white px-5 font-black text-sky-700">
+                  <Link href={`/download/${order.id}?access=${effectiveAccessToken}&format=lulu`}>
+                    <Printer className="h-4 w-4" />
+                    Lulu print version
+                  </Link>
+                </Button>
+              )}
               <Button asChild variant="outline" className="h-11 rounded-xl border-sky-200 bg-white px-5 font-black text-sky-700">
                 <a href="#top">
                   <BookOpen className="h-4 w-4" />

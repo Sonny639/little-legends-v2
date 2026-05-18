@@ -39,6 +39,10 @@ type FalEditResult = {
 }
 
 const artworkEndpoint = "fal-ai/hy-wu-edit"
+const printArtworkImageSize = {
+  width: 1536,
+  height: 1024,
+} as const
 const localArtworkDirectory = path.join(process.cwd(), "data", "order-story-artwork")
 const storageBucket = () => process.env.SUPABASE_STORAGE_BUCKET || "order-photos"
 const manifestStoragePath = (orderId: string) => `generated/${orderId}/manifest.json`
@@ -81,7 +85,7 @@ const getPrompt = (pageTitle: string, storyId: string) =>
 const getPreviewInput = (baseArtworkUrl: string, referencePhoto: string, pageTitle: string, storyId: string) => ({
   prompt: getPrompt(pageTitle, storyId),
   image_urls: [baseArtworkUrl, referencePhoto],
-  image_size: "auto" as const,
+  image_size: printArtworkImageSize,
   num_inference_steps: 20,
   num_images: 1,
   enable_thinking: false,

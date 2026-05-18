@@ -23,6 +23,10 @@
 # local demo fulfilment data
 /data/
 
+# local print-production working files
+/print-assets/
+/yvrddev-cover-template.pdf
+
 # misc
 .DS_Store
 *.pem
