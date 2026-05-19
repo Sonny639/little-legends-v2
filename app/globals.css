@@ -257,6 +257,96 @@ nextjs-portal {
   border-right: 3px solid;
 }
 
+.certificate-watermark {
+  position: absolute;
+  inset: 3.4rem;
+  border-radius: 999px;
+  border: 2px solid rgba(8, 47, 73, 0.06);
+  background:
+    radial-gradient(circle, rgba(251, 191, 36, 0.1) 0 10%, transparent 11%),
+    repeating-conic-gradient(from 0deg, rgba(8, 47, 73, 0.035) 0deg 8deg, transparent 8deg 16deg);
+  opacity: 0.62;
+  pointer-events: none;
+}
+
+.certificate-hologram {
+  position: absolute;
+  left: 2.1rem;
+  top: 2.1rem;
+  display: grid;
+  height: 5.8rem;
+  width: 5.8rem;
+  place-items: center;
+  border-radius: 999px;
+  border: 3px solid rgba(255, 255, 255, 0.82);
+  background:
+    linear-gradient(135deg, rgba(255, 255, 255, 0.72), rgba(255, 236, 153, 0.62) 28%, rgba(186, 230, 253, 0.72) 58%, rgba(244, 194, 255, 0.62)),
+    repeating-conic-gradient(from 18deg, rgba(255, 255, 255, 0.46) 0deg 10deg, rgba(14, 165, 233, 0.18) 10deg 22deg, rgba(251, 191, 36, 0.2) 22deg 35deg);
+  box-shadow:
+    inset 0 0 0 4px rgba(255, 255, 255, 0.28),
+    inset 0 0 18px rgba(255, 255, 255, 0.82),
+    0 8px 18px rgba(8, 47, 73, 0.14);
+  color: #35165f;
+  transform: rotate(-10deg);
+}
+
+.certificate-hologram::before,
+.certificate-hologram::after {
+  content: "";
+  position: absolute;
+  border-radius: inherit;
+  pointer-events: none;
+}
+
+.certificate-hologram::before {
+  inset: 0.45rem;
+  border: 1px dashed rgba(53, 22, 95, 0.34);
+}
+
+.certificate-hologram::after {
+  inset: 0;
+  background: linear-gradient(115deg, transparent 0 36%, rgba(255, 255, 255, 0.72) 46%, transparent 58% 100%);
+  opacity: 0.72;
+}
+
+.certificate-hologram-heart {
+  position: relative;
+  z-index: 1;
+  margin-top: -0.4rem;
+  font-size: 2.1rem;
+  font-weight: 900;
+  line-height: 1;
+  text-shadow: 0 1px 0 rgba(255, 255, 255, 0.72);
+}
+
+.certificate-hologram-text {
+  position: relative;
+  z-index: 1;
+  margin-top: -1.45rem;
+  max-width: 4.5rem;
+  font-size: 0.52rem;
+  font-weight: 900;
+  letter-spacing: 0.08em;
+  line-height: 1.1;
+  text-transform: uppercase;
+}
+
+.certificate-medallion,
+.certificate-rule,
+.certificate-name,
+.certificate-signatures,
+.certificate-frame > p,
+.certificate-frame > h2,
+.certificate-frame > h3,
+.certificate-frame > div:not(.certificate-watermark):not(.certificate-hologram):not(.certificate-corner) {
+  position: relative;
+  z-index: 1;
+}
+
+.certificate-rule {
+  background: linear-gradient(90deg, transparent, #f59e0b 18%, #facc15 50%, #f59e0b 82%, transparent);
+}
+
 .draw-page-canvas {
   min-height: 300px;
 }
