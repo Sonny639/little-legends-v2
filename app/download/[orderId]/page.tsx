@@ -186,7 +186,8 @@ export default async function DownloadPage({ params, searchParams }: DownloadPag
     resolveAvailableArtwork(coverArtworkPath, fallbackArtworkPath)
   const heroMark = getHeroInitials(order.heroName)
   const isHardbackEdition = order.product === "hardback" || order.product === "upgrade"
-  const isLuluPrintEdition = isHardbackEdition && format === "lulu"
+  const canUseLuluPrintEdition = hasAdminAccess
+  const isLuluPrintEdition = isHardbackEdition && canUseLuluPrintEdition && format === "lulu"
   const hardbackFrontMatterPageCount = 4
   const hardbackBackMatterPageCount = 6
   const totalPrintEditionPages = isHardbackEdition
@@ -253,16 +254,77 @@ export default async function DownloadPage({ params, searchParams }: DownloadPag
               background: #fffdf5 !important;
             }
 
+            .lulu-print-edition *,
+            .lulu-print-edition *::before,
+            .lulu-print-edition *::after {
+              box-shadow: none !important;
+              text-shadow: none !important;
+              backdrop-filter: none !important;
+              filter: none !important;
+            }
+
+            .lulu-print-edition svg,
+            .lulu-print-edition svg * {
+              stroke-width: 3px !important;
+            }
+
             .lulu-print-edition .book-cover-title-card,
             .lulu-print-edition .certificate-frame {
               background: #ffffff !important;
-              box-shadow: none !important;
-              backdrop-filter: none !important;
             }
 
             .lulu-print-edition .book-cover-overlay,
             .lulu-print-edition .book-art-overlay {
               display: none !important;
+            }
+
+            .lulu-print-edition .book-cover-grid {
+              align-items: center !important;
+            }
+
+            .lulu-print-edition .book-cover-hero {
+              height: 128mm !important;
+              min-height: 128mm !important;
+              align-self: center !important;
+              border: 3px solid #082f49 !important;
+              border-radius: 7px !important;
+            }
+
+            .lulu-print-edition .book-page-body {
+              height: 128mm !important;
+              min-height: 128mm !important;
+              grid-template-columns: 0.9fr 1fr !important;
+              align-content: center !important;
+            }
+
+            .lulu-print-edition .book-art {
+              height: 128mm !important;
+              min-height: 128mm !important;
+              background: #fff7df !important;
+            }
+
+            .lulu-print-edition .book-art img,
+            .lulu-print-edition .book-cover-hero img {
+              background: #fffdf5 !important;
+            }
+
+            .lulu-print-edition .certificate-watermark,
+            .lulu-print-edition .certificate-hologram::before,
+            .lulu-print-edition .certificate-hologram::after {
+              display: none !important;
+            }
+
+            .lulu-print-edition .certificate-hologram {
+              border-color: #f59e0b !important;
+              background: linear-gradient(135deg, #ffffff 0%, #fef3c7 34%, #e0f2fe 68%, #fae8ff 100%) !important;
+            }
+
+            .lulu-print-edition .certificate-rule {
+              background: linear-gradient(90deg, #f59e0b 0%, #facc15 50%, #f59e0b 100%) !important;
+            }
+
+            .lulu-print-edition .certificate-signatures > div {
+              border-color: #7c8fa0 !important;
             }
           }
         `}</style>
@@ -635,7 +697,7 @@ export default async function DownloadPage({ params, searchParams }: DownloadPag
               </p>
             </div>
             <div className="grid gap-2 sm:grid-cols-2">
-              {isHardbackEdition && !isLuluPrintEdition && (
+              {isHardbackEdition && canUseLuluPrintEdition && !isLuluPrintEdition && (
                 <Button asChild variant="outline" className="h-11 rounded-xl border-sky-200 bg-white px-5 font-black text-sky-700">
                   <Link href={`/download/${order.id}?access=${effectiveAccessToken}&format=lulu`}>
                     <Printer className="h-4 w-4" />

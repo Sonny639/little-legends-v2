@@ -1,5 +1,7 @@
 import nodemailer from "nodemailer"
 
+import { renderBrandedEmail, withPlainEmailSignature } from "@/lib/email-template"
+
 type ContactEmailInput = {
   name: string
   email: string
@@ -38,7 +40,7 @@ export const sendContactEmail = async ({ name, email, orderReference, subject, m
     to: toEmail,
     replyTo: email,
     subject: `Little Legends contact: ${subject}`,
-    text: [
+    text: withPlainEmailSignature([
       `New Little Legends contact enquiry`,
       ``,
       `Name: ${name}`,
@@ -47,7 +49,20 @@ export const sendContactEmail = async ({ name, email, orderReference, subject, m
       `Subject: ${subject}`,
       ``,
       message,
-    ].join("\n"),
+    ].join("\n")),
+    html: renderBrandedEmail({
+      preheader: `New contact enquiry from ${name}.`,
+      title: "New contact enquiry",
+      intro: `${name} has sent a message through the Little Legends contact form.`,
+      paragraphs: [message],
+      details: [
+        { label: "Name", value: name },
+        { label: "Email", value: email },
+        ...(orderReference ? [{ label: "Reference", value: orderReference }] : []),
+        { label: "Subject", value: subject },
+      ],
+      footerNote: "This notification was sent from the Little Legends Story contact form.",
+    }),
   })
 
   return { sent: true, to: toEmail }

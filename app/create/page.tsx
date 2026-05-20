@@ -975,7 +975,7 @@ export default function Home() {
               <Input
                 id="childName"
                 type="text"
-                placeholder="e.g. Aidan"
+                placeholder={selectedGender === "girl" ? "e.g. Amelia" : "e.g. Aidan"}
                 className="h-12 rounded-2xl border-sky-100 bg-white px-12 text-center text-lg font-bold text-sky-900 shadow-sm placeholder:text-sky-300 sm:h-14 sm:pl-12 sm:pr-4 sm:text-left sm:text-xl"
                 value={childName}
                 onChange={(e) => {

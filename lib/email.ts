@@ -4,6 +4,7 @@ import path from "path"
 import nodemailer from "nodemailer"
 
 import { hasDatabase, query } from "@/lib/db"
+import { renderBrandedEmail, withPlainEmailSignature } from "@/lib/email-template"
 import { getOrderAccessToken } from "@/lib/order-access"
 import { type OrderRecord, updateOrderEmailSentAt } from "@/lib/orders"
 import { getSupabase, hasSupabase } from "@/lib/supabase"
@@ -83,7 +84,17 @@ const hasSmtpConfig = () =>
 
 const isTestRecipient = (email: string) => /@(example\.com|example\.test|test\.local)$/i.test(email)
 
-const sendSmtpEmail = async ({ to, subject, body }: { to: string; subject: string; body: string }) => {
+const sendSmtpEmail = async ({
+  to,
+  subject,
+  text,
+  html,
+}: {
+  to: string
+  subject: string
+  text: string
+  html: string
+}) => {
   if (!hasSmtpConfig()) return false
   if (isTestRecipient(to)) return false
 
@@ -109,7 +120,8 @@ const sendSmtpEmail = async ({ to, subject, body }: { to: string; subject: strin
     to,
     replyTo: process.env.CONTACT_TO_EMAIL || fromEmail,
     subject,
-    text: body,
+    text,
+    html,
   })
 
   return true
@@ -201,7 +213,7 @@ export const sendOrderConfirmationEmail = async (order: OrderRecord) => {
           `The reference photo${photoCount === 1 ? " is" : "s are"} stored privately with your order for the personalised artwork stage.`,
         ]
       : []
-  const body = [
+  const plainBody = [
     `Hi there,`,
     ``,
     requiresArtworkPreparation ? `Your Little Legends order is confirmed.` : `Your Little Legends story is ready.`,
@@ -229,13 +241,42 @@ export const sendOrderConfirmationEmail = async (order: OrderRecord) => {
     ...photoFollowUp,
     ``,
     `If anything looks wrong, reply via the contact page with your order reference and we will help.`,
-    ``,
-    `Little Legends`,
   ].join("\n")
+  const body = withPlainEmailSignature(plainBody)
+  const html = renderBrandedEmail({
+    preheader: requiresArtworkPreparation
+      ? `${order.heroName}'s personalised adventure is being prepared.`
+      : `${order.heroName}'s personalised adventure is ready to download.`,
+    title: requiresArtworkPreparation ? "Your order is confirmed" : "Your story is ready",
+    intro: requiresArtworkPreparation
+      ? `${order.heroName}'s personalised adventure is now being prepared. This may take a little while while each page is finished with their likeness.`
+      : `${order.heroName}'s personalised adventure has been created and is ready to read, print, or save.`,
+    paragraphs: [
+      requiresArtworkPreparation
+        ? `Open the download link to watch the personalised storybook prepare. Please keep that page open while the artwork is being finished.`
+        : order.product === "digital"
+          ? `Your digital story is available straight away. Open the link and use Download PDF to save a copy.`
+          : `Your digital copy is available now. Your printed book order has also been logged for fulfilment.`,
+      ...(photoCount > 0
+        ? [
+            `${photoCount} reference photo${photoCount === 1 ? " was" : "s were"} selected during checkout and stored privately with the order for the personalised artwork stage.`,
+          ]
+        : []),
+      `If anything looks wrong, reply via the contact page with your order reference and we will help.`,
+    ],
+    details: [
+      { label: "Story", value: order.storyTitle },
+      { label: "Hero", value: `${order.heroName} the ${order.heroType}` },
+      { label: "Order", value: order.id },
+    ],
+    cta: { label: requiresArtworkPreparation ? "Open story preparation" : "Download your story", url: downloadUrl },
+    secondaryCta: upgradeUrl ? { label: "Add the hardback", url: upgradeUrl } : undefined,
+    footerNote: "You are receiving this because an order was placed with Little Legends Story.",
+  })
   let provider: EmailLogEntry["provider"] = "log"
 
   try {
-    provider = (await sendSmtpEmail({ to: order.email, subject, body })) ? "smtp" : "log"
+    provider = (await sendSmtpEmail({ to: order.email, subject, text: body, html })) ? "smtp" : "log"
   } catch (error) {
     console.warn("Order confirmation email could not be sent via SMTP; saved to email log only:", error)
     provider = "log"

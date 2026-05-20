@@ -33,7 +33,8 @@ const getPrompt = () =>
     "Remove any original hero hair that conflicts with the child's hairstyle from image 2, including spikes, tufts, or extra strands that would show through behind the new hair.",
     "Keep the original pose, body, costume, background, composition, lighting, framing, and storybook art style from image 1 unchanged.",
     "Preserve the child likeness from image 2: face shape, exact skin tone and complexion, undertone, eyes, nose, mouth, expression, hairline, hair colour, and visible hairstyle.",
-    "Match the visible neck and hands to the child's complexion from image 2 so the hero looks naturally like one child.",
+    "Match every visible area of the main hero child's skin to the child's complexion from image 2, including face, ears, neck, arms, elbows, hands, fingers, knees, legs, ankles, and feet where visible.",
+    "Do not leave the original lighter or darker base-art skin on the hero's body; the face and all visible body skin must look like one naturally consistent child under the scene lighting.",
     "Do not add text, speech bubbles, extra people, extra limbs, new props, or a new scene.",
   ].join(" ")
 
