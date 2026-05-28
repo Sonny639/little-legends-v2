@@ -75,6 +75,7 @@ const getPrompt = (pageTitle: string, storyId: string) =>
     "Preserve the child likeness from image 2: face shape, exact skin tone and complexion, undertone, eyes, nose, mouth, expression, hairline, hair colour, and visible hairstyle.",
     "Match every visible area of the main hero child's skin to the child's complexion from image 2, including face, ears, neck, arms, elbows, hands, fingers, knees, legs, ankles, and feet where visible.",
     "Do not leave the original lighter or darker base-art skin on the hero's body; the face and all visible body skin must look like one naturally consistent child under the scene lighting.",
+    "Keep the finished artwork bright, colourful, and print-safe, with lifted midtones and clear child-friendly detail even in night or shadow scenes.",
     storyId === "footballer"
       ? "Football kit continuity requirement: keep the hero and their teammates in the same red-and-blue kit colours used throughout the football story; do not recolour them green."
       : "",
