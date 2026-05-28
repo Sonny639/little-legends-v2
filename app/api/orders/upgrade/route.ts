@@ -4,10 +4,12 @@ import { checkoutProducts } from "@/lib/checkout"
 import { getOrderDownloadUrl } from "@/lib/email"
 import { hasValidOrderAccess } from "@/lib/order-access"
 import { readOrders, saveOrder, type OrderRecord } from "@/lib/orders"
+import { getShippingQuoteForAddress } from "@/lib/shipping"
 
 type UpgradeRequest = {
   orderId?: string
   accessToken?: string
+  phone?: string
   postage?: Partial<NonNullable<OrderRecord["postage"]>>
 }
 
@@ -22,6 +24,7 @@ export async function POST(request: Request) {
     const body = (await request.json()) as UpgradeRequest
     const sourceOrderId = typeof body.orderId === "string" ? cleanText(body.orderId, 80) : ""
     const accessToken = typeof body.accessToken === "string" ? body.accessToken : ""
+    const phone = typeof body.phone === "string" ? cleanText(body.phone, 40) : ""
     const postage = body.postage
 
     if (!sourceOrderId || !postage || !hasValidOrderAccess(sourceOrderId, accessToken)) {
@@ -34,10 +37,12 @@ export async function POST(request: Request) {
     const city = cleanText(postage.city || "")
     const postcode = cleanText(postage.postcode || "", 40)
     const country = cleanText(postage.country || "", 80)
+    const countryCode = cleanText(postage.countryCode || "", 4)
 
-    if (!fullName || !addressLine1 || !city || !postcode || !country) {
+    if (!fullName || !addressLine1 || !city || !postcode || !country || !phone) {
       return NextResponse.json({ error: "Invalid postage details" }, { status: 400 })
     }
+    const shippingQuote = getShippingQuoteForAddress(country, countryCode)
 
     const orders = await readOrders()
     const sourceOrder = orders.find((order) => order.id === sourceOrderId)
@@ -54,14 +59,19 @@ export async function POST(request: Request) {
       id: createUpgradeOrderId(),
       createdAt,
       product: "upgrade",
-      total: checkoutProducts.upgrade.price,
+      total: Number((checkoutProducts.upgrade.price + shippingQuote.amount).toFixed(2)),
+      phone,
       postage: {
         fullName,
         addressLine1,
         addressLine2,
         city,
         postcode,
-        country,
+        country: shippingQuote.countryName,
+        countryCode: shippingQuote.countryCode,
+        shippingLabel: shippingQuote.label,
+        shippingPrice: shippingQuote.amount,
+        shippingPricePence: shippingQuote.amountPence,
       },
       status: "payment_pending",
       fulfilmentStatus: "new",

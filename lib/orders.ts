@@ -36,6 +36,10 @@ export type OrderRecord = {
     city: string
     postcode: string
     country: string
+    countryCode?: string
+    shippingLabel?: string
+    shippingPrice?: number
+    shippingPricePence?: number
   }
   status: PaymentStatus
   fulfilmentStatus?: FulfilmentStatus

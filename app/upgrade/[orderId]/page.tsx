@@ -42,7 +42,7 @@ export default async function UpgradePage({ params, searchParams }: UpgradePageP
                 <Badge className="mt-5 bg-amber-300 px-3 py-1 text-sky-950">Digital buyer upgrade</Badge>
                 <h1 className="mt-3 text-2xl font-black uppercase leading-tight text-sky-950 sm:text-5xl">Add the hardback</h1>
                 <p className="mx-auto mt-3 max-w-xl text-sm font-bold leading-6 text-slate-700 sm:text-base sm:leading-7">
-                  Your digital purchase still counts. Add the printed keepsake for {money.format(checkoutProducts.upgrade.price)} so your total spend matches the full hardback bundle price.
+                  Your digital purchase still counts. Add the printed keepsake for {money.format(checkoutProducts.upgrade.price)}. UK delivery is free, with international delivery added by country.
                 </p>
               </div>
             </div>

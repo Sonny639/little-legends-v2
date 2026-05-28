@@ -21,6 +21,7 @@ export type EmailLogEntry = {
 
 const dataDirectory = path.join(process.cwd(), "data")
 const emailLogFile = path.join(dataDirectory, "email-log.json")
+const money = new Intl.NumberFormat("en-GB", { style: "currency", currency: "GBP" })
 
 type EmailLogRow = {
   id: string
@@ -201,6 +202,13 @@ export const sendOrderConfirmationEmail = async (order: OrderRecord) => {
   const upgradeUrl = order.product === "digital" ? getOrderUpgradeUrl(order.id) : ""
   const createdAt = new Date().toISOString()
   const photoCount = order.photoCount || 0
+  const deliveryLabel = order.postage?.shippingLabel
+  const deliveryPrice =
+    typeof order.postage?.shippingPrice === "number"
+      ? order.postage.shippingPrice > 0
+        ? money.format(order.postage.shippingPrice)
+        : "Free"
+      : ""
   const requiresArtworkPreparation = photoCount > 0
   const subject = requiresArtworkPreparation
     ? `Your Little Legends order is confirmed: ${order.storyTitle}`
@@ -225,6 +233,8 @@ export const sendOrderConfirmationEmail = async (order: OrderRecord) => {
     `Story: ${order.storyTitle}`,
     `Hero: ${order.heroName} the ${order.heroType}`,
     `Order reference: ${order.id}`,
+    `Order total: ${money.format(order.total)}`,
+    ...(deliveryLabel ? [`Delivery: ${deliveryLabel}${deliveryPrice ? ` (${deliveryPrice})` : ""}`] : []),
     `Download link: ${downloadUrl}`,
     ``,
     requiresArtworkPreparation
@@ -268,6 +278,8 @@ export const sendOrderConfirmationEmail = async (order: OrderRecord) => {
       { label: "Story", value: order.storyTitle },
       { label: "Hero", value: `${order.heroName} the ${order.heroType}` },
       { label: "Order", value: order.id },
+      { label: "Total", value: money.format(order.total) },
+      ...(deliveryLabel ? [{ label: "Delivery", value: `${deliveryLabel}${deliveryPrice ? ` (${deliveryPrice})` : ""}` }] : []),
     ],
     cta: { label: requiresArtworkPreparation ? "Open story preparation" : "Download your story", url: downloadUrl },
     secondaryCta: upgradeUrl ? { label: "Add the hardback", url: upgradeUrl } : undefined,

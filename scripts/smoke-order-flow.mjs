@@ -225,6 +225,7 @@ try {
       body: JSON.stringify({
         orderId,
         accessToken: orderAccessToken,
+        phone: "07000000000",
         postage: {
           fullName: "Smoke Upgrade",
           addressLine1: "2 Test Street",

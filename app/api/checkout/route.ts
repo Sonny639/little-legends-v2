@@ -72,6 +72,36 @@ export async function POST(request: Request) {
     const stripeSuccessUrl = `${appUrl}/checkout/success?orderId=${encodeURIComponent(savedOrder.id)}&session_id={CHECKOUT_SESSION_ID}`
     const demoSuccessUrl = `${appUrl}/checkout/success?orderId=${encodeURIComponent(savedOrder.id)}`
     const cancelUrl = `${appUrl}/checkout/cancel?orderId=${encodeURIComponent(savedOrder.id)}`
+    const expectedTotalPence = Math.round(savedOrder.total * 100)
+    const shippingAmountPence = savedOrder.product === "digital" ? 0 : Math.max(0, expectedTotalPence - product.unitAmountPence)
+    const lineItems = [
+      {
+        quantity: 1,
+        price_data: {
+          currency: product.currency,
+          unit_amount: product.unitAmountPence,
+          product_data: {
+            name: product.label,
+            description: product.summary,
+          },
+        },
+      },
+      ...(shippingAmountPence > 0
+        ? [
+            {
+              quantity: 1,
+              price_data: {
+                currency: product.currency,
+                unit_amount: shippingAmountPence,
+                product_data: {
+                  name: savedOrder.postage?.shippingLabel || "International delivery",
+                  description: `Delivery to ${savedOrder.postage?.country || "your address"}`,
+                },
+              },
+            },
+          ]
+        : []),
+    ]
 
     if (stripe) {
       const session = await stripe.checkout.sessions.create({
@@ -86,19 +116,7 @@ export async function POST(request: Request) {
           product: savedOrder.product,
           storyId: savedOrder.storyId,
         },
-        line_items: [
-          {
-            quantity: 1,
-            price_data: {
-              currency: product.currency,
-              unit_amount: product.unitAmountPence,
-              product_data: {
-                name: product.label,
-                description: product.summary,
-              },
-            },
-          },
-        ],
+        line_items: lineItems,
       })
 
       return NextResponse.json({
@@ -127,26 +145,24 @@ export async function POST(request: Request) {
         sessionId: `mock_checkout_${savedOrder.id}`,
         mode: "demo",
         orderId: savedOrder.id,
-        amountSubtotal: product.unitAmountPence,
-        amountTotal: product.unitAmountPence,
+        amountSubtotal: expectedTotalPence,
+        amountTotal: expectedTotalPence,
         currency: product.currency,
         url: demoSuccessUrl,
         successUrl: demoSuccessUrl,
         cancelUrl,
-        lineItems: [
-          {
-            quantity: 1,
-            priceData: {
-              currency: product.currency,
-              unitAmount: product.unitAmountPence,
-              productData: {
-                name: product.label,
-                description: product.summary,
-              },
-              lookupKey: product.stripeLookupKey,
+        lineItems: lineItems.map((lineItem) => ({
+          quantity: lineItem.quantity,
+          priceData: {
+            currency: lineItem.price_data.currency,
+            unitAmount: lineItem.price_data.unit_amount,
+            productData: {
+              name: lineItem.price_data.product_data.name,
+              description: lineItem.price_data.product_data.description,
             },
+            lookupKey: product.stripeLookupKey,
           },
-        ],
+        })),
       },
     })
   } catch (error) {

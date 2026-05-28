@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
+import { getShippingCountryByCode, getShippingQuote, shippingCountries } from "@/lib/shipping"
 
 type UpgradeCheckoutFormProps = {
   sourceOrderId: string
@@ -25,10 +26,19 @@ export function UpgradeCheckoutForm({ sourceOrderId, accessToken, upgradePriceLa
     city: "",
     postcode: "",
     country: "United Kingdom",
+    countryCode: "GB",
+    phone: "",
   })
+  const shippingQuote = getShippingQuote(form.countryCode)
+  const upgradeTotal = Number((Number(upgradePriceLabel.replace(/[^0-9.]/g, "")) + shippingQuote.amount).toFixed(2))
 
   const updateField = (field: keyof typeof form, value: string) => {
     setForm((current) => ({ ...current, [field]: value }))
+  }
+
+  const updateCountry = (countryCode: string) => {
+    const country = getShippingCountryByCode(countryCode)
+    setForm((current) => ({ ...current, country: country.name, countryCode: country.code }))
   }
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
@@ -47,6 +57,7 @@ export function UpgradeCheckoutForm({ sourceOrderId, accessToken, upgradePriceLa
         body: JSON.stringify({
           orderId: sourceOrderId,
           accessToken,
+          phone: form.phone,
           postage: form,
         }),
       })
@@ -83,8 +94,22 @@ export function UpgradeCheckoutForm({ sourceOrderId, accessToken, upgradePriceLa
         <div>
           <h2 className="text-2xl font-black text-sky-950">Delivery details</h2>
           <p className="mt-1 text-sm font-semibold leading-6 text-slate-700">
-            Add the address for the hardback keepsake, then continue to secure payment for {upgradePriceLabel}.
+            Add the address for the hardback keepsake. UK delivery is free; international delivery is added below.
           </p>
+          <div className="mt-3 rounded-2xl bg-sky-50 px-4 py-3 text-sm font-bold text-slate-700">
+            <div className="flex items-center justify-between gap-3">
+              <span>Hardback upgrade</span>
+              <span>{upgradePriceLabel}</span>
+            </div>
+            <div className="mt-1 flex items-center justify-between gap-3">
+              <span>{shippingQuote.label}</span>
+              <span>{shippingQuote.amountPence === 0 ? "Free" : `£${shippingQuote.amount.toFixed(2)}`}</span>
+            </div>
+            <div className="mt-2 flex items-center justify-between gap-3 border-t border-sky-100 pt-2 text-base font-black text-sky-950">
+              <span>Total today</span>
+              <span>£{upgradeTotal.toFixed(2)}</span>
+            </div>
+          </div>
         </div>
 
         <div className="grid gap-4 sm:grid-cols-2">
@@ -110,7 +135,23 @@ export function UpgradeCheckoutForm({ sourceOrderId, accessToken, upgradePriceLa
           </div>
           <div className="sm:col-span-2">
             <Label htmlFor="country">Country</Label>
-            <Input id="country" required value={form.country} onChange={(event) => updateField("country", event.target.value)} />
+            <select
+              id="country"
+              required
+              value={form.countryCode}
+              onChange={(event) => updateCountry(event.target.value)}
+              className="flex h-9 w-full min-w-0 rounded-md border border-input bg-transparent px-3 py-1 text-base shadow-xs outline-none transition-[color,box-shadow] focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50 disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50 md:text-sm"
+            >
+              {shippingCountries.map((country) => (
+                <option key={country.code} value={country.code}>
+                  {country.name}
+                </option>
+              ))}
+            </select>
+          </div>
+          <div className="sm:col-span-2">
+            <Label htmlFor="phone">Telephone number</Label>
+            <Input id="phone" type="tel" required value={form.phone} onChange={(event) => updateField("phone", event.target.value)} placeholder="Required for delivery" />
           </div>
         </div>
 

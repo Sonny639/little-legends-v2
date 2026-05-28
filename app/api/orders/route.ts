@@ -5,6 +5,7 @@ import { getOrderDownloadUrl, sendOrderConfirmationEmail } from "@/lib/email"
 import { getOrderAccessToken } from "@/lib/order-access"
 import { clearOrders, readOrders, saveOrder, updateOrderFulfilmentStatus, updateOrderPaymentStatus, type FulfilmentStatus, type OrderRecord, type PaymentStatus } from "@/lib/orders"
 import { checkRateLimit, getClientIp, rateLimitResponseHeaders } from "@/lib/rate-limit"
+import { getShippingQuoteForAddress } from "@/lib/shipping"
 
 const fulfilmentStatuses: FulfilmentStatus[] = ["new", "in_progress", "ready", "sent"]
 const paymentStatuses: PaymentStatus[] = ["payment_pending", "paid_demo", "paid"]
@@ -42,6 +43,10 @@ const isCheckoutProduct = (product: string): product is OrderRecord["product"] =
 const normalizeNewOrder = (order: OrderRecord): OrderRecord => {
   const product = checkoutProducts[order.product]
   const createdAt = new Date().toISOString()
+  const shippingQuote =
+    order.product === "digital"
+      ? null
+      : getShippingQuoteForAddress(order.postage?.country || "United Kingdom", order.postage?.countryCode)
   const choices = (order.choices || []).slice(0, maxChoices).map((choice) => ({
     pageId: cleanText(choice.pageId, 80),
     choiceId: cleanText(choice.choiceId, 80),
@@ -53,7 +58,7 @@ const normalizeNewOrder = (order: OrderRecord): OrderRecord => {
     ...order,
     id: cleanText(order.id, maxOrderIdLength),
     createdAt,
-    total: product.price,
+    total: Number((product.price + (shippingQuote?.amount || 0)).toFixed(2)),
     email: order.email.trim().toLowerCase().slice(0, maxEmailLength),
     phone: order.phone ? cleanText(order.phone, 40) : undefined,
     heroName: cleanText(order.heroName),
@@ -68,7 +73,11 @@ const normalizeNewOrder = (order: OrderRecord): OrderRecord => {
           addressLine2: cleanText(order.postage.addressLine2 || ""),
           city: cleanText(order.postage.city || ""),
           postcode: cleanText(order.postage.postcode || "", 40),
-          country: cleanText(order.postage.country || "", 80),
+          country: shippingQuote?.countryName || cleanText(order.postage.country || "", 80),
+          countryCode: shippingQuote?.countryCode,
+          shippingLabel: shippingQuote?.label,
+          shippingPrice: shippingQuote?.amount,
+          shippingPricePence: shippingQuote?.amountPence,
         }
       : undefined,
     status: "payment_pending",
@@ -114,7 +123,15 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "Invalid order" }, { status: 400 })
     }
 
-    if (normalisedOrder.postage && (!normalisedOrder.postage.fullName || !normalisedOrder.postage.addressLine1 || !normalisedOrder.postage.city || !normalisedOrder.postage.postcode)) {
+    if (normalisedOrder.product !== "digital" && !normalisedOrder.postage) {
+      return NextResponse.json({ error: "Postage details are required for printed books" }, { status: 400 })
+    }
+
+    if (!normalisedOrder.phone && normalisedOrder.product !== "digital") {
+      return NextResponse.json({ error: "Telephone number is required for printed book delivery" }, { status: 400 })
+    }
+
+    if (normalisedOrder.postage && (!normalisedOrder.postage.fullName || !normalisedOrder.postage.addressLine1 || !normalisedOrder.postage.city || !normalisedOrder.postage.postcode || !normalisedOrder.postage.country)) {
       return NextResponse.json({ error: "Invalid postage details" }, { status: 400 })
     }
 

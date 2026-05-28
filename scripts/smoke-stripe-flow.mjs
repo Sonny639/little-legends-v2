@@ -386,6 +386,7 @@ try {
       body: JSON.stringify({
         orderId: smokeId,
         accessToken: orderAccessToken,
+        phone: "07000000000",
         postage: {
         fullName: "Stripe Upgrade",
         addressLine1: "2 Test Street",

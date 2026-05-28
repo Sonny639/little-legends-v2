@@ -11,6 +11,7 @@ import { Badge } from "@/components/ui/badge"
 import { Upload, Sparkles, BookOpen, Star, Heart, Wand2, User, Search, Download, Mail, Truck, CreditCard, ShieldCheck, Clock, CheckCircle2, Camera, X, Trash2, Info } from 'lucide-react'
 import { checkoutProducts } from "@/lib/checkout"
 import { resolveFullStoryPages } from "@/lib/full-story"
+import { getShippingCountryByCode, getShippingQuote, shippingCountries } from "@/lib/shipping"
 import { getStoryArtworkFallback } from "@/lib/story-artwork-fallbacks"
 import { getStoryForCharacter, getStoryPathSummary, type StoryPathChoice } from "@/lib/stories"
 import { StoryArtPlaceholder } from "@/components/story-art-placeholder"
@@ -46,6 +47,10 @@ type OrderRecord = {
     city: string
     postcode: string
     country: string
+    countryCode?: string
+    shippingLabel?: string
+    shippingPrice?: number
+    shippingPricePence?: number
   }
   status: PaymentStatus
   fulfilmentStatus?: FulfilmentStatus
@@ -164,6 +169,7 @@ export default function Home() {
     city: "",
     postcode: "",
     country: "United Kingdom",
+    countryCode: "GB",
     phone: "",
   })
 
@@ -368,6 +374,8 @@ export default function Home() {
   const checkoutOptions = checkoutProducts
   const currentCheckout = checkoutOptions[checkoutProduct]
   const requiresPostage = checkoutProduct !== "digital"
+  const shippingQuote = requiresPostage ? getShippingQuote(checkoutForm.countryCode || "GB") : null
+  const checkoutTotal = Number((currentCheckout.price + (shippingQuote?.amount || 0)).toFixed(2))
   const initialCheckoutProducts: CheckoutProduct[] = ["digital", "hardback"]
   const visibleCheckoutProducts: CheckoutProduct[] = checkoutProduct === "upgrade" ? ["upgrade"] : initialCheckoutProducts
 
@@ -410,6 +418,15 @@ export default function Home() {
 
   const updateCheckoutField = (field: keyof typeof checkoutForm, value: string) => {
     setCheckoutForm((current) => ({ ...current, [field]: value }))
+  }
+
+  const updateCheckoutCountry = (countryCode: string) => {
+    const country = getShippingCountryByCode(countryCode)
+    setCheckoutForm((current) => ({
+      ...current,
+      country: country.name,
+      countryCode: country.code,
+    }))
   }
 
   // Add search functionality
@@ -695,6 +712,7 @@ export default function Home() {
           <a href="/contact" className="underline-offset-4 hover:underline">Contact</a>
           <a href="/privacy" className="underline-offset-4 hover:underline">Privacy</a>
           <a href="/terms" className="underline-offset-4 hover:underline">Terms</a>
+          <a href="/faq" className="underline-offset-4 hover:underline">Q&amp;A</a>
         </div>
       </div>
     </section>
@@ -2376,6 +2394,7 @@ export default function Home() {
                     </div>
                     <p className="mt-4 min-h-[3rem] text-sm font-semibold leading-6 text-slate-700">A posted keepsake for bedtime reading, with digital access included.</p>
                     <p className="mt-3 text-3xl font-black text-rose-600">{money.format(checkoutProducts.hardback.price)}</p>
+                    <p className="mb-3 mt-1 text-xs font-black uppercase tracking-wide text-emerald-700">Free UK delivery</p>
                     <Button
                       onClick={() => startCheckout("hardback")}
                       className="mt-auto h-10 w-full rounded-xl bg-rose-500 font-black text-white hover:bg-rose-600"
@@ -2706,7 +2725,12 @@ export default function Home() {
     const story = getStoryForCharacter(selectedCharacter, { heroName, heroType })
     const pathSummary = getStoryPathSummary(storyPath)
     const CurrentIcon = checkoutIcons[checkoutProduct]
-    const dispatchEstimate = checkoutProduct === "digital" ? "Available straight after payment" : "Printed and posted in 5-7 working days"
+    const dispatchEstimate =
+      checkoutProduct === "digital"
+        ? "Available straight after payment"
+        : shippingQuote?.amountPence
+          ? "Printed after payment; international delivery times vary"
+          : "Printed and posted in 5-7 working days"
 
     const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
       event.preventDefault()
@@ -2718,7 +2742,7 @@ export default function Home() {
         id: createOrderId(),
         createdAt,
         product: checkoutProduct,
-        total: currentCheckout.price,
+        total: checkoutTotal,
         email: checkoutForm.email,
         phone: checkoutForm.phone || undefined,
         heroName,
@@ -2736,6 +2760,10 @@ export default function Home() {
               city: checkoutForm.city,
               postcode: checkoutForm.postcode,
               country: checkoutForm.country,
+              countryCode: checkoutForm.countryCode,
+              shippingLabel: shippingQuote?.label,
+              shippingPrice: shippingQuote?.amount,
+              shippingPricePence: shippingQuote?.amountPence,
             }
           : undefined,
         status: "payment_pending",
@@ -2973,9 +3001,14 @@ export default function Home() {
                       <p>Email: {latestOrder.email}</p>
                       {latestOrder.phone && <p>Phone: {latestOrder.phone}</p>}
                       {latestOrder.postage && (
-                        <p>
-                          Postage: {latestOrder.postage.fullName}, {latestOrder.postage.addressLine1}, {latestOrder.postage.city}, {latestOrder.postage.postcode}
-                        </p>
+                        <>
+                          <p>
+                            Postage: {latestOrder.postage.fullName}, {latestOrder.postage.addressLine1}, {latestOrder.postage.city}, {latestOrder.postage.postcode}, {latestOrder.postage.country}
+                          </p>
+                          <p>
+                            Delivery: {latestOrder.postage.shippingLabel || "Delivery"} {latestOrder.postage.shippingPricePence ? `(${money.format(latestOrder.postage.shippingPrice || 0)})` : "(Free)"}
+                          </p>
+                        </>
                       )}
                     </div>
                   </details>
@@ -3010,7 +3043,7 @@ export default function Home() {
             </div>
             <div className="rounded-2xl border-4 border-sky-950 bg-sky-100 px-4 py-3 text-center shadow-[5px_5px_0_rgba(8,47,73,0.18)] sm:px-5">
               <p className="text-xs font-black uppercase tracking-widest text-sky-700">Total</p>
-              <p className="text-2xl font-black text-sky-950 sm:text-3xl">{money.format(currentCheckout.price)}</p>
+              <p className="text-2xl font-black text-sky-950 sm:text-3xl">{money.format(checkoutTotal)}</p>
             </div>
           </div>
         </div>
@@ -3042,6 +3075,9 @@ export default function Home() {
                     <h3 className="text-lg font-black text-sky-950">{option.label}</h3>
                     <p className="mt-1 text-sm font-semibold leading-5 text-slate-700">{option.summary}</p>
                     <p className="mt-3 text-2xl font-black text-rose-600">{money.format(option.price)}</p>
+                    {product !== "digital" && (
+                      <p className="mt-1 text-xs font-black uppercase tracking-wide text-emerald-700">Free UK delivery</p>
+                    )}
                   </button>
                 )
               })}
@@ -3074,7 +3110,7 @@ export default function Home() {
                     <div>
                       <h3 className="text-xl font-black text-sky-950">Delivery address</h3>
                       <p className="mt-1 text-xs font-bold leading-5 text-slate-600">
-                        For the printed keepsake copy.
+                        Free UK delivery. International delivery is added before secure checkout.
                       </p>
                     </div>
                   </div>
@@ -3101,7 +3137,20 @@ export default function Home() {
                     </div>
                     <div className="grid gap-2 sm:col-span-2">
                       <Label htmlFor="country" className="text-sm font-black text-sky-950">Country</Label>
-                      <Input id="country" autoComplete="country-name" required={requiresPostage} value={checkoutForm.country} onChange={(event) => updateCheckoutField("country", event.target.value)} className="h-12 rounded-xl border-2 border-sky-100 bg-white font-semibold" />
+                      <select
+                        id="country"
+                        autoComplete="country-name"
+                        required={requiresPostage}
+                        value={checkoutForm.countryCode}
+                        onChange={(event) => updateCheckoutCountry(event.target.value)}
+                        className="h-12 rounded-xl border-2 border-sky-100 bg-white px-3 font-semibold text-sky-950"
+                      >
+                        {shippingCountries.map((country) => (
+                          <option key={country.code} value={country.code}>
+                            {country.name}
+                          </option>
+                        ))}
+                      </select>
                     </div>
                     <div className="grid gap-2 sm:col-span-2">
                       <Label htmlFor="phone" className="text-sm font-black text-sky-950">Telephone number</Label>
@@ -3118,6 +3167,21 @@ export default function Home() {
                       />
                     </div>
                   </div>
+                  {shippingQuote && (
+                    <div className="rounded-2xl border-2 border-amber-100 bg-amber-50 px-4 py-3 text-sm font-bold leading-6 text-slate-700">
+                      <div className="flex items-center justify-between gap-3">
+                        <span>{shippingQuote.label}</span>
+                        <span className="font-black text-sky-950">
+                          {shippingQuote.amountPence === 0 ? "Free" : money.format(shippingQuote.amount)}
+                        </span>
+                      </div>
+                      {shippingQuote.amountPence > 0 && (
+                        <p className="mt-1 text-xs font-bold text-slate-600">
+                          International delivery times and customs charges can vary by country.
+                        </p>
+                      )}
+                    </div>
+                  )}
                 </div>
               )}
             </div>
@@ -3141,8 +3205,20 @@ export default function Home() {
               </div>
               <div className="mt-4 flex items-center justify-between border-t-2 border-sky-100 pt-4">
                 <span className="text-base font-black text-sky-950">Total today</span>
-                <span className="text-3xl font-black text-rose-600">{money.format(currentCheckout.price)}</span>
+                <span className="text-3xl font-black text-rose-600">{money.format(checkoutTotal)}</span>
               </div>
+              {shippingQuote && (
+                <div className="mt-3 space-y-2 rounded-2xl bg-white px-4 py-3 text-sm font-bold text-slate-700">
+                  <div className="flex items-center justify-between gap-3">
+                    <span>{currentCheckout.label}</span>
+                    <span>{money.format(currentCheckout.price)}</span>
+                  </div>
+                  <div className="flex items-center justify-between gap-3">
+                    <span>{shippingQuote.label}</span>
+                    <span>{shippingQuote.amountPence === 0 ? "Free" : money.format(shippingQuote.amount)}</span>
+                  </div>
+                </div>
+              )}
             </Card>
 
             <Card className="border-4 border-sky-950 bg-amber-50 p-4 shadow-[8px_8px_0_rgba(8,47,73,0.14)] sm:p-5">
@@ -3163,6 +3239,7 @@ export default function Home() {
                 <a href="/privacy" className="underline-offset-4 hover:underline">Privacy</a>
                 <a href="/terms" className="underline-offset-4 hover:underline">Terms</a>
                 <a href="/contact" className="underline-offset-4 hover:underline">Support</a>
+                <a href="/faq" className="underline-offset-4 hover:underline">Q&amp;A</a>
               </div>
               {checkoutError && (
                 <div className="mt-4 rounded-xl border-2 border-rose-200 bg-rose-50 px-3 py-2 text-sm font-black leading-6 text-rose-800" role="alert">
