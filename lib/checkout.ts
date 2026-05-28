@@ -14,8 +14,8 @@ export const checkoutProducts: Record<
 > = {
   digital: {
     label: "Digital Storybook",
-    price: 6.99,
-    unitAmountPence: 699,
+    price: 7.99,
+    unitAmountPence: 799,
     currency: "gbp",
     summary: "Instant personalised storybook download.",
     button: "Buy Digital",
@@ -23,8 +23,8 @@ export const checkoutProducts: Record<
   },
   hardback: {
     label: "Hardback Keepsake",
-    price: 29.99,
-    unitAmountPence: 2999,
+    price: 34.99,
+    unitAmountPence: 3499,
     currency: "gbp",
     summary: "Printed copy posted to you, with a digital copy included.",
     button: "Order Hardback",
@@ -32,8 +32,8 @@ export const checkoutProducts: Record<
   },
   upgrade: {
     label: "Hardback Upgrade",
-    price: 23,
-    unitAmountPence: 2300,
+    price: 27,
+    unitAmountPence: 2700,
     currency: "gbp",
     summary: "Add the hardback keepsake after buying the digital storybook.",
     button: "Upgrade to Hardback",

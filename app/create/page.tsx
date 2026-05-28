@@ -8,7 +8,7 @@ import { Card } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Badge } from "@/components/ui/badge"
-import { Upload, Sparkles, BookOpen, Star, Heart, Wand2, User, Search, Download, Mail, Truck, CreditCard, ShieldCheck, Clock, CheckCircle2, Camera, X, Trash2 } from 'lucide-react'
+import { Upload, Sparkles, BookOpen, Star, Heart, Wand2, User, Search, Download, Mail, Truck, CreditCard, ShieldCheck, Clock, CheckCircle2, Camera, X, Trash2, Info } from 'lucide-react'
 import { checkoutProducts } from "@/lib/checkout"
 import { resolveFullStoryPages } from "@/lib/full-story"
 import { getStoryArtworkFallback } from "@/lib/story-artwork-fallbacks"
@@ -131,6 +131,7 @@ export default function Home() {
   const [suggestedNames, setSuggestedNames] = useState<string[]>([])
   const [uploadedPhotos, setUploadedPhotos] = useState<UploadedPhoto[]>([])
   const [photoUploadMessage, setPhotoUploadMessage] = useState("")
+  const [photoTipsOpen, setPhotoTipsOpen] = useState(false)
   const [selectedCharacter, setSelectedCharacter] = useState<string | null>(null)
   const [storyPage, setStoryPage] = useState(1)
   const [storyPageId, setStoryPageId] = useState("start")
@@ -1112,17 +1113,56 @@ export default function Home() {
           className="hidden"
           id="image-upload"
         />
-        <button
-          type="button"
-          className="inline-flex min-h-13 cursor-pointer items-center justify-center rounded-full bg-gradient-to-r from-rose-500 to-amber-500 px-8 text-base font-black text-white shadow-[0_14px_32px_rgba(244,114,182,0.22)] transition hover:-translate-y-0.5 hover:from-rose-600 hover:to-amber-600 sm:min-h-14 sm:text-lg"
-          onClick={() => document.getElementById("image-upload")?.click()}
-        >
-          <Camera className="mr-2 h-5 w-5" />
-          Upload Photos
-        </button>
+        <div className="flex items-center justify-center gap-2 sm:gap-3">
+          <button
+            type="button"
+            className="inline-flex min-h-13 cursor-pointer items-center justify-center rounded-full bg-gradient-to-r from-rose-500 to-amber-500 px-8 text-base font-black text-white shadow-[0_14px_32px_rgba(244,114,182,0.22)] transition hover:-translate-y-0.5 hover:from-rose-600 hover:to-amber-600 sm:min-h-14 sm:text-lg"
+            onClick={() => document.getElementById("image-upload")?.click()}
+          >
+            <Camera className="mr-2 h-5 w-5" />
+            Upload Photos
+          </button>
+          <button
+            type="button"
+            onClick={() => setPhotoTipsOpen((isOpen) => !isOpen)}
+            className="grid h-11 w-11 shrink-0 place-items-center rounded-full border-2 border-amber-200 bg-white text-sky-800 shadow-[0_10px_24px_rgba(8,47,73,0.12)] transition hover:-translate-y-0.5 hover:border-amber-300 hover:bg-amber-50 sm:h-12 sm:w-12"
+            aria-label="Photo upload tips"
+            aria-expanded={photoTipsOpen}
+          >
+            <Info className="h-5 w-5" />
+          </button>
+        </div>
         <p className="text-sm font-semibold text-slate-600">
           {uploadedPhotos.length > 0 ? `${uploadedPhotos.length} of 3 photos selected for reference` : "Add the clearest face photo first."}
         </p>
+        {photoTipsOpen && (
+          <div className="mx-auto max-w-2xl rounded-3xl border-2 border-amber-100 bg-white/95 p-4 text-left shadow-[0_16px_40px_rgba(61,160,190,0.16)] sm:p-5">
+            <div className="flex items-start gap-3">
+              <div className="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-amber-100 text-amber-700">
+                <Camera className="h-5 w-5" />
+              </div>
+              <div>
+                <p className="text-base font-black text-sky-950">Best photo for magical results</p>
+                <p className="mt-1 text-sm font-semibold leading-6 text-slate-700">
+                  If you have a clear photo, crop it close to your child's face before uploading. The first photo is used as the main face and skin tone reference.
+                </p>
+              </div>
+            </div>
+            <div className="mt-4 grid gap-2 sm:grid-cols-2">
+              {[
+                "Use a front-facing photo with both eyes visible.",
+                "Choose bright natural light, not a dark room.",
+                "Upload one child only, with no heavy filters.",
+                "Avoid sunglasses, hats covering the face, or side profiles.",
+              ].map((tip) => (
+                <div key={tip} className="flex items-start gap-2 rounded-2xl bg-sky-50 px-3 py-2.5">
+                  <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-emerald-500" />
+                  <span className="text-sm font-bold leading-5 text-sky-900">{tip}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
         {uploadedPhotos.length === 0 && (
           <Button
             type="button"

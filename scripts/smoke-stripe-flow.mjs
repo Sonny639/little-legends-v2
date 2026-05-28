@@ -165,7 +165,7 @@ const order = {
   id: smokeId,
   createdAt: new Date().toISOString(),
   product: "digital",
-  total: 6.99,
+  total: 7.99,
   email: smokeEmail,
   heroName: "Stripe Smoke",
   heroType: "Wizard",
@@ -216,7 +216,7 @@ try {
       order: {
         ...order,
         product: "hardback",
-        total: 29.99,
+        total: 34.99,
         email: "tampered@example.com",
         storyId: "tampered-story",
       },
@@ -226,7 +226,7 @@ try {
   const tamperedSession = await stripe.checkout.sessions.retrieve(tamperedCheckoutData.sessionId)
 
   if (
-    tamperedSession.amount_total !== 699 ||
+    tamperedSession.amount_total !== 799 ||
     tamperedSession.customer_email !== smokeEmail ||
     tamperedSession.metadata?.product !== "digital" ||
     tamperedSession.metadata?.storyId !== "wizard"
@@ -261,7 +261,7 @@ try {
     throw new Error("Stripe session metadata/client reference did not preserve the order id.")
   }
 
-  if (stripeSession.amount_total !== 699 || stripeSession.currency !== "gbp") {
+  if (stripeSession.amount_total !== 799 || stripeSession.currency !== "gbp") {
     throw new Error(`Stripe amount/currency mismatch: ${stripeSession.amount_total} ${stripeSession.currency}`)
   }
 
@@ -343,7 +343,7 @@ try {
           storyId: "wizard",
         },
         payment_status: "paid",
-        amount_total: 699,
+        amount_total: 799,
         currency: "gbp",
       },
     },
@@ -398,7 +398,7 @@ try {
   })
   upgradeSmokeId = upgrade.data.order?.id || ""
 
-  if (upgrade.data.order?.product !== "upgrade" || upgrade.data.order?.total !== 23) {
+  if (upgrade.data.order?.product !== "upgrade" || upgrade.data.order?.total !== 27) {
     throw new Error(`Hardback upgrade order was not created correctly: ${JSON.stringify(upgrade.data.order)}`)
   }
   console.log("OK paid digital order can create hardback upgrade")
@@ -409,7 +409,7 @@ try {
   })
   const upgradeSession = await stripe.checkout.sessions.retrieve(upgradeCheckout.data.checkout.sessionId)
 
-  if (upgradeSession.amount_total !== 2300 || upgradeSession.metadata?.product !== "upgrade") {
+  if (upgradeSession.amount_total !== 2700 || upgradeSession.metadata?.product !== "upgrade") {
     throw new Error(`Hardback upgrade checkout mismatch: ${upgradeSession.amount_total} ${upgradeSession.metadata?.product}`)
   }
   console.log("OK hardback upgrade checkout uses the price difference")

@@ -1,6 +1,7 @@
 from pathlib import Path
 
-from PIL import Image, ImageColor, ImageDraw, ImageFilter, ImageFont
+from PIL import Image, ImageColor, ImageDraw, ImageEnhance, ImageFilter, ImageFont
+from reportlab.graphics.barcode.qr import QrCodeWidget
 from reportlab.lib.utils import ImageReader
 from reportlab.pdfgen import canvas
 
@@ -15,6 +16,7 @@ LOGO_SOURCE = ROOT / "public" / "inspiration" / "magic-reference.png"
 
 PREVIEW_PATH = OUTPUT_DIR / "lulu-hardback-cover-draft.png"
 PDF_PATH = OUTPUT_DIR / "lulu-hardback-cover-draft.pdf"
+WEBSITE_URL = "https://www.littlelegendsstory.com"
 
 # Lulu template values from yvrddev-cover-template.pdf
 DPI = 300
@@ -69,6 +71,14 @@ def cover_crop(image: Image.Image, target_w: int, target_h: int, focus_x: float,
     return image.crop((left, top, left + crop_w, top + crop_h)).resize((target_w, target_h), Image.LANCZOS)
 
 
+def print_boost(image: Image.Image):
+    boosted = ImageEnhance.Brightness(image).enhance(1.24)
+    boosted = ImageEnhance.Color(boosted).enhance(1.28)
+    boosted = ImageEnhance.Contrast(boosted).enhance(1.12)
+    boosted = ImageEnhance.Sharpness(boosted).enhance(1.08)
+    return boosted
+
+
 def add_vertical_gradient(base: Image.Image, box: tuple[int, int, int, int], top_alpha: int, bottom_alpha: int):
     x0, y0, x1, y1 = box
     overlay = Image.new("RGBA", (x1 - x0, y1 - y0), (8, 11, 36, 0))
@@ -118,6 +128,49 @@ def logo_heart():
     return crop
 
 
+def qr_code_image(value: str, size: int):
+    qr = QrCodeWidget(value)
+    qr.qr.make()
+    module_count = qr.qr.getModuleCount()
+    quiet_modules = 4
+    total_modules = module_count + (quiet_modules * 2)
+    module_size = max(1, size // total_modules)
+    image_size = module_size * total_modules
+    qr_img = Image.new("RGB", (image_size, image_size), "white")
+    draw = ImageDraw.Draw(qr_img)
+
+    for row in range(module_count):
+        for col in range(module_count):
+            if qr.qr.isDark(row, col):
+                x0 = (col + quiet_modules) * module_size
+                y0 = (row + quiet_modules) * module_size
+                draw.rectangle((x0, y0, x0 + module_size - 1, y0 + module_size - 1), fill="black")
+
+    return qr_img.resize((size, size), Image.Resampling.NEAREST).convert("RGBA")
+
+
+def qr_card(size: tuple[int, int]):
+    width, height = size
+    card = Image.new("RGBA", size, (0, 0, 0, 0))
+    draw = ImageDraw.Draw(card)
+    draw.rounded_rectangle((0, 0, width - 1, height - 1), radius=34, fill=(255, 255, 255, 252))
+    draw.rounded_rectangle((8, 8, width - 9, height - 9), radius=28, outline=(255, 223, 130, 255), width=6)
+
+    qr_size = 310
+    qr = qr_code_image(WEBSITE_URL, qr_size)
+    card.alpha_composite(qr, ((width - qr_size) // 2, 42))
+
+    title = "Scan to create yours"
+    small = "littlelegendsstory.com"
+    title_font = font(34, bold=True)
+    small_font = font(24)
+    title_bbox = draw.textbbox((0, 0), title, font=title_font)
+    small_bbox = draw.textbbox((0, 0), small, font=small_font)
+    draw.text(((width - (title_bbox[2] - title_bbox[0])) / 2, 370), title, font=title_font, fill="#2b1748")
+    draw.text(((width - (small_bbox[2] - small_bbox[0])) / 2, 416), small, font=small_font, fill="#5a4774")
+    return card
+
+
 def draw_centered(draw: ImageDraw.ImageDraw, box: tuple[int, int, int, int], text: str, font_obj, fill, spacing=12):
     x0, y0, x1, _ = box
     lines = text.split("\n")
@@ -134,23 +187,25 @@ def draw_centered(draw: ImageDraw.ImageDraw, box: tuple[int, int, int, int], tex
 
 def build_preview():
     canvas_img = Image.new("RGBA", (TOTAL_W, TOTAL_H), "#0a0d27")
-    front = cover_crop(Image.open(FRONT_SOURCE).convert("RGB"), PANEL_W, PANEL_BOTTOM - PANEL_TOP, 0.56, 0.5)
-    back = cover_crop(Image.open(BACK_SOURCE).convert("RGB"), PANEL_W, PANEL_BOTTOM - PANEL_TOP, 0.5, 0.5)
+    front_source = print_boost(Image.open(FRONT_SOURCE).convert("RGB"))
+    back_source = print_boost(Image.open(BACK_SOURCE).convert("RGB"))
+    front = cover_crop(front_source, PANEL_W, PANEL_BOTTOM - PANEL_TOP, 0.56, 0.5)
+    back = cover_crop(back_source, PANEL_W, PANEL_BOTTOM - PANEL_TOP, 0.5, 0.5)
 
     canvas_img.paste(back, (BACK_LEFT, PANEL_TOP))
     canvas_img.paste(front, (FRONT_LEFT, PANEL_TOP))
 
     draw = ImageDraw.Draw(canvas_img)
-    add_vertical_gradient(canvas_img, (BACK_LEFT, PANEL_TOP, BACK_RIGHT, PANEL_BOTTOM), 36, 170)
-    add_vertical_gradient(canvas_img, (FRONT_LEFT, PANEL_TOP, FRONT_RIGHT, PANEL_BOTTOM), 18, 188)
+    add_vertical_gradient(canvas_img, (BACK_LEFT, PANEL_TOP, BACK_RIGHT, PANEL_BOTTOM), 0, 68)
+    add_vertical_gradient(canvas_img, (FRONT_LEFT, PANEL_TOP, FRONT_RIGHT, PANEL_BOTTOM), 0, 76)
 
     # Keep the wrap area visually continuous so the art folds cleanly around the boards.
-    left_wrap = cover_crop(Image.open(BACK_SOURCE).convert("RGB"), WRAP, PANEL_BOTTOM - PANEL_TOP, 0.02, 0.5)
-    right_wrap = cover_crop(Image.open(FRONT_SOURCE).convert("RGB"), WRAP, PANEL_BOTTOM - PANEL_TOP, 0.98, 0.5)
+    left_wrap = cover_crop(back_source, WRAP, PANEL_BOTTOM - PANEL_TOP, 0.02, 0.5)
+    right_wrap = cover_crop(front_source, WRAP, PANEL_BOTTOM - PANEL_TOP, 0.98, 0.5)
     canvas_img.paste(left_wrap, (0, PANEL_TOP))
     canvas_img.paste(right_wrap, (FRONT_RIGHT, PANEL_TOP))
-    add_vertical_gradient(canvas_img, (0, PANEL_TOP, WRAP, PANEL_BOTTOM), 40, 180)
-    add_vertical_gradient(canvas_img, (FRONT_RIGHT, PANEL_TOP, TOTAL_W, PANEL_BOTTOM), 20, 205)
+    add_vertical_gradient(canvas_img, (0, PANEL_TOP, WRAP, PANEL_BOTTOM), 0, 82)
+    add_vertical_gradient(canvas_img, (FRONT_RIGHT, PANEL_TOP, TOTAL_W, PANEL_BOTTOM), 0, 92)
 
     # Top/bottom wrap bands.
     draw.rectangle((0, 0, TOTAL_W, PANEL_TOP), fill="#0a0d27")
@@ -202,9 +257,11 @@ def build_preview():
 
     # Back panel: no heavy card, just readable copy over the open sky.
     copy_top = PANEL_TOP + 180
+    copy_left = BACK_LEFT + 240
+    copy_right = BACK_RIGHT - 820
     draw_centered(
         draw,
-        (BACK_LEFT + 220, copy_top, BACK_RIGHT - 220, copy_top),
+        (copy_left, copy_top, copy_right, copy_top),
         "A story made just for them",
         font(76, bold=True),
         "#fff8ea",
@@ -225,7 +282,7 @@ def build_preview():
             continue
         draw_centered(
             draw,
-            (BACK_LEFT + 260, y, BACK_RIGHT - 260, y),
+            (copy_left + 40, y, copy_right - 40, y),
             line,
             body_font,
             "#fff8ea",
@@ -260,6 +317,9 @@ def build_preview():
             fill="#30184f",
         )
         feature_x += feature_w + feature_gap
+
+    qr = qr_card((440, 480))
+    canvas_img.alpha_composite(qr, (BACK_RIGHT - 610, PANEL_TOP + 130))
 
     draw_centered(
         draw,

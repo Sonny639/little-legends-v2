@@ -165,7 +165,7 @@ const order = {
   id: orderId,
   createdAt: new Date().toISOString(),
   product: "digital",
-  total: 6.99,
+  total: 7.99,
   email: smokeEmail,
   heroName: "Smoke Star",
   heroType: "Wizard",
@@ -237,7 +237,7 @@ try {
     })
     upgradeOrderId = upgrade.order?.id || ""
 
-    if (upgrade.order?.product !== "upgrade" || upgrade.order?.total !== 23) {
+    if (upgrade.order?.product !== "upgrade" || upgrade.order?.total !== 27) {
       throw new Error(`Upgrade order was not created correctly: ${JSON.stringify(upgrade.order)}`)
     }
     console.log("OK paid digital order can create hardback upgrade")
@@ -247,7 +247,7 @@ try {
       body: JSON.stringify({ order: upgrade.order }),
     })
 
-    if (upgradeCheckout.checkout?.amountTotal !== 2300) {
+    if (upgradeCheckout.checkout?.amountTotal !== 2700) {
       throw new Error(`Upgrade checkout amount was wrong: ${JSON.stringify(upgradeCheckout.checkout)}`)
     }
     console.log("OK hardback upgrade checkout uses the price difference")

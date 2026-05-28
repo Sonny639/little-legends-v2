@@ -220,7 +220,7 @@ const order = {
   id: smokeId,
   createdAt: new Date().toISOString(),
   product: "hardback",
-  total: 29.99,
+  total: 34.99,
   email: smokeEmail,
   phone: "07000000000",
   heroName: "Admin Smoke",
