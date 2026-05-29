@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react"
 import Link from "next/link"
-import { ArrowUpDown, BookOpen, Camera, Download, Mail, PackageCheck, RefreshCw, Search, Trash2, Truck } from "lucide-react"
+import { AlertTriangle, ArrowUpDown, BookOpen, Camera, CheckCircle2, CircleDollarSign, ClipboardCheck, Download, Mail, PackageCheck, Printer, RefreshCw, Search, Trash2, Truck } from "lucide-react"
 
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
@@ -14,6 +14,7 @@ type CheckoutProduct = "digital" | "hardback" | "upgrade"
 type FulfilmentStatus = "new" | "in_progress" | "ready" | "sent"
 type PaymentStatus = "payment_pending" | "paid_demo" | "paid"
 type OrderSort = "newest" | "oldest" | "total_desc" | "total_asc" | "hero" | "email"
+type OrderViewFilter = "all" | "needs_action" | "paid" | "unpaid" | "print" | "email_issue" | "sent"
 
 type StoryPathChoice = {
   pageId: string
@@ -93,6 +94,21 @@ const paymentLabel = (status: PaymentStatus) => {
   return "Payment pending"
 }
 
+const paymentBadgeClass = (status: PaymentStatus) => {
+  if (status === "paid") return "bg-emerald-600 text-white"
+  if (status === "paid_demo") return "bg-teal-100 text-teal-800"
+  return "bg-rose-600 text-white"
+}
+
+const isPaidOrder = (order: Pick<OrderRecord, "status">) => order.status === "paid" || order.status === "paid_demo"
+const isPrintOrder = (order: Pick<OrderRecord, "product">) => order.product !== "digital"
+const isSentOrder = (order: Pick<OrderRecord, "fulfilmentStatus">) => (order.fulfilmentStatus || "new") === "sent"
+const needsPrintAction = (order: Pick<OrderRecord, "product" | "status" | "fulfilmentStatus">) =>
+  isPaidOrder(order) && isPrintOrder(order) && !isSentOrder(order)
+const needsEmailAction = (order: Pick<OrderRecord, "status" | "emailSentAt">) => isPaidOrder(order) && !order.emailSentAt
+const orderNeedsAction = (order: Pick<OrderRecord, "product" | "status" | "fulfilmentStatus" | "emailSentAt">) =>
+  !isPaidOrder(order) || needsPrintAction(order) || needsEmailAction(order)
+
 const formatDate = (value: string) =>
   new Intl.DateTimeFormat("en-GB", {
     dateStyle: "medium",
@@ -108,6 +124,7 @@ const csvEscape = (value: string | number | null | undefined) => `"${String(valu
 export default function AdminOrdersPage() {
   const [orders, setOrders] = useState<OrderRecord[]>([])
   const [query, setQuery] = useState("")
+  const [viewFilter, setViewFilter] = useState<OrderViewFilter>("all")
   const [statusFilter, setStatusFilter] = useState<FulfilmentStatus | "all">("all")
   const [sortBy, setSortBy] = useState<OrderSort>("newest")
   const [isLoading, setIsLoading] = useState(true)
@@ -148,16 +165,26 @@ export default function AdminOrdersPage() {
 
     if (orderQuery) {
       setQuery(orderQuery)
+      setViewFilter("all")
       setStatusFilter("all")
     }
   }, [])
 
   const filteredOrders = useMemo(() => {
     const normalisedQuery = query.trim().toLowerCase()
+    const viewMatchedOrders = orders.filter((order) => {
+      if (viewFilter === "needs_action") return orderNeedsAction(order)
+      if (viewFilter === "paid") return isPaidOrder(order)
+      if (viewFilter === "unpaid") return !isPaidOrder(order)
+      if (viewFilter === "print") return needsPrintAction(order)
+      if (viewFilter === "email_issue") return needsEmailAction(order)
+      if (viewFilter === "sent") return isSentOrder(order)
+      return true
+    })
     const statusMatchedOrders =
       statusFilter === "all"
-        ? orders
-        : orders.filter((order) => (order.fulfilmentStatus || "new") === statusFilter)
+        ? viewMatchedOrders
+        : viewMatchedOrders.filter((order) => (order.fulfilmentStatus || "new") === statusFilter)
 
     const matchedOrders = normalisedQuery
       ? statusMatchedOrders.filter((order) =>
@@ -184,13 +211,21 @@ export default function AdminOrdersPage() {
       if (sortBy === "email") return first.email.localeCompare(second.email)
       return new Date(second.createdAt).getTime() - new Date(first.createdAt).getTime()
     })
-  }, [orders, query, sortBy, statusFilter])
+  }, [orders, query, sortBy, statusFilter, viewFilter])
 
-  const totals = useMemo(
-    () => ({
-      revenue: orders.reduce((sum, order) => sum + order.total, 0),
-      printOrders: orders.filter((order) => order.product !== "digital").length,
+  const totals = useMemo(() => {
+    const paidOrders = orders.filter(isPaidOrder)
+
+    return {
+      paidRevenue: paidOrders.reduce((sum, order) => sum + order.total, 0),
+      paidOrders: paidOrders.length,
+      unpaidOrders: orders.filter((order) => !isPaidOrder(order)).length,
+      printOrders: orders.filter(isPrintOrder).length,
       digitalOrders: orders.filter((order) => order.product === "digital").length,
+      needsAction: orders.filter(orderNeedsAction).length,
+      needsPrint: orders.filter(needsPrintAction).length,
+      emailIssues: orders.filter(needsEmailAction).length,
+      sentOrders: orders.filter(isSentOrder).length,
       fulfilment: fulfilmentOptions.reduce(
         (counts, option) => ({
           ...counts,
@@ -198,9 +233,8 @@ export default function AdminOrdersPage() {
         }),
         {} as Record<FulfilmentStatus, number>,
       ),
-    }),
-    [orders],
-  )
+    }
+  }, [orders])
 
   const exportCsv = () => {
     const headers = [
@@ -263,7 +297,10 @@ export default function AdminOrdersPage() {
     const url = URL.createObjectURL(new Blob([csv], { type: "text/csv;charset=utf-8" }))
     const link = document.createElement("a")
     link.href = url
-    const suffix = statusFilter === "all" ? "all" : statusFilter.replace("_", "-")
+    const suffix = [viewFilter, statusFilter]
+      .filter((filter) => filter !== "all")
+      .map((filter) => filter.replace("_", "-"))
+      .join("-") || "all"
     link.download = `little-legends-orders-${suffix}-${new Date().toISOString().slice(0, 10)}.csv`
     link.click()
     URL.revokeObjectURL(url)
@@ -475,6 +512,65 @@ export default function AdminOrdersPage() {
           </Card>
         )}
 
+        <div className="grid gap-4 lg:grid-cols-4">
+          <button
+            type="button"
+            onClick={() => {
+              setViewFilter("needs_action")
+              setStatusFilter("all")
+            }}
+            className={`rounded-xl border-4 p-5 text-left shadow-[6px_6px_0_rgba(8,47,73,0.12)] transition hover:-translate-y-0.5 ${
+              viewFilter === "needs_action" ? "border-rose-700 bg-rose-100" : "border-sky-950 bg-white"
+            }`}
+          >
+            <AlertTriangle className="h-6 w-6 text-rose-700" />
+            <p className="mt-2 text-sm font-black uppercase text-rose-700">Needs action</p>
+            <p className="text-4xl font-black text-sky-950">{totals.needsAction}</p>
+          </button>
+          <button
+            type="button"
+            onClick={() => {
+              setViewFilter("unpaid")
+              setStatusFilter("all")
+            }}
+            className={`rounded-xl border-4 p-5 text-left shadow-[6px_6px_0_rgba(8,47,73,0.12)] transition hover:-translate-y-0.5 ${
+              viewFilter === "unpaid" ? "border-rose-700 bg-rose-100" : "border-sky-950 bg-white"
+            }`}
+          >
+            <CircleDollarSign className="h-6 w-6 text-rose-700" />
+            <p className="mt-2 text-sm font-black uppercase text-rose-700">Unpaid</p>
+            <p className="text-4xl font-black text-sky-950">{totals.unpaidOrders}</p>
+          </button>
+          <button
+            type="button"
+            onClick={() => {
+              setViewFilter("print")
+              setStatusFilter("all")
+            }}
+            className={`rounded-xl border-4 p-5 text-left shadow-[6px_6px_0_rgba(8,47,73,0.12)] transition hover:-translate-y-0.5 ${
+              viewFilter === "print" ? "border-purple-700 bg-purple-100" : "border-sky-950 bg-white"
+            }`}
+          >
+            <Printer className="h-6 w-6 text-purple-700" />
+            <p className="mt-2 text-sm font-black uppercase text-purple-700">Lulu needed</p>
+            <p className="text-4xl font-black text-sky-950">{totals.needsPrint}</p>
+          </button>
+          <button
+            type="button"
+            onClick={() => {
+              setViewFilter("email_issue")
+              setStatusFilter("all")
+            }}
+            className={`rounded-xl border-4 p-5 text-left shadow-[6px_6px_0_rgba(8,47,73,0.12)] transition hover:-translate-y-0.5 ${
+              viewFilter === "email_issue" ? "border-amber-600 bg-amber-100" : "border-sky-950 bg-white"
+            }`}
+          >
+            <Mail className="h-6 w-6 text-amber-700" />
+            <p className="mt-2 text-sm font-black uppercase text-amber-700">Email check</p>
+            <p className="text-4xl font-black text-sky-950">{totals.emailIssues}</p>
+          </button>
+        </div>
+
         <div className="grid gap-4 md:grid-cols-3">
           <Card className="border-4 border-sky-950 bg-sky-50 p-5 shadow-[6px_6px_0_rgba(8,47,73,0.12)]">
             <PackageCheck className="h-6 w-6 text-sky-700" />
@@ -483,42 +579,77 @@ export default function AdminOrdersPage() {
           </Card>
           <Card className="border-4 border-sky-950 bg-amber-50 p-5 shadow-[6px_6px_0_rgba(8,47,73,0.12)]">
             <BookOpen className="h-6 w-6 text-amber-700" />
-            <p className="text-sm font-black uppercase text-amber-700">Revenue</p>
-            <p className="text-4xl font-black text-sky-950">{money.format(totals.revenue)}</p>
+            <p className="text-sm font-black uppercase text-amber-700">Paid revenue</p>
+            <p className="text-4xl font-black text-sky-950">{money.format(totals.paidRevenue)}</p>
           </Card>
           <Card className="border-4 border-sky-950 bg-emerald-50 p-5 shadow-[6px_6px_0_rgba(8,47,73,0.12)]">
             <Truck className="h-6 w-6 text-emerald-700" />
             <p className="text-sm font-black uppercase text-emerald-700">Fulfilment</p>
-            <p className="text-lg font-black text-sky-950">{totals.printOrders} print / {totals.digitalOrders} digital</p>
+            <p className="text-lg font-black text-sky-950">{totals.paidOrders} paid / {totals.sentOrders} sent</p>
+            <p className="mt-1 text-xs font-bold text-slate-600">{totals.printOrders} print / {totals.digitalOrders} digital</p>
           </Card>
         </div>
 
         <Card className="border-4 border-sky-950 bg-white p-5 shadow-[8px_8px_0_rgba(8,47,73,0.14)]">
-          <div className="grid gap-4 xl:grid-cols-[1fr_auto_auto] xl:items-center">
-            <div className="relative">
-              <Search className="absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
-              <Input
-                value={query}
-                onChange={(event) => setQuery(event.target.value)}
-                placeholder="Search by order, email, hero, product, or postcode..."
-                className="h-12 rounded-xl border-2 border-sky-100 bg-white pl-11 font-semibold"
-              />
+          <div className="space-y-4">
+            <div className="grid gap-4 xl:grid-cols-[1fr_auto] xl:items-center">
+              <div className="relative">
+                <Search className="absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
+                <Input
+                  value={query}
+                  onChange={(event) => setQuery(event.target.value)}
+                  placeholder="Search by order, email, hero, product, or postcode..."
+                  className="h-12 rounded-xl border-2 border-sky-100 bg-white pl-11 font-semibold"
+                />
+              </div>
+              <label className="relative block">
+                <ArrowUpDown className="absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
+                <select
+                  value={sortBy}
+                  onChange={(event) => setSortBy(event.target.value as OrderSort)}
+                  className="h-12 w-full rounded-xl border-2 border-sky-100 bg-white pl-11 pr-8 text-sm font-black text-sky-900 outline-none xl:w-48"
+                  aria-label="Sort orders"
+                >
+                  {orderSortOptions.map((option) => (
+                    <option key={option.value} value={option.value}>
+                      {option.label}
+                    </option>
+                  ))}
+                </select>
+              </label>
             </div>
-            <label className="relative block">
-              <ArrowUpDown className="absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
-              <select
-                value={sortBy}
-                onChange={(event) => setSortBy(event.target.value as OrderSort)}
-                className="h-12 w-full rounded-xl border-2 border-sky-100 bg-white pl-11 pr-8 text-sm font-black text-sky-900 outline-none xl:w-48"
-                aria-label="Sort orders"
-              >
-                {orderSortOptions.map((option) => (
-                  <option key={option.value} value={option.value}>
+            <div className="flex flex-wrap gap-2">
+              {[
+                { value: "all", label: `All ${orders.length}` },
+                { value: "needs_action", label: `Needs action ${totals.needsAction}` },
+                { value: "paid", label: `Paid ${totals.paidOrders}` },
+                { value: "unpaid", label: `Unpaid ${totals.unpaidOrders}` },
+                { value: "print", label: `Lulu ${totals.needsPrint}` },
+                { value: "email_issue", label: `Email check ${totals.emailIssues}` },
+                { value: "sent", label: `Sent ${totals.sentOrders}` },
+              ].map((option) => {
+                const isSelected = viewFilter === option.value
+
+                return (
+                  <Button
+                    key={`view-${option.value}`}
+                    type="button"
+                    onClick={() => {
+                      setViewFilter(option.value as OrderViewFilter)
+                      setStatusFilter("all")
+                    }}
+                    variant={isSelected ? "default" : "outline"}
+                    className={`h-10 rounded-xl px-4 text-xs font-black ${
+                      isSelected
+                        ? "bg-sky-500 text-white hover:bg-sky-600"
+                        : "border-sky-100 bg-white text-sky-700 hover:bg-sky-50"
+                    }`}
+                  >
                     {option.label}
-                  </option>
-                ))}
-              </select>
-            </label>
+                  </Button>
+                )
+              })}
+            </div>
             <div className="flex flex-wrap gap-2">
               <Button
                 type="button"
@@ -568,12 +699,36 @@ export default function AdminOrdersPage() {
           </Card>
         ) : (
           <div className="grid gap-5">
-            {filteredOrders.map((order) => (
-              <Card key={order.id} className="border-4 border-sky-950 bg-[#fffdf5] p-5 shadow-[8px_8px_0_rgba(8,47,73,0.14)]">
+            {filteredOrders.map((order) => {
+              const paidForOrder = isPaidOrder(order)
+
+              return (
+                <Card
+                  key={order.id}
+                  className={`border-4 p-5 shadow-[8px_8px_0_rgba(8,47,73,0.14)] ${
+                    paidForOrder
+                      ? "border-emerald-700 bg-[#f7fff9]"
+                      : "border-rose-700 bg-rose-50 shadow-[8px_8px_0_rgba(190,18,60,0.16)]"
+                  }`}
+                >
                 <div className="grid gap-5 lg:grid-cols-[1fr_0.8fr]">
                   <div className="space-y-4">
+                    <div
+                      className={`flex items-center gap-3 rounded-xl border-2 px-4 py-3 text-sm font-black ${
+                        paidForOrder
+                          ? "border-emerald-200 bg-emerald-100 text-emerald-900"
+                          : "border-rose-300 bg-white text-rose-800"
+                      }`}
+                    >
+                      {paidForOrder ? <CheckCircle2 className="h-5 w-5 shrink-0" /> : <AlertTriangle className="h-5 w-5 shrink-0" />}
+                      <span>
+                        {paidForOrder
+                          ? "PAID ORDER - safe to prepare or fulfil."
+                          : "UNPAID ORDER - do not print, send, or fulfil until Stripe payment is confirmed."}
+                      </span>
+                    </div>
                     <div className="flex flex-wrap items-center gap-2">
-                      <Badge className="bg-emerald-100 px-3 py-1 text-emerald-800">{paymentLabel(order.status)}</Badge>
+                      <Badge className={`${paymentBadgeClass(order.status)} px-3 py-1`}>{paymentLabel(order.status)}</Badge>
                       <Badge className={`${fulfilmentLabel(order.fulfilmentStatus).className} px-3 py-1`}>
                         {fulfilmentLabel(order.fulfilmentStatus).label}
                       </Badge>
@@ -583,9 +738,11 @@ export default function AdminOrdersPage() {
                         {order.emailSentAt ? "Email sent" : "Email not sent"}
                       </Badge>
                       {order.product !== "digital" && (
-                        <Badge className="bg-purple-100 px-3 py-1 text-purple-800">Print required</Badge>
+                        <Badge className="bg-purple-100 px-3 py-1 text-purple-800">
+                          {needsPrintAction(order) ? "Lulu required" : "Print order"}
+                        </Badge>
                       )}
-                      {(order.status === "paid" || order.status === "paid_demo") && (
+                      {paidForOrder && (
                         <Link href={`/download/${order.id}`} className="rounded-full bg-white px-3 py-1 text-xs font-black text-sky-700 underline">
                           Download
                         </Link>
@@ -633,7 +790,7 @@ export default function AdminOrdersPage() {
                             Email logged: {formatDate(order.emailSentAt)}
                           </p>
                         )}
-                        {(order.status === "paid" || order.status === "paid_demo") && (
+                        {paidForOrder && (
                           <Button
                             type="button"
                             onClick={() => resendConfirmationEmail(order.id)}
@@ -734,10 +891,12 @@ export default function AdminOrdersPage() {
                   </div>
 
                   <div className="space-y-4">
-                    <div className="rounded-xl border-2 border-sky-100 bg-white p-4">
+                    <div className={`rounded-xl border-2 bg-white p-4 ${paidForOrder ? "border-sky-100" : "border-rose-200"}`}>
                       <div className="mb-3 text-sm font-black text-sky-900">Fulfilment status</div>
                       <p className="mb-3 text-xs font-bold leading-5 text-slate-600">
-                        Last updated: {formatDate(order.fulfilmentUpdatedAt || order.createdAt)}
+                        {paidForOrder
+                          ? `Last updated: ${formatDate(order.fulfilmentUpdatedAt || order.createdAt)}`
+                          : "Locked until payment is confirmed."}
                       </p>
                       <div className="grid grid-cols-2 gap-2">
                         {fulfilmentOptions.map((option) => {
@@ -748,11 +907,12 @@ export default function AdminOrdersPage() {
                               key={`${order.id}-${option.value}`}
                               type="button"
                               onClick={() => updateFulfilmentStatus(order.id, option.value)}
+                              disabled={!paidForOrder}
                               variant={isSelected ? "default" : "outline"}
                               className={`h-10 rounded-xl text-xs font-black ${
                                 isSelected
-                                  ? "bg-sky-500 text-white hover:bg-sky-600"
-                                  : "border-sky-100 bg-white text-sky-700 hover:bg-sky-50"
+                                  ? "bg-sky-500 text-white hover:bg-sky-600 disabled:bg-rose-200 disabled:text-rose-800"
+                                  : "border-sky-100 bg-white text-sky-700 hover:bg-sky-50 disabled:border-rose-100 disabled:bg-rose-50 disabled:text-rose-400"
                               }`}
                             >
                               {option.label}
@@ -761,6 +921,43 @@ export default function AdminOrdersPage() {
                         })}
                       </div>
                     </div>
+
+                    {isPrintOrder(order) && (
+                      <div className={`rounded-xl border-2 bg-white p-4 ${paidForOrder ? "border-purple-200" : "border-rose-200"}`}>
+                        <div className="mb-3 flex items-center gap-2 text-sm font-black text-purple-900">
+                          <ClipboardCheck className="h-4 w-4" />
+                          Lulu print checklist
+                        </div>
+                        <div className="grid gap-2 text-xs font-black text-slate-700">
+                          <div className={`rounded-lg px-3 py-2 ${paidForOrder ? "bg-emerald-50 text-emerald-800" : "bg-rose-50 text-rose-800"}`}>
+                            1. Confirm Stripe payment
+                          </div>
+                          <div className="rounded-lg bg-purple-50 px-3 py-2 text-purple-800">2. Download Lulu interior PDF</div>
+                          <div className="rounded-lg bg-purple-50 px-3 py-2 text-purple-800">3. Upload interior and cover to Lulu</div>
+                          <div className="rounded-lg bg-sky-50 px-3 py-2 text-sky-800">4. Order print, then mark Sent</div>
+                        </div>
+                        {paidForOrder ? (
+                          <div className="mt-3 grid gap-2 sm:grid-cols-2">
+                            <Button asChild variant="outline" className="h-9 rounded-xl border-purple-100 bg-white px-3 text-xs font-black text-purple-700 hover:bg-purple-50">
+                              <Link href={`/download/${order.id}?format=lulu`}>
+                                <Printer className="h-4 w-4" />
+                                Lulu interior
+                              </Link>
+                            </Button>
+                            <Button asChild variant="outline" className="h-9 rounded-xl border-sky-100 bg-white px-3 text-xs font-black text-sky-700 hover:bg-sky-50">
+                              <Link href={`/download/${order.id}`}>
+                                <Download className="h-4 w-4" />
+                                Customer PDF
+                              </Link>
+                            </Button>
+                          </div>
+                        ) : (
+                          <p className="mt-3 rounded-xl bg-rose-50 px-3 py-2 text-xs font-bold leading-5 text-rose-800">
+                            Print links stay hidden until this order is paid.
+                          </p>
+                        )}
+                      </div>
+                    )}
 
                     {order.postage && (
                       <div className="rounded-xl border-2 border-sky-100 bg-white p-4">
@@ -795,8 +992,9 @@ export default function AdminOrdersPage() {
                     </div>
                   </div>
                 </div>
-              </Card>
-            ))}
+                </Card>
+              )
+            })}
           </div>
         )}
       </div>
