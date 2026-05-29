@@ -36,8 +36,6 @@ const brandUrl = () => {
   return "http://localhost:3003"
 }
 
-const signatureImageUrl = () => `${brandUrl()}/email-signature.jpg`
-
 export const plainEmailSignature = () =>
   [
     ``,
@@ -147,13 +145,18 @@ export const renderBrandedEmail = ({
               <td style="padding:10px 20px 22px;">
                 <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="background:#08031b;border:2px solid #1e1b4b;border-radius:18px;overflow:hidden;">
                   <tr>
-                    <td style="padding:0;">
-                      <a href="${escapeHtml(brandUrl())}" style="display:block;text-decoration:none;">
-                        <img src="${escapeHtml(signatureImageUrl())}" width="592" alt="Little Legends Story - Personalised storybooks for magical bedtime moments. hello@littlelegendsstory.com" style="display:block;width:100%;max-width:592px;height:auto;border:0;outline:none;text-decoration:none;">
-                      </a>
+                    <td style="padding:18px 18px 0;">
+                      <div style="font-size:11px;font-weight:900;letter-spacing:0.18em;text-transform:uppercase;color:#f8d66d;font-family:Arial,Helvetica,sans-serif;">Little Legends Story</div>
+                      <div style="margin-top:8px;font-size:22px;font-weight:900;line-height:1.15;color:#ffffff;">The Little Legends Story Team</div>
+                      <div style="margin-top:8px;font-size:14px;line-height:1.6;color:#fce7f3;font-family:Arial,Helvetica,sans-serif;">Creating magical stories, made just for your child.</div>
+                      <div style="margin-top:14px;font-size:13px;line-height:1.8;color:#e0f2fe;font-family:Arial,Helvetica,sans-serif;">
+                        <a href="mailto:hello@littlelegendsstory.com" style="color:#e0f2fe;text-decoration:none;">hello@littlelegendsstory.com</a><br>
+                        <a href="${escapeHtml(brandUrl())}" style="color:#f8d66d;text-decoration:none;">littlelegendsstory.com</a>
+                      </div>
+                      <div style="margin-top:14px;border-top:1px solid #51436e;padding-top:12px;font-size:15px;font-weight:900;line-height:1.5;color:#ffffff;">Turning your child into <span style="color:#f8d66d;">the hero</span> of their very own story.</div>
                       ${
                         footerNote
-                          ? `<div style="padding:12px 16px 14px;font-size:12px;line-height:1.5;color:#cbd5e1;">${escapeHtml(footerNote)}</div>`
+                          ? `<div style="padding:12px 0 14px;font-size:12px;line-height:1.5;color:#cbd5e1;">${escapeHtml(footerNote)}</div>`
                           : ""
                       }
                     </td>
