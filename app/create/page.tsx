@@ -695,16 +695,16 @@ export default function Home() {
           A story where your child is the hero
         </div>
 
-        <div className="relative mb-2 w-full max-w-lg sm:mb-4">
+        <div className="relative mb-4 w-full max-w-lg sm:mb-4">
           <div className="absolute inset-x-8 bottom-0 h-16 rounded-full bg-fuchsia-200/50 blur-2xl" />
           <div className="relative overflow-hidden rounded-[2rem] border-4 border-white bg-white shadow-[0_22px_65px_rgba(169,113,219,0.26)]">
             <img
               src="/little-legends-reading-hero-family.png"
               alt="A family reading a magical storybook where the child becomes the hero"
-              className="h-[clamp(8rem,27svh,10.5rem)] w-full object-cover object-center min-[390px]:h-[clamp(9rem,28svh,12rem)] sm:h-52 lg:h-60 xl:h-64"
+              className="h-[clamp(10.5rem,34svh,14rem)] w-full object-cover object-center min-[390px]:h-[clamp(11.5rem,34svh,15rem)] sm:h-52 lg:h-60 xl:h-64"
             />
-            <div className="absolute inset-0 bg-[linear-gradient(180deg,transparent_58%,rgba(255,255,255,0.82)_100%)]" />
-            <div className="absolute bottom-3 left-1/2 flex -translate-x-1/2 items-center gap-2 rounded-full bg-white/90 px-4 py-2 text-sm font-black text-fuchsia-700 shadow-md">
+            <div className="absolute inset-0 hidden bg-[linear-gradient(180deg,transparent_58%,rgba(255,255,255,0.82)_100%)] sm:block" />
+            <div className="mx-auto mt-2 flex w-fit items-center gap-2 rounded-full bg-white/95 px-4 py-2 text-sm font-black text-fuchsia-700 shadow-md sm:absolute sm:bottom-3 sm:left-1/2 sm:mt-0 sm:-translate-x-1/2 sm:bg-white/90">
               <Heart className="h-4 w-4 fill-rose-400 text-rose-400" />
               Your child becomes the hero
             </div>
@@ -1412,12 +1412,12 @@ export default function Home() {
               } ${selectedCharacter === character.id ? "border-sky-950 bg-amber-50 ring-4 ring-amber-100" : "border-white bg-white/90"}`}
               onClick={() => handleCharacterSelection(character.id)}
             >
-              {!isLaunchHero && (
-                <div className="absolute right-2 top-2 rounded-full bg-sky-950 px-2.5 py-1 text-[10px] font-black uppercase tracking-wide text-white shadow-sm">
-                  Coming soon
-                </div>
-              )}
               <div className="space-y-2 text-center sm:space-y-3">
+                {!isLaunchHero && (
+                  <div className="mx-auto w-fit rounded-full bg-sky-950 px-2.5 py-1 text-[10px] font-black uppercase tracking-wide text-white shadow-sm sm:absolute sm:right-2 sm:top-2">
+                    Coming soon
+                  </div>
+                )}
                 <div className="relative mx-auto flex h-14 w-14 items-center justify-center overflow-hidden rounded-2xl border-4 border-sky-950 bg-[#fffdf5] text-lg font-black text-sky-950 shadow-[4px_4px_0_rgba(8,47,73,0.12)] ring-4 ring-white sm:h-20 sm:w-20 sm:text-3xl">
                   <span className={`absolute inset-x-2 bottom-1 h-2 rounded-full ${character.color}`} aria-hidden="true" />
                   <span className="relative drop-shadow-sm">{getHeroInitials(character.name)}</span>
