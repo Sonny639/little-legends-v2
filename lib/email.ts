@@ -197,6 +197,36 @@ export const readEmailLog = async (): Promise<EmailLogEntry[]> => {
   return Array.isArray(parsedEntries) ? parsedEntries : []
 }
 
+export const deleteEmailLogEntry = async (emailId: string) => {
+  if (hasSupabase()) {
+    const { data, error } = await getSupabase().from("email_logs").delete().eq("id", emailId).select("id").maybeSingle()
+
+    if (error) throw new Error(`Failed to delete Supabase email log: ${error.message}`)
+
+    return Boolean(data)
+  }
+
+  if (hasDatabase()) {
+    const result = await query<{ id: string }>("delete from email_logs where id = $1 returning id", [emailId])
+    return (result.rowCount || 0) > 0
+  }
+
+  await ensureEmailLogFile()
+
+  const fileContents = await fs.readFile(emailLogFile, "utf8")
+  const parsedEntries = JSON.parse(fileContents.replace(/^\uFEFF/, ""))
+  const entries = Array.isArray(parsedEntries) ? parsedEntries : []
+  const nextEntries = entries.filter((entry) => entry?.id !== emailId)
+
+  if (nextEntries.length === entries.length) {
+    return false
+  }
+
+  await fs.writeFile(emailLogFile, JSON.stringify(nextEntries, null, 2), "utf8")
+
+  return true
+}
+
 export const sendOrderConfirmationEmail = async (order: OrderRecord) => {
   const downloadUrl = getOrderDownloadUrl(order.id)
   const upgradeUrl = order.product === "digital" ? getOrderUpgradeUrl(order.id) : ""

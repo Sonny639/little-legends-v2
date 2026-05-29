@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react"
 import Link from "next/link"
-import { BookOpen, Camera, Download, Mail, PackageCheck, RefreshCw, Search, Trash2, Truck } from "lucide-react"
+import { ArrowUpDown, BookOpen, Camera, Download, Mail, PackageCheck, RefreshCw, Search, Trash2, Truck } from "lucide-react"
 
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
@@ -13,6 +13,7 @@ import { AdminShell } from "../admin-shell"
 type CheckoutProduct = "digital" | "hardback" | "upgrade"
 type FulfilmentStatus = "new" | "in_progress" | "ready" | "sent"
 type PaymentStatus = "payment_pending" | "paid_demo" | "paid"
+type OrderSort = "newest" | "oldest" | "total_desc" | "total_asc" | "hero" | "email"
 
 type StoryPathChoice = {
   pageId: string
@@ -74,6 +75,15 @@ const fulfilmentOptions: { value: FulfilmentStatus; label: string; className: st
   { value: "sent", label: "Sent", className: "bg-emerald-100 text-emerald-800" },
 ]
 
+const orderSortOptions: { value: OrderSort; label: string }[] = [
+  { value: "newest", label: "Newest first" },
+  { value: "oldest", label: "Oldest first" },
+  { value: "total_desc", label: "Highest total" },
+  { value: "total_asc", label: "Lowest total" },
+  { value: "hero", label: "Hero name" },
+  { value: "email", label: "Email" },
+]
+
 const fulfilmentLabel = (status?: FulfilmentStatus) =>
   fulfilmentOptions.find((option) => option.value === (status || "new")) || fulfilmentOptions[0]
 
@@ -99,6 +109,7 @@ export default function AdminOrdersPage() {
   const [orders, setOrders] = useState<OrderRecord[]>([])
   const [query, setQuery] = useState("")
   const [statusFilter, setStatusFilter] = useState<FulfilmentStatus | "all">("all")
+  const [sortBy, setSortBy] = useState<OrderSort>("newest")
   const [isLoading, setIsLoading] = useState(true)
   const [adminMessage, setAdminMessage] = useState("")
   const [expandedPhotoOrders, setExpandedPhotoOrders] = useState<Record<string, boolean>>({})
@@ -148,23 +159,32 @@ export default function AdminOrdersPage() {
         ? orders
         : orders.filter((order) => (order.fulfilmentStatus || "new") === statusFilter)
 
-    if (!normalisedQuery) return statusMatchedOrders
+    const matchedOrders = normalisedQuery
+      ? statusMatchedOrders.filter((order) =>
+          [
+            order.id,
+            order.email,
+            order.heroName,
+            order.heroType,
+            order.storyTitle,
+            productLabel[order.product],
+            order.postage?.fullName,
+            order.postage?.postcode,
+          ]
+            .filter(Boolean)
+            .some((value) => String(value).toLowerCase().includes(normalisedQuery)),
+        )
+      : statusMatchedOrders
 
-    return statusMatchedOrders.filter((order) =>
-      [
-        order.id,
-        order.email,
-        order.heroName,
-        order.heroType,
-        order.storyTitle,
-        productLabel[order.product],
-        order.postage?.fullName,
-        order.postage?.postcode,
-      ]
-        .filter(Boolean)
-        .some((value) => String(value).toLowerCase().includes(normalisedQuery)),
-    )
-  }, [orders, query, statusFilter])
+    return [...matchedOrders].sort((first, second) => {
+      if (sortBy === "oldest") return new Date(first.createdAt).getTime() - new Date(second.createdAt).getTime()
+      if (sortBy === "total_desc") return second.total - first.total
+      if (sortBy === "total_asc") return first.total - second.total
+      if (sortBy === "hero") return first.heroName.localeCompare(second.heroName)
+      if (sortBy === "email") return first.email.localeCompare(second.email)
+      return new Date(second.createdAt).getTime() - new Date(first.createdAt).getTime()
+    })
+  }, [orders, query, sortBy, statusFilter])
 
   const totals = useMemo(
     () => ({
@@ -269,6 +289,29 @@ export default function AdminOrdersPage() {
       setAdminMessage("Orders cleared.")
     } catch {
       setAdminMessage("Orders could not be cleared from the server data store.")
+    }
+  }
+
+  const deleteSingleOrder = async (order: OrderRecord) => {
+    const confirmed = window.confirm(
+      `Delete order ${order.id} for ${order.email}? This removes it from admin order history and cannot be undone.`,
+    )
+
+    if (!confirmed) return
+
+    setAdminMessage("")
+
+    try {
+      const response = await fetch(`/api/orders?orderId=${encodeURIComponent(order.id)}`, { method: "DELETE" })
+
+      if (!response.ok) {
+        throw new Error("Failed to delete order")
+      }
+
+      setOrders((currentOrders) => currentOrders.filter((savedOrder) => savedOrder.id !== order.id))
+      setAdminMessage(`Deleted order ${order.id}.`)
+    } catch {
+      setAdminMessage("Order could not be deleted from the server data store.")
     }
   }
 
@@ -451,7 +494,7 @@ export default function AdminOrdersPage() {
         </div>
 
         <Card className="border-4 border-sky-950 bg-white p-5 shadow-[8px_8px_0_rgba(8,47,73,0.14)]">
-          <div className="grid gap-4 lg:grid-cols-[1fr_auto] lg:items-center">
+          <div className="grid gap-4 xl:grid-cols-[1fr_auto_auto] xl:items-center">
             <div className="relative">
               <Search className="absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
               <Input
@@ -461,6 +504,21 @@ export default function AdminOrdersPage() {
                 className="h-12 rounded-xl border-2 border-sky-100 bg-white pl-11 font-semibold"
               />
             </div>
+            <label className="relative block">
+              <ArrowUpDown className="absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
+              <select
+                value={sortBy}
+                onChange={(event) => setSortBy(event.target.value as OrderSort)}
+                className="h-12 w-full rounded-xl border-2 border-sky-100 bg-white pl-11 pr-8 text-sm font-black text-sky-900 outline-none xl:w-48"
+                aria-label="Sort orders"
+              >
+                {orderSortOptions.map((option) => (
+                  <option key={option.value} value={option.value}>
+                    {option.label}
+                  </option>
+                ))}
+              </select>
+            </label>
             <div className="flex flex-wrap gap-2">
               <Button
                 type="button"
@@ -546,6 +604,14 @@ export default function AdminOrdersPage() {
                       >
                         Artwork CSV
                       </Link>
+                      <button
+                        type="button"
+                        onClick={() => deleteSingleOrder(order)}
+                        className="inline-flex items-center gap-1 rounded-full bg-rose-50 px-3 py-1 text-xs font-black text-rose-700 underline"
+                      >
+                        <Trash2 className="h-3.5 w-3.5" />
+                        Delete
+                      </button>
                     </div>
                     <div>
                       <p className="text-xs font-black uppercase tracking-widest text-sky-700">{formatDate(order.createdAt)}</p>

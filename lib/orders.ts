@@ -380,6 +380,32 @@ export const updateOrderEmailSentAt = async (orderId: string, emailSentAt: strin
   return nextOrders.find((order) => order.id === orderId) || null
 }
 
+export const deleteOrder = async (orderId: string) => {
+  if (hasSupabase()) {
+    const { data, error } = await getSupabase().from("orders").delete().eq("id", orderId).select("id").maybeSingle()
+
+    if (error) throw new Error(`Failed to delete Supabase order: ${error.message}`)
+
+    return Boolean(data)
+  }
+
+  if (hasDatabase()) {
+    const result = await query<{ id: string }>("delete from orders where id = $1 returning id", [orderId])
+    return (result.rowCount || 0) > 0
+  }
+
+  const orders = await readOrders()
+  const nextOrders = orders.filter((order) => order.id !== orderId)
+
+  if (nextOrders.length === orders.length) {
+    return false
+  }
+
+  await fs.writeFile(ordersFile, JSON.stringify(nextOrders, null, 2), "utf8")
+
+  return true
+}
+
 export const clearOrders = async () => {
   if (hasSupabase()) {
     const { error } = await getSupabase().from("orders").delete().neq("id", "")

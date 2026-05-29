@@ -3,7 +3,7 @@ import { NextResponse } from "next/server"
 import { checkoutProducts } from "@/lib/checkout"
 import { getOrderDownloadUrl, sendOrderConfirmationEmail } from "@/lib/email"
 import { getOrderAccessToken } from "@/lib/order-access"
-import { clearOrders, readOrders, saveOrder, updateOrderFulfilmentStatus, updateOrderPaymentStatus, type FulfilmentStatus, type OrderRecord, type PaymentStatus } from "@/lib/orders"
+import { clearOrders, deleteOrder, readOrders, saveOrder, updateOrderFulfilmentStatus, updateOrderPaymentStatus, type FulfilmentStatus, type OrderRecord, type PaymentStatus } from "@/lib/orders"
 import { checkRateLimit, getClientIp, rateLimitResponseHeaders } from "@/lib/rate-limit"
 import { getShippingQuoteForAddress } from "@/lib/shipping"
 
@@ -225,8 +225,20 @@ export async function PATCH(request: Request) {
   }
 }
 
-export async function DELETE() {
+export async function DELETE(request: Request) {
   try {
+    const orderId = new URL(request.url).searchParams.get("orderId")?.trim()
+
+    if (orderId) {
+      const deleted = await deleteOrder(cleanText(orderId, maxOrderIdLength))
+
+      if (!deleted) {
+        return NextResponse.json({ error: "Order not found" }, { status: 404 })
+      }
+
+      return NextResponse.json({ deleted: true, orderId })
+    }
+
     if (process.env.NODE_ENV === "production" && process.env.ALLOW_ORDER_CLEAR !== "1") {
       return NextResponse.json({ error: "Clearing orders is disabled in production" }, { status: 403 })
     }
