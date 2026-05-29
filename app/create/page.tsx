@@ -65,6 +65,33 @@ const createOrderId = () => {
 
 const money = new Intl.NumberFormat("en-GB", { style: "currency", currency: "GBP" })
 
+const howItWorksSteps = [
+  {
+    title: "1. Choose the hero",
+    text: "Pick who the book is for, choose a hero name, and select the adventure style they will star in.",
+  },
+  {
+    title: "2. Add photos",
+    text: "Upload clear reference photos if you want the artwork to include your child's likeness. A close, bright face photo gives the best result.",
+  },
+  {
+    title: "3. View the preview",
+    text: "You will see a short interactive preview before ordering. This preview is not the final book.",
+  },
+  {
+    title: "4. Important preview note",
+    text: "Only one of the preview pages uses face-swap artwork, so you can see an example. The finished story is prepared after purchase and personalised across the full adventure.",
+  },
+  {
+    title: "5. Order the story",
+    text: "Choose the digital storybook or the hardback keepsake. Digital access is included with hardback orders.",
+  },
+  {
+    title: "6. Receive your book",
+    text: "Digital stories can be downloaded after payment. Hardback books are carefully prepared for print, then sent to the delivery address provided.",
+  },
+]
+
 const getHeroInitials = (name?: string) =>
   (name || "Hero")
     .split(" ")
@@ -137,6 +164,7 @@ export default function Home() {
   const [uploadedPhotos, setUploadedPhotos] = useState<UploadedPhoto[]>([])
   const [photoUploadMessage, setPhotoUploadMessage] = useState("")
   const [photoTipsOpen, setPhotoTipsOpen] = useState(false)
+  const [howItWorksOpen, setHowItWorksOpen] = useState(false)
   const [selectedCharacter, setSelectedCharacter] = useState<string | null>(null)
   const [storyPage, setStoryPage] = useState(1)
   const [storyPageId, setStoryPageId] = useState("start")
@@ -701,6 +729,15 @@ export default function Home() {
         >
           <Wand2 className="h-5 w-5 sm:h-6 sm:w-6" />
           Start the Magic
+        </Button>
+        <Button
+          type="button"
+          onClick={() => setHowItWorksOpen(true)}
+          variant="outline"
+          className="mt-2 h-10 rounded-full border-2 border-violet-200 bg-white/85 px-5 text-xs font-black text-violet-700 shadow-sm hover:bg-white min-[390px]:text-sm sm:mt-3"
+        >
+          <Info className="h-4 w-4" />
+          How it works
         </Button>
 
         <div className="mt-2 flex flex-wrap justify-center gap-1.5 text-[11px] font-bold text-[#7a6692] min-[390px]:mt-3 sm:mt-4 sm:gap-3 sm:text-sm">
@@ -3494,6 +3531,79 @@ export default function Home() {
     "full-story": "Story",
   }
 
+  const renderHowItWorksModal = () => {
+    if (!howItWorksOpen) return null
+
+    return (
+      <div className="fixed inset-0 z-50 flex items-end justify-center bg-sky-950/55 px-3 py-4 backdrop-blur-sm sm:items-center sm:px-4" role="dialog" aria-modal="true" aria-labelledby="how-it-works-title">
+        <div className="max-h-[92svh] w-full max-w-3xl overflow-y-auto rounded-[1.75rem] border-4 border-sky-950 bg-[#fffdf5] p-4 shadow-[10px_10px_0_rgba(8,47,73,0.2)] sm:p-6">
+          <div className="flex items-start justify-between gap-3">
+            <div>
+              <Badge className="mb-2 bg-amber-300 px-3 py-1 text-sky-950">Before you start</Badge>
+              <h2 id="how-it-works-title" className="text-2xl font-black leading-tight text-sky-950 sm:text-4xl">
+                How Little Legends works
+              </h2>
+              <p className="mt-2 text-sm font-bold leading-6 text-slate-700 sm:text-base">
+                A quick walkthrough of the journey, what the preview means, and what happens after ordering.
+              </p>
+            </div>
+            <button
+              type="button"
+              onClick={() => setHowItWorksOpen(false)}
+              className="grid h-10 w-10 shrink-0 place-items-center rounded-full border-2 border-sky-100 bg-white text-sky-900 shadow-sm hover:bg-sky-50"
+              aria-label="Close how it works"
+            >
+              <X className="h-5 w-5" />
+            </button>
+          </div>
+
+          <div className="mt-4 rounded-2xl border-2 border-amber-200 bg-amber-50 px-4 py-3 text-sm font-black leading-6 text-amber-900">
+            Preview note: the preview is only a sample, not the final book. Only one of the preview pages uses face-swap artwork so you can see an example before ordering.
+          </div>
+
+          <div className="mt-4 grid gap-3 sm:grid-cols-2">
+            {howItWorksSteps.map((step) => (
+              <div key={step.title} className="rounded-2xl border-2 border-sky-100 bg-white p-4 shadow-sm">
+                <div className="mb-2 flex items-center gap-2 text-sm font-black text-sky-950">
+                  <CheckCircle2 className="h-4 w-4 text-emerald-600" />
+                  {step.title}
+                </div>
+                <p className="text-sm font-semibold leading-6 text-slate-700">{step.text}</p>
+              </div>
+            ))}
+          </div>
+
+          <div className="mt-4 rounded-2xl border-2 border-purple-100 bg-purple-50 px-4 py-3 text-sm font-bold leading-6 text-purple-900">
+            For best results, use a bright, clear photo where your child's face is easy to see. The final artwork may still be stylised, because it is made to match the magical storybook world.
+          </div>
+
+          <div className="mt-5 flex flex-col gap-2 sm:flex-row sm:justify-end">
+            <Button
+              type="button"
+              onClick={() => setHowItWorksOpen(false)}
+              variant="outline"
+              className="h-11 rounded-full border-sky-200 bg-white px-6 font-black text-sky-700 hover:bg-sky-50"
+            >
+              Close
+            </Button>
+            {currentStep === "welcome" && (
+              <Button
+                type="button"
+                onClick={() => {
+                  setHowItWorksOpen(false)
+                  setCurrentStep("gender")
+                }}
+                className="h-11 rounded-full bg-gradient-to-r from-fuchsia-500 via-violet-500 to-sky-500 px-6 font-black text-white hover:from-fuchsia-600 hover:via-violet-600 hover:to-sky-600"
+              >
+                Start the Magic
+              </Button>
+            )}
+          </div>
+        </div>
+      </div>
+    )
+  }
+
   return (
     <div className={`${currentStep === "welcome" ? "min-h-[100svh]" : "min-h-screen"} overflow-x-hidden storybook-app-bg`}>
       <div className={`container mx-auto px-3 sm:px-4 ${currentStep === "welcome" ? "flex min-h-[100svh] flex-col py-2 sm:py-3" : "py-5 sm:py-8"}`}>
@@ -3507,15 +3617,27 @@ export default function Home() {
             <Heart className="h-8 w-8 fill-rose-400 text-rose-500" />
             <span className="text-xl font-black text-sky-950 sm:text-2xl">Little Legends</span>
           </button>
-          {currentStep !== "welcome" && currentStep !== "gender" && (
+          <div className="flex items-center gap-2">
             <Button
-              onClick={goBack}
+              type="button"
+              onClick={() => setHowItWorksOpen(true)}
               variant="outline"
-              className="rounded-full border-sky-200 bg-white/85 px-4 font-black text-sky-700 hover:bg-white"
+              className="h-10 rounded-full border-sky-200 bg-white/85 px-3 text-xs font-black text-sky-700 hover:bg-white sm:px-4 sm:text-sm"
             >
-              ← Back
+              <Info className="h-4 w-4" />
+              <span className="hidden sm:inline">How it works</span>
+              <span className="sm:hidden">Help</span>
             </Button>
-          )}
+            {currentStep !== "welcome" && currentStep !== "gender" && (
+              <Button
+                onClick={goBack}
+                variant="outline"
+                className="rounded-full border-sky-200 bg-white/85 px-4 font-black text-sky-700 hover:bg-white"
+              >
+                ← Back
+              </Button>
+            )}
+          </div>
         </div>
 
         {currentStep !== "welcome" && (
@@ -3542,6 +3664,7 @@ export default function Home() {
           {currentStep === "full-story" && renderFullStory()}
         </div>
       </div>
+      {renderHowItWorksModal()}
     </div>
   )
 }
