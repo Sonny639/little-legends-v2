@@ -1,7 +1,7 @@
 "use client"
 
 import Link from "next/link"
-import { BookOpen, Image, Inbox, LayoutDashboard, LogOut, Mail, PackageCheck } from "lucide-react"
+import { BookOpen, Home, Image, Inbox, LayoutDashboard, LogOut, Mail, PackageCheck } from "lucide-react"
 
 const navItems = [
   { href: "/admin", label: "Dashboard", icon: LayoutDashboard },
@@ -18,11 +18,15 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
       <div className="mx-auto max-w-7xl space-y-5">
         <div className="storybook-panel rounded-[1.5rem] p-4 sm:rounded-[2rem]">
           <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
-            <div>
+            <Link href="/admin" className="block rounded-2xl px-1 py-1 transition hover:bg-white/60">
               <p className="text-xs font-black uppercase tracking-widest text-sky-700">Little Legends</p>
               <h1 className="text-3xl font-black text-sky-950">Admin</h1>
-            </div>
+            </Link>
             <div className="flex gap-2 overflow-x-auto pb-1 lg:flex-wrap lg:overflow-visible">
+              <Link href="/create" className="inline-flex h-10 shrink-0 items-center gap-2 rounded-xl border-2 border-emerald-100 bg-emerald-50 px-3 text-sm font-black text-emerald-700 hover:bg-emerald-100">
+                <Home className="h-4 w-4" />
+                Live site
+              </Link>
               {navItems.map((item) => {
                 const Icon = item.icon
 

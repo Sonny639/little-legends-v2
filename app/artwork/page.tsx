@@ -62,7 +62,10 @@ export default function ArtworkReviewPage() {
               <a href="/api/artwork-manifest?prompts=1&missing=1&priority=1&phase=preview">Preview JSON</a>
             </Button>
             <Button asChild variant="outline" className="h-11 rounded-xl border-sky-200 bg-white px-5 font-black text-sky-700">
-              <Link href="/">Back to App</Link>
+              <Link href="/admin">Back to Admin</Link>
+            </Button>
+            <Button asChild variant="outline" className="h-11 rounded-xl border-emerald-100 bg-emerald-50 px-5 font-black text-emerald-700 hover:bg-emerald-100">
+              <Link href="/create">Live site</Link>
             </Button>
           </div>
         </div>

@@ -10,7 +10,7 @@ import { PrintQueueClient } from "./print-queue-client"
 export const dynamic = "force-dynamic"
 
 export default async function AdminPrintQueuePage() {
-  const ordersResult = await readOrders()
+  const ordersResult = await readOrders({ limit: 150 })
     .then((orders) => ({ orders, issue: "" }))
     .catch((error: unknown) => ({
       orders: [],

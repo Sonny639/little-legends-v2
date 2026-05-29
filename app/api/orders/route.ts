@@ -88,9 +88,14 @@ const normalizeNewOrder = (order: OrderRecord): OrderRecord => {
   }
 }
 
-export async function GET() {
+const getOrderLimit = (request: Request) => {
+  const limit = Number(new URL(request.url).searchParams.get("limit") || 0)
+  return Number.isFinite(limit) && limit > 0 ? Math.min(250, Math.floor(limit)) : undefined
+}
+
+export async function GET(request: Request) {
   try {
-    const orders = await readOrders()
+    const orders = await readOrders({ limit: getOrderLimit(request) })
     return NextResponse.json({ orders })
   } catch (error) {
     console.error("Failed to read orders:", error)

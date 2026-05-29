@@ -91,6 +91,7 @@ const formatDate = (value: string) =>
 
 const money = new Intl.NumberFormat("en-GB", { style: "currency", currency: "GBP" })
 const canClearOrders = process.env.NODE_ENV !== "production"
+const adminOrderLimit = 75
 
 const csvEscape = (value: string | number | null | undefined) => `"${String(value ?? "").replaceAll('"', '""')}"`
 
@@ -110,7 +111,7 @@ export default function AdminOrdersPage() {
     setAdminMessage("")
 
     try {
-      const response = await fetch("/api/orders", { cache: "no-store" })
+      const response = await fetch(`/api/orders?limit=${adminOrderLimit}`, { cache: "no-store" })
       if (!response.ok) throw new Error("Failed to load server orders")
 
       const data = await response.json()
@@ -383,7 +384,7 @@ export default function AdminOrdersPage() {
               <Badge className="mb-3 bg-amber-300 px-3 py-1 text-sky-950">Order management</Badge>
               <h1 className="text-3xl font-black uppercase leading-tight text-sky-950 sm:text-5xl">Orders</h1>
               <p className="mt-2 max-w-2xl text-sm font-bold leading-6 text-slate-700">
-                Manage story choices, products, email details, payment status, photo follow-up, and hardback delivery.
+                Manage the latest orders, story choices, email details, payment status, photo follow-up, and hardback delivery.
               </p>
             </div>
             <div className="flex flex-col gap-3 sm:flex-row">

@@ -73,6 +73,15 @@ type OrderRow = {
   email_sent_at: Date | string | null
 }
 
+type ReadOrdersOptions = {
+  limit?: number
+}
+
+const normaliseLimit = (limit?: number) => {
+  if (!Number.isFinite(limit || 0) || !limit) return undefined
+  return Math.max(1, Math.min(250, Math.floor(limit)))
+}
+
 const toIso = (value: Date | string | null | undefined) => {
   if (!value) return undefined
   return value instanceof Date ? value.toISOString() : new Date(value).toISOString()
@@ -132,9 +141,17 @@ const ensureDataFile = async () => {
   }
 }
 
-export const readOrders = async (): Promise<OrderRecord[]> => {
+export const readOrders = async (options: ReadOrdersOptions = {}): Promise<OrderRecord[]> => {
+  const limit = normaliseLimit(options.limit)
+
   if (hasSupabase()) {
-    const { data, error } = await getSupabase().from("orders").select("*").order("created_at", { ascending: false })
+    let request = getSupabase().from("orders").select("*").order("created_at", { ascending: false })
+
+    if (limit) {
+      request = request.limit(limit)
+    }
+
+    const { data, error } = await request
 
     if (error) throw new Error(`Failed to read Supabase orders: ${error.message}`)
 
@@ -142,7 +159,9 @@ export const readOrders = async (): Promise<OrderRecord[]> => {
   }
 
   if (hasDatabase()) {
-    const result = await query<OrderRow>("select * from orders order by created_at desc")
+    const result = limit
+      ? await query<OrderRow>("select * from orders order by created_at desc limit $1", [limit])
+      : await query<OrderRow>("select * from orders order by created_at desc")
     return result.rows.map(rowToOrder)
   }
 
@@ -151,7 +170,8 @@ export const readOrders = async (): Promise<OrderRecord[]> => {
   const fileContents = await fs.readFile(ordersFile, "utf8")
   const parsedOrders = JSON.parse(fileContents)
 
-  return Array.isArray(parsedOrders) ? parsedOrders : []
+  const orders = Array.isArray(parsedOrders) ? parsedOrders : []
+  return limit ? orders.slice(0, limit) : orders
 }
 
 export const saveOrder = async (order: OrderRecord) => {
