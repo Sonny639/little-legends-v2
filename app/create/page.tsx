@@ -59,7 +59,10 @@ type OrderRecord = {
 }
 
 const createOrderId = () => {
-  const randomPart = Math.random().toString(36).slice(2, 8).toUpperCase()
+  const randomBytes = new Uint8Array(6)
+  crypto.getRandomValues(randomBytes)
+  const randomPart = Array.from(randomBytes, (byte) => byte.toString(16).padStart(2, "0")).join("").toUpperCase()
+
   return `LL-${Date.now().toString(36).toUpperCase()}-${randomPart}`
 }
 
@@ -2808,6 +2811,8 @@ export default function Home() {
         fulfilmentUpdatedAt: createdAt,
       }
 
+      let savedOrderAccessToken = ""
+      let savedCheckoutOrder = order
       try {
         const orderResponse = await fetch("/api/orders", {
           method: "POST",
@@ -2823,10 +2828,13 @@ export default function Home() {
           throw new Error("Order could not be saved")
         }
 
+        savedOrderAccessToken = orderData?.accessToken || ""
+        savedCheckoutOrder = orderData?.order || order
+
         if (uploadedPhotos.length > 0) {
           const photoUploadForm = new FormData()
           photoUploadForm.set("orderId", order.id)
-          photoUploadForm.set("accessToken", orderData?.accessToken || "")
+          photoUploadForm.set("accessToken", savedOrderAccessToken)
           uploadedPhotos.forEach((photo) => {
             photoUploadForm.append("photos", photo.file)
           })
@@ -2859,7 +2867,7 @@ export default function Home() {
           headers: {
             "Content-Type": "application/json",
           },
-          body: JSON.stringify({ order }),
+          body: JSON.stringify({ order: savedCheckoutOrder, accessToken: savedOrderAccessToken }),
         })
         const checkoutData = await checkoutResponse.json()
         checkoutUrl = checkoutData.checkout?.url || ""

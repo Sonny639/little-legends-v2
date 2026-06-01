@@ -1,10 +1,23 @@
 import { createHmac, timingSafeEqual } from "crypto"
 
-const getOrderAccessSecret = () =>
-  process.env.ORDER_ACCESS_SECRET ||
-  process.env.ADMIN_SESSION_SECRET ||
-  process.env.ADMIN_PASSWORD ||
-  "little-legends-local-order-access"
+const getOrderAccessSecret = () => {
+  if (process.env.NODE_ENV === "production") {
+    const productionSecret = process.env.ORDER_ACCESS_SECRET || ""
+
+    if (productionSecret.length < 32) {
+      throw new Error("ORDER_ACCESS_SECRET must be set to a strong unique value in production")
+    }
+
+    return productionSecret
+  }
+
+  return (
+    process.env.ORDER_ACCESS_SECRET ||
+    process.env.ADMIN_SESSION_SECRET ||
+    process.env.ADMIN_PASSWORD ||
+    "little-legends-local-order-access"
+  )
+}
 
 export const getOrderAccessToken = (orderId: string) =>
   createHmac("sha256", getOrderAccessSecret()).update(orderId).digest("hex")

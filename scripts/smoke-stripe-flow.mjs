@@ -204,7 +204,7 @@ try {
     "/api/checkout",
     {
       method: "POST",
-      body: JSON.stringify({ order: { ...order, id: `${smokeId}-missing` } }),
+      body: JSON.stringify({ order: { ...order, id: `${smokeId}-missing` }, accessToken: orderAccessToken }),
     },
     [404],
   )
@@ -220,6 +220,7 @@ try {
         email: "tampered@example.com",
         storyId: "tampered-story",
       },
+      accessToken: orderAccessToken,
     }),
   })
   const tamperedCheckoutData = tamperedCheckout.data.checkout
@@ -237,7 +238,7 @@ try {
 
   const checkout = await requestJson("/api/checkout", {
     method: "POST",
-    body: JSON.stringify({ order }),
+    body: JSON.stringify({ order, accessToken: orderAccessToken }),
   })
   const checkoutData = checkout.data.checkout
 
@@ -406,7 +407,7 @@ try {
 
   const upgradeCheckout = await requestJson("/api/checkout", {
     method: "POST",
-    body: JSON.stringify({ order: upgrade.data.order }),
+    body: JSON.stringify({ order: upgrade.data.order, accessToken: upgrade.data.accessToken }),
   })
   const upgradeSession = await stripe.checkout.sessions.retrieve(upgradeCheckout.data.checkout.sessionId)
 

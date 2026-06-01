@@ -3,6 +3,7 @@ import { NextResponse } from "next/server"
 import { checkoutProducts } from "@/lib/checkout"
 import { getOrderDownloadUrl, sendOrderConfirmationEmail } from "@/lib/email"
 import { getOrderAccessToken } from "@/lib/order-access"
+import { isSafeOrderId } from "@/lib/order-id"
 import { clearOrders, deleteOrder, readOrders, saveOrder, updateOrderFulfilmentStatus, updateOrderPaymentStatus, type FulfilmentStatus, type OrderRecord, type PaymentStatus } from "@/lib/orders"
 import { checkRateLimit, getClientIp, rateLimitResponseHeaders } from "@/lib/rate-limit"
 import { getShippingQuoteForAddress } from "@/lib/shipping"
@@ -119,6 +120,7 @@ export async function POST(request: Request) {
 
     if (
       !normalisedOrder.id ||
+      !isSafeOrderId(normalisedOrder.id) ||
       !isValidEmail(normalisedOrder.email) ||
       !normalisedOrder.heroName ||
       !normalisedOrder.heroType ||
@@ -230,7 +232,13 @@ export async function DELETE(request: Request) {
     const orderId = new URL(request.url).searchParams.get("orderId")?.trim()
 
     if (orderId) {
-      const deleted = await deleteOrder(cleanText(orderId, maxOrderIdLength))
+      const cleanedOrderId = cleanText(orderId, maxOrderIdLength)
+
+      if (!isSafeOrderId(cleanedOrderId)) {
+        return NextResponse.json({ error: "Invalid order id" }, { status: 400 })
+      }
+
+      const deleted = await deleteOrder(cleanedOrderId)
 
       if (!deleted) {
         return NextResponse.json({ error: "Order not found" }, { status: 404 })

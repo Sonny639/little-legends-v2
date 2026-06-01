@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server"
 
 import { hasValidOrderAccess } from "@/lib/order-access"
+import { isSafeOrderId } from "@/lib/order-id"
 import { createOrderPhotoPreviewLinks, listOrderPhotos, saveOrderPhotos } from "@/lib/order-photos"
 import { readOrders } from "@/lib/orders"
 import { checkRateLimit, getClientIp, rateLimitResponseHeaders } from "@/lib/rate-limit"
@@ -13,11 +14,11 @@ export async function GET(request: Request) {
     const { searchParams } = new URL(request.url)
     const orderId = searchParams.get("orderId")
 
-    if (!orderId?.trim()) {
+    if (!orderId?.trim() || !isSafeOrderId(orderId.trim())) {
       return NextResponse.json({ error: "Order id is required" }, { status: 400 })
     }
 
-    const photos = await listOrderPhotos(orderId)
+    const photos = await listOrderPhotos(orderId.trim())
 
     const photosWithPreviewLinks = await createOrderPhotoPreviewLinks(photos)
 
@@ -38,23 +39,25 @@ export async function POST(request: Request) {
     const accessToken = formData.get("accessToken")
     const files = formData.getAll("photos").filter(isFile)
 
-    if (typeof orderId !== "string" || !orderId.trim()) {
+    if (typeof orderId !== "string" || !orderId.trim() || !isSafeOrderId(orderId.trim())) {
       return NextResponse.json({ error: "Order id is required" }, { status: 400 })
     }
 
-    if (typeof accessToken !== "string" || !hasValidOrderAccess(orderId, accessToken)) {
+    const cleanedOrderId = orderId.trim()
+
+    if (typeof accessToken !== "string" || !hasValidOrderAccess(cleanedOrderId, accessToken)) {
       return NextResponse.json({ error: "Order access is invalid" }, { status: 403 })
     }
 
     const orders = await readOrders()
-    const orderExists = orders.some((order) => order.id === orderId)
+    const orderExists = orders.some((order) => order.id === cleanedOrderId)
 
     if (!orderExists) {
       return NextResponse.json({ error: "Order not found" }, { status: 404 })
     }
 
     const rateLimit = checkRateLimit({
-      key: `order-photos:${getClientIp(request)}:${orderId}`,
+      key: `order-photos:${getClientIp(request)}:${cleanedOrderId}`,
       limit: 6,
       windowMs: 60 * 60 * 1000,
     })
@@ -66,7 +69,7 @@ export async function POST(request: Request) {
       )
     }
 
-    const savedPhotos = await saveOrderPhotos(orderId, files)
+    const savedPhotos = await saveOrderPhotos(cleanedOrderId, files)
 
     return NextResponse.json({
       photos: savedPhotos.map((photo) => ({

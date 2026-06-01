@@ -1,8 +1,9 @@
 import { NextResponse } from "next/server"
+import { randomBytes } from "crypto"
 
 import { checkoutProducts } from "@/lib/checkout"
 import { getOrderDownloadUrl } from "@/lib/email"
-import { hasValidOrderAccess } from "@/lib/order-access"
+import { getOrderAccessToken, hasValidOrderAccess } from "@/lib/order-access"
 import { readOrders, saveOrder, type OrderRecord } from "@/lib/orders"
 import { getShippingQuoteForAddress } from "@/lib/shipping"
 
@@ -15,7 +16,7 @@ type UpgradeRequest = {
 
 const cleanText = (value: string, maxLength = 160) => value.trim().replace(/\s+/g, " ").slice(0, maxLength)
 const createUpgradeOrderId = () => {
-  const randomPart = Math.random().toString(36).slice(2, 8).toUpperCase()
+  const randomPart = randomBytes(6).toString("hex").toUpperCase()
   return `LL-UP-${Date.now().toString(36).toUpperCase()}-${randomPart}`
 }
 
@@ -81,7 +82,7 @@ export async function POST(request: Request) {
     }
 
     const savedOrder = await saveOrder(upgradeOrder)
-    return NextResponse.json({ order: savedOrder }, { status: 201 })
+    return NextResponse.json({ order: savedOrder, accessToken: getOrderAccessToken(savedOrder.id) }, { status: 201 })
   } catch (error) {
     console.error("Failed to create upgrade order:", error)
     return NextResponse.json({ error: "Failed to create upgrade order" }, { status: 500 })

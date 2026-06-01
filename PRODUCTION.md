@@ -22,6 +22,7 @@ ADMIN_SESSION_SECRET=
 ORDER_ACCESS_SECRET=
 FAL_API_KEY=
 CONTACT_TO_EMAIL=hello@littlelegendsstory.com
+ADMIN_ORDER_NOTIFICATION_EMAIL=hello@littlelegendsstory.com
 SMTP_HOST=smtp.porkbun.com
 SMTP_PORT=587
 SMTP_USER=hello@littlelegendsstory.com
@@ -39,7 +40,7 @@ Required before launch:
 - Admin photo previews are served through short-lived signed URLs and require the admin session.
 - Use `hello@littlelegendsstory.com` as the public contact/reply inbox.
 - Contact form notifications and order confirmations use Porkbun SMTP when `SMTP_PASSWORD` is set. Porkbun's SMTP settings are `smtp.porkbun.com`, port `587`, STARTTLS, with the full email address as the username.
-- Order confirmations are still saved in `/admin/email-log` even when SMTP succeeds, so support can resend/check the exact customer copy.
+- Order confirmations and internal paid-order alerts are still saved in `/admin/email-log` even when SMTP succeeds, so support can resend/check the exact message.
 - `ADMIN_PASSWORD` and `ADMIN_SESSION_SECRET` must be strong unique values. Protected production routes fail closed if `ADMIN_PASSWORD` is missing.
 - `ORDER_ACCESS_SECRET` must be a strong unique value. Customer download, upgrade, photo upload, and story-generation links are signed with it.
 - `/artwork` and the artwork export APIs are internal production tools and are protected by the admin session.

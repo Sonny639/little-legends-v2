@@ -205,7 +205,7 @@ try {
 
   const checkout = await requestJson("/api/checkout", {
     method: "POST",
-    body: JSON.stringify({ order }),
+    body: JSON.stringify({ order, accessToken: orderAccessToken }),
   })
 
   if (!checkout.checkout?.url) {
@@ -245,7 +245,7 @@ try {
 
     const upgradeCheckout = await requestJson("/api/checkout", {
       method: "POST",
-      body: JSON.stringify({ order: upgrade.order }),
+      body: JSON.stringify({ order: upgrade.order, accessToken: upgrade.accessToken }),
     })
 
     if (upgradeCheckout.checkout?.amountTotal !== 2700) {

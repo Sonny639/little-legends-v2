@@ -1,6 +1,8 @@
 import { NextResponse } from "next/server"
 
 import { checkoutProducts } from "@/lib/checkout"
+import { getTrustedAppUrl } from "@/lib/app-url"
+import { hasValidOrderAccess } from "@/lib/order-access"
 import { readOrders, type OrderRecord } from "@/lib/orders"
 import { stripe } from "@/lib/stripe"
 
@@ -18,38 +20,9 @@ const isCheckoutOrder = (value: unknown): value is OrderRecord => {
   )
 }
 
-const trimTrailingSlash = (value: string) => value.replace(/\/$/, "")
-
-const getAppUrl = (request: Request) => {
-  const origin = request.headers.get("origin")
-
-  if (origin && origin !== "null") {
-    return trimTrailingSlash(origin)
-  }
-
-  const forwardedHost = request.headers.get("x-forwarded-host")
-  const forwardedProto = request.headers.get("x-forwarded-proto") || "https"
-
-  if (forwardedHost) {
-    return `${forwardedProto}://${forwardedHost}`
-  }
-
-  const configuredUrl = process.env.NEXT_PUBLIC_APP_URL
-
-  if (configuredUrl) {
-    return trimTrailingSlash(configuredUrl)
-  }
-
-  if (process.env.VERCEL_URL) {
-    return `https://${process.env.VERCEL_URL}`
-  }
-
-  return "http://localhost:3003"
-}
-
 export async function POST(request: Request) {
   try {
-    const { order } = await request.json()
+    const { order, accessToken } = await request.json()
 
     if (!isCheckoutOrder(order)) {
       return NextResponse.json({ error: "Invalid checkout order" }, { status: 400 })
@@ -62,13 +35,17 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "Order must be saved before checkout" }, { status: 404 })
     }
 
+    if (typeof accessToken !== "string" || !hasValidOrderAccess(savedOrder.id, accessToken)) {
+      return NextResponse.json({ error: "Order access is invalid" }, { status: 403 })
+    }
+
     const product = checkoutProducts[savedOrder.product]
 
     if (!product) {
       return NextResponse.json({ error: "Invalid checkout product" }, { status: 400 })
     }
 
-    const appUrl = getAppUrl(request)
+    const appUrl = getTrustedAppUrl(request)
     const stripeSuccessUrl = `${appUrl}/checkout/success?orderId=${encodeURIComponent(savedOrder.id)}&session_id={CHECKOUT_SESSION_ID}`
     const demoSuccessUrl = `${appUrl}/checkout/success?orderId=${encodeURIComponent(savedOrder.id)}`
     const cancelUrl = `${appUrl}/checkout/cancel?orderId=${encodeURIComponent(savedOrder.id)}`

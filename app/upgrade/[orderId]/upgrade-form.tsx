@@ -72,7 +72,7 @@ export function UpgradeCheckoutForm({ sourceOrderId, accessToken, upgradePriceLa
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ order: upgradeData.order }),
+        body: JSON.stringify({ order: upgradeData.order, accessToken: upgradeData.accessToken }),
       })
       const checkoutData = await checkoutResponse.json()
       const checkoutUrl = checkoutData.checkout?.url

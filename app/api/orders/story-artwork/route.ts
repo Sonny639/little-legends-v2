@@ -7,26 +7,14 @@ import {
   startOrderStoryArtwork,
   syncOrderStoryArtwork,
 } from "@/lib/order-story-artwork"
+import { getTrustedAppUrl } from "@/lib/app-url"
 import { hasValidOrderAccess } from "@/lib/order-access"
+import { isSafeOrderId } from "@/lib/order-id"
 import { readOrders } from "@/lib/orders"
 
 export const maxDuration = 300
 
 const isPaid = (status: string) => status === "paid" || status === "paid_demo"
-
-const getAppUrl = (request: Request) => {
-  const origin = request.headers.get("origin")
-
-  if (origin && origin !== "null") return origin.replace(/\/$/, "")
-
-  const forwardedHost = request.headers.get("x-forwarded-host")
-  const forwardedProto = request.headers.get("x-forwarded-proto") || "https"
-
-  if (forwardedHost) return `${forwardedProto}://${forwardedHost}`
-  if (process.env.NEXT_PUBLIC_APP_URL) return process.env.NEXT_PUBLIC_APP_URL.replace(/\/$/, "")
-  if (process.env.VERCEL_URL) return `https://${process.env.VERCEL_URL}`
-  return "http://localhost:3003"
-}
 
 const getPaidOrder = async (orderId: string) => {
   const order = (await readOrders()).find((candidate) => candidate.id === orderId)
@@ -41,16 +29,18 @@ export async function POST(request: NextRequest) {
   try {
     const { orderId, accessToken } = await request.json()
 
-    if (typeof orderId !== "string" || !orderId.trim()) {
+    if (typeof orderId !== "string" || !orderId.trim() || !isSafeOrderId(orderId.trim())) {
       return NextResponse.json({ error: "Order id is required." }, { status: 400 })
     }
 
-    if (typeof accessToken !== "string" || !hasValidOrderAccess(orderId, accessToken)) {
+    const cleanedOrderId = orderId.trim()
+
+    if (typeof accessToken !== "string" || !hasValidOrderAccess(cleanedOrderId, accessToken)) {
       return NextResponse.json({ error: "Order access is invalid." }, { status: 403 })
     }
 
-    const order = await getPaidOrder(orderId)
-    const manifest = await startOrderStoryArtwork(order, getAppUrl(request))
+    const order = await getPaidOrder(cleanedOrderId)
+    const manifest = await startOrderStoryArtwork(order, getTrustedAppUrl(request))
     const summary = getOrderStoryArtworkSummary(manifest)
 
     return NextResponse.json({ artwork: { ...summary, pages: manifest.pages } })
@@ -68,7 +58,7 @@ export async function GET(request: NextRequest) {
     const orderId = request.nextUrl.searchParams.get("orderId")?.trim()
     const accessToken = request.nextUrl.searchParams.get("access")?.trim()
 
-    if (!orderId) {
+    if (!orderId || !isSafeOrderId(orderId)) {
       return NextResponse.json({ error: "Order id is required." }, { status: 400 })
     }
 

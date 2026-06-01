@@ -85,6 +85,12 @@ const hasSmtpConfig = () =>
 
 const isTestRecipient = (email: string) => /@(example\.com|example\.test|test\.local)$/i.test(email)
 
+const getAdminOrderNotificationEmail = () =>
+  process.env.ADMIN_ORDER_NOTIFICATION_EMAIL ||
+  process.env.CONTACT_TO_EMAIL ||
+  process.env.SMTP_FROM_EMAIL ||
+  "hello@littlelegendsstory.com"
+
 const sendSmtpEmail = async ({
   to,
   subject,
@@ -173,6 +179,83 @@ const appendEmailLog = async (entry: EmailLogEntry) => {
   const entries = Array.isArray(parsedEntries) ? parsedEntries : []
 
   await fs.writeFile(emailLogFile, JSON.stringify([entry, ...entries], null, 2), "utf8")
+}
+
+const sendAdminOrderNotification = async (order: OrderRecord, createdAt: string) => {
+  if (order.status !== "paid" || isTestRecipient(order.email)) {
+    return
+  }
+
+  const to = getAdminOrderNotificationEmail()
+  const adminOrdersUrl = `${appUrl()}/admin/orders?order=${encodeURIComponent(order.id)}`
+  const productLabel =
+    order.product === "hardback"
+      ? "Hardback"
+      : order.product === "upgrade"
+        ? "Hardback upgrade"
+        : "Digital PDF"
+  const subject = `New Little Legends order: ${productLabel} - ${order.id}`
+  const deliverySummary = order.postage
+    ? [
+        `Delivery name: ${order.postage.fullName}`,
+        `Delivery country: ${order.postage.country}`,
+      ]
+    : []
+  const plainBody = [
+    "A new paid Little Legends order has been received.",
+    "",
+    `Order reference: ${order.id}`,
+    `Product: ${productLabel}`,
+    `Total: ${money.format(order.total)}`,
+    `Customer email: ${order.email}`,
+    `Hero: ${order.heroName} the ${order.heroType}`,
+    `Story: ${order.storyTitle}`,
+    `Photos uploaded: ${order.photoCount || 0}`,
+    ...deliverySummary,
+    "",
+    `Log in and check the order: ${adminOrdersUrl}`,
+  ].join("\n")
+  const body = withPlainEmailSignature(plainBody)
+  const html = renderBrandedEmail({
+    preheader: `New paid ${productLabel.toLowerCase()} order ${order.id}.`,
+    title: "New paid order",
+    intro: `A new paid ${productLabel.toLowerCase()} order has arrived and is ready to check in admin.`,
+    paragraphs: [
+      order.product === "digital"
+        ? "Check the customer email log and support status when convenient."
+        : "This order may need Lulu/manual print fulfilment after the personalised files are ready.",
+    ],
+    details: [
+      { label: "Order", value: order.id },
+      { label: "Product", value: productLabel },
+      { label: "Total", value: money.format(order.total) },
+      { label: "Customer", value: order.email },
+      { label: "Hero", value: `${order.heroName} the ${order.heroType}` },
+      { label: "Story", value: order.storyTitle },
+      { label: "Photos", value: String(order.photoCount || 0) },
+      ...(order.postage ? [{ label: "Delivery", value: `${order.postage.fullName}, ${order.postage.country}` }] : []),
+    ],
+    cta: { label: "Open admin orders", url: adminOrdersUrl },
+    footerNote: "Internal notification from Little Legends Story.",
+  })
+  let provider: EmailLogEntry["provider"] = "log"
+
+  try {
+    provider = (await sendSmtpEmail({ to, subject, text: body, html })) ? "smtp" : "log"
+  } catch (error) {
+    console.warn("Admin order notification could not be sent via SMTP; saved to email log only:", error)
+    provider = "log"
+  }
+
+  await appendEmailLog({
+    id: `email_admin_${Date.now()}`,
+    createdAt,
+    to,
+    subject,
+    body,
+    orderId: order.id,
+    provider,
+  })
 }
 
 export const readEmailLog = async (): Promise<EmailLogEntry[]> => {
@@ -334,6 +417,7 @@ export const sendOrderConfirmationEmail = async (order: OrderRecord) => {
     provider,
   })
 
+  await sendAdminOrderNotification(order, createdAt)
   await updateOrderEmailSentAt(order.id, createdAt)
 
   return {

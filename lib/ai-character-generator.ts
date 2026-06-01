@@ -39,6 +39,9 @@ const previewNegativePrompt =
   "text, captions, logo, watermark, deformed face, distorted eyes, extra limbs, duplicate person, side profile, face hidden, face covered, mask, helmet, scary mood, adult proportions"
 
 const getFalKey = () => process.env.FAL_KEY || process.env.FAL_API_KEY || ""
+const maxReferencePhotos = 3
+const maxReferencePhotoBytes = 6 * 1024 * 1024
+const allowedReferencePhotoTypes = new Set(["image/jpeg", "image/png", "image/webp", "image/heic", "image/heif"])
 
 export const isFacePersonalizationConfigured = () => Boolean(getFalKey())
 
@@ -144,5 +147,18 @@ export function processUploadedPhotos(photos: File[]): Promise<string[]> {
 }
 
 export function validatePhotos(photos: string[]): boolean {
-  return photos.length > 0 && photos.every((photo) => photo.startsWith("data:image/"))
+  if (photos.length === 0 || photos.length > maxReferencePhotos) return false
+
+  return photos.every((photo) => {
+    const match = /^data:([^;,]+);base64,([a-zA-Z0-9+/]+={0,2})$/.exec(photo)
+    if (!match) return false
+
+    const [, mimeType, base64Data] = match
+    if (!allowedReferencePhotoTypes.has(mimeType)) return false
+
+    const padding = base64Data.endsWith("==") ? 2 : base64Data.endsWith("=") ? 1 : 0
+    const byteLength = Math.floor((base64Data.length * 3) / 4) - padding
+
+    return byteLength > 0 && byteLength <= maxReferencePhotoBytes
+  })
 }

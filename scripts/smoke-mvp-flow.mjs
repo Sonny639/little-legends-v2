@@ -360,7 +360,7 @@ try {
 
   const checkout = await requestJson("/api/checkout", {
     method: "POST",
-    body: JSON.stringify({ order }),
+    body: JSON.stringify({ order, accessToken: orderAccessToken }),
   })
 
   if (!checkout.checkout?.url) {

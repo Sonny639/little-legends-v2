@@ -31,6 +31,7 @@ ADMIN_PASSWORD=
 ADMIN_SESSION_SECRET=
 ORDER_ACCESS_SECRET=
 CONTACT_TO_EMAIL=hello@littlelegendsstory.com
+ADMIN_ORDER_NOTIFICATION_EMAIL=hello@littlelegendsstory.com
 SMTP_HOST=smtp.porkbun.com
 SMTP_PORT=587
 SMTP_USER=hello@littlelegendsstory.com
@@ -56,7 +57,7 @@ Set `ADMIN_PASSWORD` to enable the admin login screen on `/admin/login`. Set `OR
 - `/admin/print-queue` - paid hardback and upgrade orders with quick printer fulfilment status updates.
 - `/admin/enquiries` - customer enquiry inbox.
 - Contact page enquiries are saved into `/admin/enquiries` and, when SMTP env vars are set, emailed to `CONTACT_TO_EMAIL`.
-- `/admin/email-log` - confirmation email log. Order confirmations are sent by SMTP when configured and still logged for support.
+- `/admin/email-log` - confirmation email log. Order confirmations and internal paid-order alerts are sent by SMTP when configured and still logged for support.
 - `/download/[orderId]?access=...` - locked until payment is confirmed and the signed customer access token is present, then renders the printable story.
 - `/artwork` - protected artwork manifest and prompt review.
 

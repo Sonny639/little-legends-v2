@@ -1,6 +1,7 @@
 import { type NextRequest, NextResponse } from "next/server"
 
 import { validatePhotos } from "@/lib/ai-character-generator"
+import { getTrustedAppUrl } from "@/lib/app-url"
 import { checkRateLimit, getClientIp, rateLimitResponseHeaders } from "@/lib/rate-limit"
 import {
   getStoryPreviewResult,
@@ -27,31 +28,6 @@ const getPreviewErrorMessage = (error: unknown) => {
   }
 
   return "Failed to create story preview"
-}
-
-const getAppUrl = (request: Request) => {
-  const origin = request.headers.get("origin")
-
-  if (origin && origin !== "null") {
-    return origin.replace(/\/$/, "")
-  }
-
-  const forwardedHost = request.headers.get("x-forwarded-host")
-  const forwardedProto = request.headers.get("x-forwarded-proto") || "https"
-
-  if (forwardedHost) {
-    return `${forwardedProto}://${forwardedHost}`
-  }
-
-  if (process.env.NEXT_PUBLIC_APP_URL) {
-    return process.env.NEXT_PUBLIC_APP_URL.replace(/\/$/, "")
-  }
-
-  if (process.env.VERCEL_URL) {
-    return `https://${process.env.VERCEL_URL}`
-  }
-
-  return "http://localhost:3003"
 }
 
 export async function POST(request: NextRequest) {
@@ -98,7 +74,7 @@ export async function POST(request: NextRequest) {
       heroName: heroName.trim(),
       heroType: heroType.trim(),
       gender,
-      appUrl: getAppUrl(request),
+      appUrl: getTrustedAppUrl(request),
     })
 
     return NextResponse.json({ preview })
