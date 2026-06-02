@@ -1359,7 +1359,7 @@ export default function Home() {
         <Badge className="bg-amber-300 px-3 py-1 text-sky-950">Step 4 of 5</Badge>
         <h2 className="text-3xl font-black leading-tight text-sky-950 sm:text-5xl">What kind of hero will {selectedLegendName} be?</h2>
         <p className="mx-auto max-w-2xl text-sm font-semibold leading-6 text-slate-700 sm:text-lg sm:leading-7">
-          Start with one of our launch adventures below. More hero worlds are coming soon.
+          Start with one of our current adventures below. More hero worlds are planned next.
         </p>
       </div>
 

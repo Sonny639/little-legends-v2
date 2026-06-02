@@ -5,9 +5,11 @@ import { isSafeOrderId } from "@/lib/order-id"
 import { createOrderPhotoPreviewLinks, listOrderPhotos, saveOrderPhotos } from "@/lib/order-photos"
 import { readOrders } from "@/lib/orders"
 import { checkRateLimit, getClientIp, rateLimitResponseHeaders } from "@/lib/rate-limit"
+import { isRequestTooLarge } from "@/lib/request-size"
 
 const isFile = (value: FormDataEntryValue | null): value is File =>
   typeof File !== "undefined" && value instanceof File
+const maxOrderPhotoRequestSize = 26 * 1024 * 1024
 
 export async function GET(request: Request) {
   try {
@@ -34,6 +36,10 @@ export async function GET(request: Request) {
 
 export async function POST(request: Request) {
   try {
+    if (isRequestTooLarge(request, maxOrderPhotoRequestSize)) {
+      return NextResponse.json({ error: "Photo upload is too large" }, { status: 413 })
+    }
+
     const formData = await request.formData()
     const orderId = formData.get("orderId")
     const accessToken = formData.get("accessToken")

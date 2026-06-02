@@ -39,7 +39,7 @@ const faqs = [
     question: "When will more story worlds be available?",
     icon: Clock,
     answer:
-      "More hero worlds are planned after launch. The first stories are being kept focused so we can keep the quality high, test print results properly, and improve the experience before adding more adventures.",
+      "More hero worlds are planned as Little Legends grows. The first stories are being kept focused so we can keep the quality high, test print results properly, and improve the experience before adding more adventures.",
   },
   {
     question: "Is my child's photo private?",

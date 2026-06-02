@@ -4,11 +4,12 @@ import { ArrowLeft, Camera, Heart, Mail, ShieldCheck, Sparkles, Star } from "luc
 import { SocialFollowStrip } from "@/components/social-follow-strip"
 import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
+import { GallerySubmissionForm } from "@/app/gallery/gallery-submission-form"
 
 const shareSteps = [
   {
-    title: "Send your photos",
-    text: "Email a photo of the book, a few words about the story, and your order reference if you have it.",
+    title: "Upload your photos",
+    text: "Send up to four book photos with a short review and your order reference if you have it.",
     icon: Mail,
   },
   {
@@ -26,7 +27,7 @@ const shareSteps = [
 const galleryPlaceholders = [
   {
     title: "Finished hardback photos",
-    text: "Real customer book photos will appear here after parents send them in and approve sharing.",
+    text: "Real customer book photos can be added here once parents send them in and approve sharing.",
   },
   {
     title: "Bedtime smiles",
@@ -37,6 +38,16 @@ const galleryPlaceholders = [
     text: "Short reviews help other families see what the finished Little Legends experience feels like.",
   },
 ]
+
+const galleryEntries: Array<{
+  title: string
+  images: Array<{
+    src: string
+    alt: string
+  }>
+  review: string
+  credit: string
+}> = []
 
 export default function GalleryPage() {
   return (
@@ -61,7 +72,7 @@ export default function GalleryPage() {
                 A little home for finished books, parent reviews, and magical reading moments shared by Little Legends families.
               </p>
               <div className="mt-5 rounded-3xl border-2 border-amber-100 bg-amber-50/90 p-4 text-sm font-bold leading-6 text-amber-950 sm:p-5">
-                Want to share yours? Email photos and a short review to{" "}
+                Want to share yours? Use the upload form below, or email photos and a short review to{" "}
                 <a href="mailto:hello@littlelegendsstory.com?subject=Little%20Legends%20gallery%20submission" className="font-black text-sky-700 underline-offset-4 hover:underline">
                   hello@littlelegendsstory.com
                 </a>
@@ -78,14 +89,38 @@ export default function GalleryPage() {
               <div className="absolute inset-x-4 bottom-4 rounded-3xl border border-white/70 bg-white/90 p-4 shadow-lg backdrop-blur">
                 <div className="flex items-center gap-2 text-sm font-black text-sky-950">
                   <Star className="h-5 w-5 fill-amber-300 text-amber-400" />
-                  Real customer photos coming soon
+                  Real customer photos and reviews
                 </div>
                 <p className="mt-1 text-sm font-semibold leading-5 text-slate-700">
-                  Approved family photos and reviews will be added here after launch.
+                  Approved family photos and reviews can be added here whenever you are ready.
                 </p>
               </div>
             </div>
           </section>
+
+          {galleryEntries.length > 0 && (
+            <section className="mt-6 grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+              {galleryEntries.map((entry) => (
+                <article key={entry.title} className="overflow-hidden rounded-3xl bg-white/85 shadow-sm">
+                  <div className={`grid gap-1 ${entry.images.length > 1 ? "grid-cols-2" : ""}`}>
+                    {entry.images.slice(0, 4).map((image, index) => (
+                      <img
+                        key={image.src}
+                        src={image.src}
+                        alt={image.alt}
+                        className={`${entry.images.length > 1 ? "h-40" : "h-72"} w-full object-cover ${index === 0 && entry.images.length === 3 ? "col-span-2" : ""}`}
+                      />
+                    ))}
+                  </div>
+                  <div className="p-4">
+                    <h2 className="text-lg font-black text-sky-950">{entry.title}</h2>
+                    <p className="mt-2 text-sm font-semibold leading-6 text-slate-700">{entry.review}</p>
+                    <p className="mt-3 text-xs font-black uppercase tracking-widest text-rose-500">{entry.credit}</p>
+                  </div>
+                </article>
+              ))}
+            </section>
+          )}
 
           <section className="mt-6 grid gap-4 md:grid-cols-3">
             {galleryPlaceholders.map(({ title, text }) => (
@@ -98,6 +133,8 @@ export default function GalleryPage() {
               </div>
             ))}
           </section>
+
+          <GallerySubmissionForm />
 
           <section className="mt-6 rounded-[2rem] border-2 border-sky-100 bg-sky-50/80 p-4 sm:p-5">
             <div className="mb-4 flex items-center gap-2">
@@ -119,7 +156,7 @@ export default function GalleryPage() {
             <div>
               <h2 className="text-xl font-black text-sky-950">Share your Little Legend</h2>
               <p className="mt-1 text-sm font-semibold leading-6 text-slate-700">
-                A book photo, a happy reaction, or a short review is perfect.
+                Prefer email? A book photo, a happy reaction, or a short review is perfect.
               </p>
             </div>
             <Button asChild className="h-11 rounded-full bg-gradient-to-r from-fuchsia-500 to-sky-500 px-6 font-black text-white hover:from-fuchsia-600 hover:to-sky-600">

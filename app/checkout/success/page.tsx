@@ -7,7 +7,7 @@ import { Card } from "@/components/ui/card"
 import { StoryPreparation } from "@/components/story-preparation"
 import { checkoutProducts } from "@/lib/checkout"
 import { sendOrderConfirmationEmail } from "@/lib/email"
-import { getOrderAccessToken } from "@/lib/order-access"
+import { getOrderAccessToken, hasValidOrderAccess } from "@/lib/order-access"
 import { getOrderStoryArtworkSummary, readOrderStoryArtworkManifest } from "@/lib/order-story-artwork"
 import { readOrders, updateOrderPaymentStatus } from "@/lib/orders"
 import { stripe } from "@/lib/stripe"
@@ -16,18 +16,22 @@ import { getStripeSessionOrderIssue } from "@/lib/stripe-order-validation"
 type CheckoutSuccessPageProps = {
   searchParams: Promise<{
     orderId?: string
+    access?: string
     session_id?: string
   }>
 }
 
 export default async function CheckoutSuccessPage({ searchParams }: CheckoutSuccessPageProps) {
-  const { orderId, session_id: sessionId } = await searchParams
+  const { orderId, access, session_id: sessionId } = await searchParams
   let order: Awaited<ReturnType<typeof updateOrderPaymentStatus>> = null
   let orderIssue = ""
+  const hasOrderAccess = Boolean(orderId && hasValidOrderAccess(orderId, access))
+  let canShowOrderDetails = hasOrderAccess
 
   if (orderId && !stripe && process.env.NODE_ENV !== "production") {
     try {
       order = await updateOrderPaymentStatus(orderId, "paid_demo")
+      canShowOrderDetails = Boolean(order)
     } catch (error) {
       orderIssue = error instanceof Error ? error.message : "Payment confirmation is temporarily unavailable."
     }
@@ -46,6 +50,7 @@ export default async function CheckoutSuccessPage({ searchParams }: CheckoutSucc
 
       if (!sessionIssue) {
         order = await updateOrderPaymentStatus(orderId, "paid")
+        canShowOrderDetails = Boolean(order)
       } else {
         orderIssue = sessionIssue
       }
@@ -62,7 +67,7 @@ export default async function CheckoutSuccessPage({ searchParams }: CheckoutSucc
       console.error("Failed to send/log order confirmation:", error)
     }
   }
-  const orders = order
+  const orders = order || !canShowOrderDetails
     ? []
     : await readOrders().catch((error: unknown) => {
         orderIssue = error instanceof Error ? error.message : "Order lookup is temporarily unavailable."
@@ -70,7 +75,7 @@ export default async function CheckoutSuccessPage({ searchParams }: CheckoutSucc
       })
   const fallbackOrder = orderId ? orders.find((savedOrder) => savedOrder.id === orderId) : null
   const visibleOrder = order || fallbackOrder || null
-  const accessToken = visibleOrder ? getOrderAccessToken(visibleOrder.id) : ""
+  const accessToken = visibleOrder ? access || getOrderAccessToken(visibleOrder.id) : ""
   const isPaid = visibleOrder?.status === "paid" || visibleOrder?.status === "paid_demo"
   const artworkManifest = visibleOrder && isPaid ? await readOrderStoryArtworkManifest(visibleOrder.id) : null
   const artworkSummary = artworkManifest ? getOrderStoryArtworkSummary(artworkManifest) : null

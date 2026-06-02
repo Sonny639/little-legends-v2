@@ -250,7 +250,10 @@ try {
     throw new Error(`Checkout cancel URL is wrong: ${checkoutData.cancelUrl}`)
   }
 
-  if (!checkoutData.successUrl.includes(`/checkout/success?orderId=${encodeURIComponent(smokeId)}`)) {
+  if (
+    !checkoutData.successUrl.includes(`/checkout/success?orderId=${encodeURIComponent(smokeId)}`) ||
+    !checkoutData.successUrl.includes(`access=${encodeURIComponent(orderAccessToken)}`)
+  ) {
     throw new Error(`Checkout success URL is wrong: ${checkoutData.successUrl}`)
   }
 
@@ -416,7 +419,15 @@ try {
   }
   console.log("OK hardback upgrade checkout uses the price difference")
 
-  const successPage = await requestPage(`/checkout/success?orderId=${encodeURIComponent(smokeId)}`)
+  const lockedSuccessPage = await requestPage(`/checkout/success?orderId=${encodeURIComponent(smokeId)}`)
+  if (lockedSuccessPage.response.status !== 200 || lockedSuccessPage.text.includes("Payment confirmed")) {
+    throw new Error("Success page exposed confirmed payment without order access.")
+  }
+  console.log("OK success page requires order access")
+
+  const successPage = await requestPage(
+    `/checkout/success?orderId=${encodeURIComponent(smokeId)}&access=${encodeURIComponent(orderAccessToken)}`,
+  )
   if (successPage.response.status !== 200 || !successPage.text.includes("Payment confirmed")) {
     throw new Error("Success page did not show confirmed payment after webhook.")
   }

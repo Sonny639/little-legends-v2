@@ -3,6 +3,7 @@ import { type NextRequest, NextResponse } from "next/server"
 import { validatePhotos } from "@/lib/ai-character-generator"
 import { getTrustedAppUrl } from "@/lib/app-url"
 import { checkRateLimit, getClientIp, rateLimitResponseHeaders } from "@/lib/rate-limit"
+import { isRequestTooLarge } from "@/lib/request-size"
 import {
   getStoryPreviewResult,
   getStoryPreviewStatus,
@@ -11,6 +12,8 @@ import {
 } from "@/lib/story-preview-generator"
 
 const genders = ["boy", "girl"] as const
+const maxPreviewRequestSize = 20 * 1024 * 1024
+const requestIdPattern = /^[a-zA-Z0-9_-]{6,200}$/
 
 export const maxDuration = 300
 
@@ -32,6 +35,10 @@ const getPreviewErrorMessage = (error: unknown) => {
 
 export async function POST(request: NextRequest) {
   try {
+    if (isRequestTooLarge(request, maxPreviewRequestSize)) {
+      return NextResponse.json({ error: "Preview request is too large." }, { status: 413 })
+    }
+
     const { photos, storyId, heroName, heroType, gender } = await request.json()
 
     if (!Array.isArray(photos) || !validatePhotos(photos)) {
@@ -91,12 +98,26 @@ export async function GET(request: NextRequest) {
   try {
     const requestId = request.nextUrl.searchParams.get("requestId")?.trim()
 
-    if (!requestId) {
+    if (!requestId || !requestIdPattern.test(requestId)) {
       return NextResponse.json({ error: "Missing preview request id." }, { status: 400 })
     }
 
     if (!isStoryPreviewConfigured()) {
       return NextResponse.json({ error: "Story preview personalization is not configured yet." }, { status: 503 })
+    }
+
+    const clientIp = getClientIp(request)
+    const rateLimit = checkRateLimit({
+      key: `story-preview-status:${clientIp}:${requestId}`,
+      limit: 30,
+      windowMs: 15 * 60 * 1000,
+    })
+
+    if (!rateLimit.ok) {
+      return NextResponse.json(
+        { error: "Too many preview status checks. Please try again shortly." },
+        { status: 429, headers: rateLimitResponseHeaders(rateLimit.resetAt) },
+      )
     }
 
     const status = await getStoryPreviewStatus(requestId)

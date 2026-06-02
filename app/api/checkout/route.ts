@@ -46,8 +46,9 @@ export async function POST(request: Request) {
     }
 
     const appUrl = getTrustedAppUrl(request)
-    const stripeSuccessUrl = `${appUrl}/checkout/success?orderId=${encodeURIComponent(savedOrder.id)}&session_id={CHECKOUT_SESSION_ID}`
-    const demoSuccessUrl = `${appUrl}/checkout/success?orderId=${encodeURIComponent(savedOrder.id)}`
+    const successAccess = encodeURIComponent(accessToken)
+    const stripeSuccessUrl = `${appUrl}/checkout/success?orderId=${encodeURIComponent(savedOrder.id)}&access=${successAccess}&session_id={CHECKOUT_SESSION_ID}`
+    const demoSuccessUrl = `${appUrl}/checkout/success?orderId=${encodeURIComponent(savedOrder.id)}&access=${successAccess}`
     const cancelUrl = `${appUrl}/checkout/cancel?orderId=${encodeURIComponent(savedOrder.id)}`
     const expectedTotalPence = Math.round(savedOrder.total * 100)
     const shippingAmountPence = savedOrder.product === "digital" ? 0 : Math.max(0, expectedTotalPence - product.unitAmountPence)

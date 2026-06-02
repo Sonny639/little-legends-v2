@@ -2,8 +2,10 @@ import { type NextRequest, NextResponse } from "next/server"
 
 import { generateCharacterPreview, isFacePersonalizationConfigured, validatePhotos } from "@/lib/ai-character-generator"
 import { checkRateLimit, getClientIp, rateLimitResponseHeaders } from "@/lib/rate-limit"
+import { isRequestTooLarge } from "@/lib/request-size"
 
 const styles = ["storybook", "realistic"] as const
+const maxPreviewRequestSize = 20 * 1024 * 1024
 
 const getGenerationErrorMessage = (error: unknown) => {
   const body = typeof error === "object" && error && "body" in error ? (error as { body?: unknown }).body : null
@@ -31,6 +33,10 @@ const getGenerationErrorMessage = (error: unknown) => {
 
 export async function POST(request: NextRequest) {
   try {
+    if (isRequestTooLarge(request, maxPreviewRequestSize)) {
+      return NextResponse.json({ error: "Preview request is too large." }, { status: 413 })
+    }
+
     const { photos, characterType, style } = await request.json()
 
     if (!Array.isArray(photos) || !validatePhotos(photos)) {
