@@ -15,6 +15,7 @@ import { getShippingCountryByCode, getShippingQuote, shippingCountries } from "@
 import { getStoryArtworkFallback } from "@/lib/story-artwork-fallbacks"
 import { getStoryForCharacter, getStoryPathSummary, type StoryPathChoice } from "@/lib/stories"
 import { StoryArtPlaceholder } from "@/components/story-art-placeholder"
+import { SocialFollowStrip } from "@/components/social-follow-strip"
 
 type UploadedPhoto = {
   file: File
@@ -3614,6 +3615,7 @@ export default function Home() {
 
   return (
     <div className={`${currentStep === "welcome" ? "min-h-[100svh]" : "min-h-screen"} overflow-x-hidden storybook-app-bg`}>
+      <SocialFollowStrip />
       <div className={`container mx-auto px-3 sm:px-4 ${currentStep === "welcome" ? "flex min-h-[100svh] flex-col py-2 sm:py-3" : "py-5 sm:py-8"}`}>
         <div className={`flex items-center justify-between ${currentStep === "welcome" ? "mx-auto mb-3 w-full max-w-6xl shrink-0" : "mb-6"}`}>
           <button

@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server"
 
 import { checkoutProducts } from "@/lib/checkout"
-import { getOrderDownloadUrl, sendOrderConfirmationEmail } from "@/lib/email"
+import { getOrderDownloadUrl, sendOrderConfirmationEmail, sendPrintFulfilmentEmail } from "@/lib/email"
 import { getOrderAccessToken } from "@/lib/order-access"
 import { isSafeOrderId } from "@/lib/order-id"
 import { clearOrders, deleteOrder, readOrders, saveOrder, updateOrderFulfilmentStatus, updateOrderPaymentStatus, type FulfilmentStatus, type OrderRecord, type PaymentStatus } from "@/lib/orders"
@@ -211,10 +211,23 @@ export async function PATCH(request: Request) {
     }
 
     if (fulfilmentStatuses.includes(fulfilmentStatus)) {
+      const existingOrder = (await readOrders()).find((order) => order.id === orderId)
       const updatedOrder = await updateOrderFulfilmentStatus(orderId, fulfilmentStatus)
 
       if (!updatedOrder) {
         return NextResponse.json({ error: "Order not found" }, { status: 404 })
+      }
+
+      const shouldSendPrintEmail =
+        fulfilmentStatus === "sent" &&
+        existingOrder &&
+        existingOrder.fulfilmentStatus !== "sent" &&
+        updatedOrder.product !== "digital" &&
+        (updatedOrder.status === "paid" || updatedOrder.status === "paid_demo")
+
+      if (shouldSendPrintEmail) {
+        const fulfilmentEmail = await sendPrintFulfilmentEmail(updatedOrder)
+        return NextResponse.json({ order: updatedOrder, fulfilmentEmail })
       }
 
       return NextResponse.json({ order: updatedOrder })

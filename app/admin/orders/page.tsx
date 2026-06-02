@@ -73,7 +73,7 @@ const fulfilmentOptions: { value: FulfilmentStatus; label: string; className: st
   { value: "new", label: "New", className: "bg-sky-100 text-sky-800" },
   { value: "in_progress", label: "In progress", className: "bg-amber-100 text-amber-800" },
   { value: "ready", label: "Ready", className: "bg-purple-100 text-purple-800" },
-  { value: "sent", label: "Sent", className: "bg-emerald-100 text-emerald-800" },
+  { value: "sent", label: "Sent / complete", className: "bg-emerald-600 text-white" },
 ]
 
 const orderSortOptions: { value: OrderSort; label: string }[] = [
@@ -108,6 +108,37 @@ const needsPrintAction = (order: Pick<OrderRecord, "product" | "status" | "fulfi
 const needsEmailAction = (order: Pick<OrderRecord, "status" | "emailSentAt">) => isPaidOrder(order) && !order.emailSentAt
 const orderNeedsAction = (order: Pick<OrderRecord, "product" | "status" | "fulfilmentStatus" | "emailSentAt">) =>
   !isPaidOrder(order) || needsPrintAction(order) || needsEmailAction(order)
+
+const orderCardClass = (order: Pick<OrderRecord, "status" | "fulfilmentStatus">) => {
+  if (!isPaidOrder(order)) return "border-rose-700 bg-rose-50 shadow-[8px_8px_0_rgba(190,18,60,0.16)]"
+
+  const fulfilmentStatus = order.fulfilmentStatus || "new"
+  if (fulfilmentStatus === "sent") return "border-emerald-700 bg-emerald-50 shadow-[8px_8px_0_rgba(21,128,61,0.16)]"
+  if (fulfilmentStatus === "ready") return "border-purple-700 bg-purple-50 shadow-[8px_8px_0_rgba(126,34,206,0.14)]"
+  if (fulfilmentStatus === "in_progress") return "border-amber-600 bg-amber-50 shadow-[8px_8px_0_rgba(217,119,6,0.14)]"
+  return "border-sky-700 bg-sky-50 shadow-[8px_8px_0_rgba(2,132,199,0.12)]"
+}
+
+const orderBannerClass = (order: Pick<OrderRecord, "status" | "fulfilmentStatus">) => {
+  if (!isPaidOrder(order)) return "border-rose-300 bg-white text-rose-800"
+
+  const fulfilmentStatus = order.fulfilmentStatus || "new"
+  if (fulfilmentStatus === "sent") return "border-emerald-300 bg-emerald-100 text-emerald-900"
+  if (fulfilmentStatus === "ready") return "border-purple-300 bg-white text-purple-900"
+  if (fulfilmentStatus === "in_progress") return "border-amber-300 bg-white text-amber-900"
+  return "border-sky-300 bg-white text-sky-900"
+}
+
+const orderBannerMessage = (order: Pick<OrderRecord, "product" | "status" | "fulfilmentStatus">) => {
+  if (!isPaidOrder(order)) return "UNPAID ORDER - do not print, send, or fulfil until Stripe payment is confirmed."
+
+  const fulfilmentStatus = order.fulfilmentStatus || "new"
+  if (fulfilmentStatus === "sent") return "COMPLETE - this order has been sent to print/fulfilment."
+  if (fulfilmentStatus === "ready") return "READY - files are ready; finish Lulu/manual fulfilment next."
+  if (fulfilmentStatus === "in_progress") return "IN PROGRESS - this order is being prepared."
+  if (isPrintOrder(order)) return "NEW PAID PRINT ORDER - prepare the Lulu files and fulfil manually."
+  return "PAID DIGITAL ORDER - customer access is unlocked."
+}
 
 const formatDate = (value: string) =>
   new Intl.DateTimeFormat("en-GB", {
@@ -352,7 +383,21 @@ export default function AdminOrdersPage() {
     }
   }
 
-  const updateFulfilmentStatus = async (orderId: string, fulfilmentStatus: FulfilmentStatus) => {
+  const updateFulfilmentStatus = async (targetOrder: OrderRecord, fulfilmentStatus: FulfilmentStatus) => {
+    const willSendPrintEmail =
+      fulfilmentStatus === "sent" &&
+      targetOrder.fulfilmentStatus !== "sent" &&
+      isPaidOrder(targetOrder) &&
+      isPrintOrder(targetOrder)
+
+    if (willSendPrintEmail) {
+      const confirmed = window.confirm(
+        `Mark ${targetOrder.id} as sent/complete and email ${targetOrder.email} that the hardback has been sent for printing?`,
+      )
+
+      if (!confirmed) return
+    }
+
     setAdminMessage("")
 
     try {
@@ -361,7 +406,7 @@ export default function AdminOrdersPage() {
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ orderId, fulfilmentStatus }),
+        body: JSON.stringify({ orderId: targetOrder.id, fulfilmentStatus }),
       })
 
       if (!response.ok) throw new Error("Failed to update order")
@@ -369,7 +414,7 @@ export default function AdminOrdersPage() {
       const data = await response.json()
       setOrders((currentOrders) =>
         currentOrders.map((order) =>
-          order.id === orderId
+          order.id === targetOrder.id
             ? {
                 ...order,
                 fulfilmentStatus: data.order?.fulfilmentStatus || fulfilmentStatus,
@@ -377,6 +422,11 @@ export default function AdminOrdersPage() {
               }
             : order,
         ),
+      )
+      setAdminMessage(
+        data.fulfilmentEmail
+          ? `Order marked complete and customer print update logged for ${data.fulfilmentEmail.to}.`
+          : `Order ${targetOrder.id} updated to ${fulfilmentLabel(fulfilmentStatus).label}.`,
       )
     } catch {
       setAdminMessage("Could not update fulfilment status. Check the server order store and try again.")
@@ -701,37 +751,28 @@ export default function AdminOrdersPage() {
           <div className="grid gap-5">
             {filteredOrders.map((order) => {
               const paidForOrder = isPaidOrder(order)
+              const completeOrder = paidForOrder && isSentOrder(order)
+              const bannerMessage = orderBannerMessage(order)
 
               return (
                 <Card
                   key={order.id}
-                  className={`border-4 p-5 shadow-[8px_8px_0_rgba(8,47,73,0.14)] ${
-                    paidForOrder
-                      ? "border-emerald-700 bg-[#f7fff9]"
-                      : "border-rose-700 bg-rose-50 shadow-[8px_8px_0_rgba(190,18,60,0.16)]"
-                  }`}
+                  className={`border-4 p-5 ${orderCardClass(order)}`}
                 >
                 <div className="grid gap-5 lg:grid-cols-[1fr_0.8fr]">
                   <div className="space-y-4">
                     <div
-                      className={`flex items-center gap-3 rounded-xl border-2 px-4 py-3 text-sm font-black ${
-                        paidForOrder
-                          ? "border-emerald-200 bg-emerald-100 text-emerald-900"
-                          : "border-rose-300 bg-white text-rose-800"
-                      }`}
+                      className={`flex items-center gap-3 rounded-xl border-2 px-4 py-3 text-sm font-black ${orderBannerClass(order)}`}
                     >
                       {paidForOrder ? <CheckCircle2 className="h-5 w-5 shrink-0" /> : <AlertTriangle className="h-5 w-5 shrink-0" />}
-                      <span>
-                        {paidForOrder
-                          ? "PAID ORDER - safe to prepare or fulfil."
-                          : "UNPAID ORDER - do not print, send, or fulfil until Stripe payment is confirmed."}
-                      </span>
+                      <span>{bannerMessage}</span>
                     </div>
                     <div className="flex flex-wrap items-center gap-2">
                       <Badge className={`${paymentBadgeClass(order.status)} px-3 py-1`}>{paymentLabel(order.status)}</Badge>
                       <Badge className={`${fulfilmentLabel(order.fulfilmentStatus).className} px-3 py-1`}>
                         {fulfilmentLabel(order.fulfilmentStatus).label}
                       </Badge>
+                      {completeOrder && <Badge className="bg-emerald-700 px-3 py-1 text-white">Order complete</Badge>}
                       <Badge className="bg-sky-100 px-3 py-1 text-sky-800">{productLabel[order.product]}</Badge>
                       <Badge className="bg-amber-100 px-3 py-1 text-amber-800">{money.format(order.total)}</Badge>
                       <Badge className={`${order.emailSentAt ? "bg-emerald-100 text-emerald-800" : "bg-rose-100 text-rose-800"} px-3 py-1`}>
@@ -747,20 +788,6 @@ export default function AdminOrdersPage() {
                           Download
                         </Link>
                       )}
-                      <Link
-                        href={`/api/orders/artwork-pack?orderId=${encodeURIComponent(order.id)}`}
-                        target="_blank"
-                        rel="noreferrer"
-                        className="rounded-full bg-white px-3 py-1 text-xs font-black text-purple-700 underline"
-                      >
-                        Artwork JSON
-                      </Link>
-                      <Link
-                        href={`/api/orders/artwork-pack?orderId=${encodeURIComponent(order.id)}&format=csv`}
-                        className="rounded-full bg-white px-3 py-1 text-xs font-black text-purple-700 underline"
-                      >
-                        Artwork CSV
-                      </Link>
                       <button
                         type="button"
                         onClick={() => deleteSingleOrder(order)}
@@ -810,20 +837,26 @@ export default function AdminOrdersPage() {
                         <p className="text-sm font-semibold text-slate-700">ID: {order.storyId}</p>
                         <p className="mt-1 text-sm font-semibold text-slate-700">Gender: {order.gender || "Not set"}</p>
                         <p className="mt-1 text-sm font-semibold text-slate-700">Reference photos selected: {order.photoCount ?? 0}</p>
-                        <div className="mt-3 grid gap-2 sm:grid-cols-2">
-                          <Button asChild variant="outline" className="h-9 rounded-xl border-purple-100 bg-white px-3 text-xs font-black text-purple-700 hover:bg-purple-50">
-                            <Link href={`/api/orders/artwork-pack?orderId=${encodeURIComponent(order.id)}`} target="_blank" rel="noreferrer">
-                              <Download className="h-4 w-4" />
-                              Artwork JSON
-                            </Link>
-                          </Button>
-                          <Button asChild variant="outline" className="h-9 rounded-xl border-purple-100 bg-white px-3 text-xs font-black text-purple-700 hover:bg-purple-50">
-                            <Link href={`/api/orders/artwork-pack?orderId=${encodeURIComponent(order.id)}&format=csv`}>
-                              <Download className="h-4 w-4" />
-                              Artwork CSV
-                            </Link>
-                          </Button>
-                        </div>
+                        <details className="mt-3 rounded-xl border border-purple-100 bg-purple-50 px-3 py-2">
+                          <summary className="cursor-pointer text-xs font-black text-purple-800">Advanced artwork exports</summary>
+                          <p className="mt-2 text-xs font-bold leading-5 text-purple-900">
+                            Only use these if artwork needs manual debugging. Normal Lulu fulfilment does not need them.
+                          </p>
+                          <div className="mt-3 grid gap-2 sm:grid-cols-2">
+                            <Button asChild variant="outline" className="h-9 rounded-xl border-purple-100 bg-white px-3 text-xs font-black text-purple-700 hover:bg-purple-50">
+                              <Link href={`/api/orders/artwork-pack?orderId=${encodeURIComponent(order.id)}`} target="_blank" rel="noreferrer">
+                                <Download className="h-4 w-4" />
+                                JSON
+                              </Link>
+                            </Button>
+                            <Button asChild variant="outline" className="h-9 rounded-xl border-purple-100 bg-white px-3 text-xs font-black text-purple-700 hover:bg-purple-50">
+                              <Link href={`/api/orders/artwork-pack?orderId=${encodeURIComponent(order.id)}&format=csv`}>
+                                <Download className="h-4 w-4" />
+                                CSV
+                              </Link>
+                            </Button>
+                          </div>
+                        </details>
                         {(order.photoCount ?? 0) > 0 && (
                           <div className="mt-2 space-y-2">
                             <p className="rounded-xl bg-amber-50 px-3 py-2 text-xs font-bold leading-5 text-amber-900">
@@ -906,12 +939,14 @@ export default function AdminOrdersPage() {
                             <Button
                               key={`${order.id}-${option.value}`}
                               type="button"
-                              onClick={() => updateFulfilmentStatus(order.id, option.value)}
+                              onClick={() => updateFulfilmentStatus(order, option.value)}
                               disabled={!paidForOrder}
                               variant={isSelected ? "default" : "outline"}
                               className={`h-10 rounded-xl text-xs font-black ${
                                 isSelected
-                                  ? "bg-sky-500 text-white hover:bg-sky-600 disabled:bg-rose-200 disabled:text-rose-800"
+                                  ? option.value === "sent"
+                                    ? "bg-emerald-600 text-white hover:bg-emerald-700 disabled:bg-rose-200 disabled:text-rose-800"
+                                    : "bg-sky-500 text-white hover:bg-sky-600 disabled:bg-rose-200 disabled:text-rose-800"
                                   : "border-sky-100 bg-white text-sky-700 hover:bg-sky-50 disabled:border-rose-100 disabled:bg-rose-50 disabled:text-rose-400"
                               }`}
                             >
@@ -934,7 +969,7 @@ export default function AdminOrdersPage() {
                           </div>
                           <div className="rounded-lg bg-purple-50 px-3 py-2 text-purple-800">2. Download Lulu interior PDF</div>
                           <div className="rounded-lg bg-purple-50 px-3 py-2 text-purple-800">3. Upload interior and cover to Lulu</div>
-                          <div className="rounded-lg bg-sky-50 px-3 py-2 text-sky-800">4. Order print, then mark Sent</div>
+                          <div className="rounded-lg bg-sky-50 px-3 py-2 text-sky-800">4. Order print, then mark Sent / complete</div>
                         </div>
                         {paidForOrder ? (
                           <div className="mt-3 grid gap-2 sm:grid-cols-2">

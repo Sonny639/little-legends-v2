@@ -1,9 +1,12 @@
 import Link from "next/link"
 import { Sparkles } from "lucide-react"
 
+import { SocialFollowStrip } from "@/components/social-follow-strip"
+
 export default function HomePage() {
   return (
     <main className="min-h-screen w-full overflow-x-hidden bg-[#070820]">
+      <SocialFollowStrip tone="dark" />
       <h1 className="sr-only">Little Legends Story</h1>
       <p className="sr-only">
         Your child becomes the hero in personalised magical bedtime storybooks.

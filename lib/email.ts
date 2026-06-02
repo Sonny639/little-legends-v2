@@ -310,6 +310,69 @@ export const deleteEmailLogEntry = async (emailId: string) => {
   return true
 }
 
+export const sendPrintFulfilmentEmail = async (order: OrderRecord) => {
+  if (order.product === "digital") {
+    throw new Error("Print fulfilment emails are only available for hardback orders")
+  }
+
+  const createdAt = new Date().toISOString()
+  const subject = `Your Little Legends hardback has been sent for printing: ${order.storyTitle}`
+  const body = withPlainEmailSignature([
+    `Hi there,`,
+    ``,
+    `Good news - ${order.heroName}'s hardback storybook has now been sent for printing and fulfilment.`,
+    ``,
+    `Story: ${order.storyTitle}`,
+    `Hero: ${order.heroName} the ${order.heroType}`,
+    `Order reference: ${order.id}`,
+    ``,
+    `The print partner will prepare the book and send it to the delivery address on your order. Please keep an eye out for any delivery or tracking updates.`,
+    ``,
+    `If anything looks wrong, reply via the contact page with your order reference and we will help.`,
+  ].join("\n"))
+  const html = renderBrandedEmail({
+    preheader: `${order.heroName}'s hardback storybook has been sent for printing.`,
+    title: "Sent for printing",
+    intro: `Good news - ${order.heroName}'s hardback storybook has now been sent for printing and fulfilment.`,
+    paragraphs: [
+      "The print partner will prepare the book and send it to the delivery address on your order.",
+      "Please keep an eye out for any delivery or tracking updates. If anything looks wrong, reply via the contact page with your order reference and we will help.",
+    ],
+    details: [
+      { label: "Story", value: order.storyTitle },
+      { label: "Hero", value: `${order.heroName} the ${order.heroType}` },
+      { label: "Order", value: order.id },
+      ...(order.postage ? [{ label: "Delivery", value: `${order.postage.fullName}, ${order.postage.country}` }] : []),
+    ],
+    footerNote: "You are receiving this because your hardback order is being fulfilled by Little Legends Story.",
+  })
+  let provider: EmailLogEntry["provider"] = "log"
+
+  try {
+    provider = (await sendSmtpEmail({ to: order.email, subject, text: body, html })) ? "smtp" : "log"
+  } catch (error) {
+    console.warn("Print fulfilment email could not be sent via SMTP; saved to email log only:", error)
+    provider = "log"
+  }
+
+  await appendEmailLog({
+    id: `email_print_${Date.now()}`,
+    createdAt,
+    to: order.email,
+    subject,
+    body,
+    orderId: order.id,
+    provider,
+  })
+
+  return {
+    provider,
+    sentAt: createdAt,
+    to: order.email,
+    subject,
+  }
+}
+
 export const sendOrderConfirmationEmail = async (order: OrderRecord) => {
   const downloadUrl = getOrderDownloadUrl(order.id)
   const upgradeUrl = order.product === "digital" ? getOrderUpgradeUrl(order.id) : ""
