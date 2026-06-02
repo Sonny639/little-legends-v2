@@ -750,6 +750,7 @@ export default function Home() {
           <span className="rounded-full bg-white/75 px-3 py-1.5 shadow-sm sm:px-4 sm:py-2">Create a story</span>
         </div>
         <div className="mt-2 flex flex-wrap justify-center gap-3 text-[11px] font-black text-sky-700 sm:text-sm">
+          <a href="/gallery" className="underline-offset-4 hover:underline">Gallery</a>
           <a href="/contact" className="underline-offset-4 hover:underline">Contact</a>
           <a href="/privacy" className="underline-offset-4 hover:underline">Privacy</a>
           <a href="/terms" className="underline-offset-4 hover:underline">Terms</a>
