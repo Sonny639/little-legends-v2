@@ -5,6 +5,9 @@ import { SocialFollowStrip } from "@/components/social-follow-strip"
 import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
 import { GallerySubmissionForm } from "@/app/gallery/gallery-submission-form"
+import { readPublishedGalleryEntries } from "@/lib/gallery"
+
+export const dynamic = "force-dynamic"
 
 const shareSteps = [
   {
@@ -39,17 +42,12 @@ const galleryPlaceholders = [
   },
 ]
 
-const galleryEntries: Array<{
-  title: string
-  images: Array<{
-    src: string
-    alt: string
-  }>
-  review: string
-  credit: string
-}> = []
+export default async function GalleryPage() {
+  const galleryEntries = await readPublishedGalleryEntries().catch((error) => {
+    console.error("Failed to load published gallery entries:", error)
+    return []
+  })
 
-export default function GalleryPage() {
   return (
     <main className="storybook-app-bg min-h-screen px-4 pb-24 pt-4 md:py-6">
       <SocialFollowStrip />

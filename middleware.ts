@@ -18,6 +18,7 @@ const isProtectedPath = (request: NextRequest) => {
   if (pathname === "/api/orders" && protectedOrderMethods.has(request.method)) return true
   if (pathname === "/api/enquiries" && protectedEnquiryMethods.has(request.method)) return true
   if (pathname === "/api/email-log") return true
+  if (pathname === "/api/gallery") return true
 
   return false
 }
@@ -74,5 +75,6 @@ export const config = {
     "/api/orders/artwork-pack",
     "/api/enquiries",
     "/api/email-log",
+    "/api/gallery",
   ],
 }
