@@ -3614,8 +3614,8 @@ export default function Home() {
   }
 
   return (
-    <div className={`${currentStep === "welcome" ? "min-h-[100svh]" : "min-h-screen"} overflow-x-hidden storybook-app-bg pb-20 md:pb-0`}>
-      <SocialFollowStrip />
+    <div className={`${currentStep === "welcome" ? "min-h-[100svh] pb-20 md:pb-0" : "min-h-screen"} overflow-x-hidden storybook-app-bg`}>
+      {currentStep === "welcome" && <SocialFollowStrip />}
       <div className={`container mx-auto px-3 sm:px-4 ${currentStep === "welcome" ? "flex min-h-[100svh] flex-col py-2 sm:py-3" : "py-5 sm:py-8"}`}>
         <div className={`flex items-center justify-between ${currentStep === "welcome" ? "mx-auto mb-3 w-full max-w-6xl shrink-0" : "mb-6"}`}>
           <button
