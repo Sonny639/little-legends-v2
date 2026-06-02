@@ -1,25 +1,48 @@
-const socialLinks = [
+import type { ComponentType, SVGProps } from "react"
+import { Facebook, Instagram } from "lucide-react"
+
+const iconClass = "h-[18px] w-[18px]"
+type SocialIcon = ComponentType<SVGProps<SVGSVGElement>>
+
+const TikTokLogo = ({ className = iconClass, ...props }: SVGProps<SVGSVGElement>) => (
+  <svg viewBox="0 0 24 24" className={className} fill="currentColor" {...props}>
+    <path d="M16.6 3c.4 2.5 1.8 4 4.1 4.3v3.2c-1.5 0-2.9-.4-4.1-1.2v5.8c0 3.4-2.3 5.9-5.8 5.9-3.1 0-5.5-2.2-5.5-5.2 0-3.3 2.7-5.5 6.4-5.2v3.3c-1.7-.3-3 .5-3 1.9 0 1.1.9 1.9 2.1 1.9 1.4 0 2.3-.8 2.3-2.5V3h3.5Z" />
+  </svg>
+)
+
+const XLogo = ({ className = iconClass, ...props }: SVGProps<SVGSVGElement>) => (
+  <svg viewBox="0 0 24 24" className={className} fill="currentColor" {...props}>
+    <path d="M17.7 3h3.1l-6.8 7.8 8 10.2h-6.3l-4.9-6.3L5.2 21H2.1l7.3-8.3L1.7 3h6.4l4.4 5.7L17.7 3Zm-1.1 16.2h1.7L7.1 4.7H5.3l11.3 14.5Z" />
+  </svg>
+)
+
+const socialLinks: Array<{
+  label: string
+  Icon: SocialIcon
+  href: string
+  className: string
+}> = [
   {
     label: "Facebook",
-    mark: "f",
+    Icon: Facebook,
     href: "https://www.facebook.com/share/18g2HD3NFj/?mibextid=wwXIfr",
     className: "bg-[#1877f2] text-white",
   },
   {
     label: "Instagram",
-    mark: "ig",
+    Icon: Instagram,
     href: "https://www.instagram.com/littlelegendsstory/",
     className: "bg-[#e1306c] text-white",
   },
   {
     label: "TikTok",
-    mark: "tk",
+    Icon: TikTokLogo,
     href: "https://www.tiktok.com/@littlelegendsstory",
     className: "bg-[#111111] text-white",
   },
   {
     label: "X",
-    mark: "x",
+    Icon: XLogo,
     href: "https://x.com/thelegendsstory",
     className: "bg-[#0f172a] text-white",
   },
@@ -44,7 +67,7 @@ export function SocialFollowStrip({ tone = "light" }: SocialFollowStripProps) {
         Follow the magic
       </p>
       <div className="mt-3 grid gap-2">
-        {socialLinks.map((social) => (
+        {socialLinks.map(({ Icon, ...social }) => (
           <a
             key={social.label}
             href={social.href}
@@ -52,9 +75,9 @@ export function SocialFollowStrip({ tone = "light" }: SocialFollowStripProps) {
             rel="noreferrer"
             aria-label={`Follow Little Legends Story on ${social.label}`}
             title={social.label}
-            className={`grid h-9 w-9 place-items-center rounded-full text-[0.68rem] font-black uppercase transition hover:-translate-y-0.5 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-amber-200/60 ${social.className}`}
+            className={`grid h-9 w-9 place-items-center rounded-full transition hover:-translate-y-0.5 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-amber-200/60 ${social.className}`}
           >
-            {social.mark}
+            <Icon aria-hidden="true" className={iconClass} />
           </a>
         ))}
       </div>

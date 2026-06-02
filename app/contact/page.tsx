@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
+import { SocialFollowStrip } from "@/components/social-follow-strip"
 
 export default function ContactPage() {
   const [name, setName] = useState("")
@@ -47,6 +48,7 @@ export default function ContactPage() {
 
   return (
     <main className="storybook-app-bg min-h-screen px-4 py-4 sm:py-5">
+      <SocialFollowStrip />
       <div className="mx-auto max-w-2xl">
         <Card className="storybook-panel p-4 sm:p-5">
           <Button asChild variant="outline" className="mb-4 h-9 rounded-xl border-sky-200 bg-white px-4 font-black text-sky-700">

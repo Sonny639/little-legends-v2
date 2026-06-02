@@ -1,3 +1,4 @@
+import argparse
 from pathlib import Path
 
 from PIL import Image, ImageColor, ImageDraw, ImageEnhance, ImageFilter, ImageFont
@@ -14,9 +15,8 @@ FRONT_SOURCE = ROOT / "public" / "little-legends-reading-hero-family.png"
 BACK_SOURCE = ROOT / "public" / "superhero-name-kids.png"
 LOGO_SOURCE = ROOT / "public" / "inspiration" / "magic-reference.png"
 
-PREVIEW_PATH = OUTPUT_DIR / "lulu-hardback-cover-draft.png"
-PDF_PATH = OUTPUT_DIR / "lulu-hardback-cover-draft.pdf"
 WEBSITE_URL = "https://www.littlelegendsstory.com"
+DEFAULT_OUTPUT_STEM = "lulu-hardback-cover-draft"
 
 # Lulu template values from yvrddev-cover-template.pdf
 DPI = 300
@@ -185,11 +185,19 @@ def draw_centered(draw: ImageDraw.ImageDraw, box: tuple[int, int, int, int], tex
     return total_height
 
 
-def build_preview():
+def build_preview(
+    front_source_path: Path = FRONT_SOURCE,
+    back_source_path: Path = BACK_SOURCE,
+    output_stem: str = DEFAULT_OUTPUT_STEM,
+    front_focus: tuple[float, float] = (0.56, 0.5),
+    right_wrap_focus: tuple[float, float] = (0.98, 0.5),
+):
+    preview_path = OUTPUT_DIR / f"{output_stem}.png"
+    pdf_path = OUTPUT_DIR / f"{output_stem}.pdf"
     canvas_img = Image.new("RGBA", (TOTAL_W, TOTAL_H), "#0a0d27")
-    front_source = print_boost(Image.open(FRONT_SOURCE).convert("RGB"))
-    back_source = print_boost(Image.open(BACK_SOURCE).convert("RGB"))
-    front = cover_crop(front_source, PANEL_W, PANEL_BOTTOM - PANEL_TOP, 0.56, 0.5)
+    front_source = print_boost(Image.open(front_source_path).convert("RGB"))
+    back_source = print_boost(Image.open(back_source_path).convert("RGB"))
+    front = cover_crop(front_source, PANEL_W, PANEL_BOTTOM - PANEL_TOP, *front_focus)
     back = cover_crop(back_source, PANEL_W, PANEL_BOTTOM - PANEL_TOP, 0.5, 0.5)
 
     canvas_img.paste(back, (BACK_LEFT, PANEL_TOP))
@@ -201,7 +209,7 @@ def build_preview():
 
     # Keep the wrap area visually continuous so the art folds cleanly around the boards.
     left_wrap = cover_crop(back_source, WRAP, PANEL_BOTTOM - PANEL_TOP, 0.02, 0.5)
-    right_wrap = cover_crop(front_source, WRAP, PANEL_BOTTOM - PANEL_TOP, 0.98, 0.5)
+    right_wrap = cover_crop(front_source, WRAP, PANEL_BOTTOM - PANEL_TOP, *right_wrap_focus)
     canvas_img.paste(left_wrap, (0, PANEL_TOP))
     canvas_img.paste(right_wrap, (FRONT_RIGHT, PANEL_TOP))
     add_vertical_gradient(canvas_img, (0, PANEL_TOP, WRAP, PANEL_BOTTOM), 0, 82)
@@ -230,8 +238,22 @@ def build_preview():
     # Front panel: keep typography light and let the artwork carry the page.
     logo = logo_heart()
     canvas_img.alpha_composite(logo, (FRONT_LEFT + 220, PANEL_TOP + 155))
-    draw.text((FRONT_LEFT + 350, PANEL_TOP + 188), "Little Legends Story", font=font(88, bold=True), fill="#fff8ea")
-    draw.text((FRONT_LEFT + 354, PANEL_TOP + 300), "Personalised magical storybooks", font=font(48), fill="#ffe7a5")
+    draw.text(
+        (FRONT_LEFT + 350, PANEL_TOP + 188),
+        "Little Legends Story",
+        font=font(88, bold=True),
+        fill="#fff8ea",
+        stroke_width=5,
+        stroke_fill="#2b1748",
+    )
+    draw.text(
+        (FRONT_LEFT + 354, PANEL_TOP + 300),
+        "Personalised magical storybooks",
+        font=font(48),
+        fill="#ffe7a5",
+        stroke_width=3,
+        stroke_fill="#2b1748",
+    )
 
     pill_w = 1460
     pill_h = 260
@@ -329,14 +351,32 @@ def build_preview():
         "#ffe7a5",
     )
 
-    canvas_img.convert("RGB").save(PREVIEW_PATH, quality=95)
+    canvas_img.convert("RGB").save(preview_path, quality=95)
 
-    pdf = canvas.Canvas(str(PDF_PATH), pagesize=(TOTAL_W_IN * 72, TOTAL_H_IN * 72))
+    pdf = canvas.Canvas(str(pdf_path), pagesize=(TOTAL_W_IN * 72, TOTAL_H_IN * 72))
     pdf.drawImage(ImageReader(canvas_img.convert("RGB")), 0, 0, width=TOTAL_W_IN * 72, height=TOTAL_H_IN * 72)
     pdf.save()
 
+    return preview_path, pdf_path
+
 
 if __name__ == "__main__":
-    build_preview()
-    print(PREVIEW_PATH)
-    print(PDF_PATH)
+    parser = argparse.ArgumentParser(description="Create Lulu hardback cover PDFs.")
+    parser.add_argument("--front-source", type=Path, default=FRONT_SOURCE)
+    parser.add_argument("--back-source", type=Path, default=BACK_SOURCE)
+    parser.add_argument("--output-stem", default=DEFAULT_OUTPUT_STEM)
+    parser.add_argument("--front-focus-x", type=float, default=0.56)
+    parser.add_argument("--front-focus-y", type=float, default=0.5)
+    parser.add_argument("--right-wrap-focus-x", type=float, default=0.98)
+    parser.add_argument("--right-wrap-focus-y", type=float, default=0.5)
+    args = parser.parse_args()
+
+    preview_path, pdf_path = build_preview(
+        front_source_path=args.front_source,
+        back_source_path=args.back_source,
+        output_stem=args.output_stem,
+        front_focus=(args.front_focus_x, args.front_focus_y),
+        right_wrap_focus=(args.right_wrap_focus_x, args.right_wrap_focus_y),
+    )
+    print(preview_path)
+    print(pdf_path)
