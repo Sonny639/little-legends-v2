@@ -58,29 +58,62 @@ export function SocialFollowStrip({ tone = "light" }: SocialFollowStripProps) {
       ? "border-white/20 bg-sky-950/72 text-white shadow-[0_12px_32px_rgba(0,0,0,0.28)]"
       : "border-sky-950/15 bg-white/92 text-sky-950 shadow-[0_12px_32px_rgba(8,47,73,0.16)]"
 
+  const renderLinks = (buttonClass: string) =>
+    socialLinks.map(({ Icon, ...social }) => (
+      <a
+        key={social.label}
+        href={social.href}
+        target="_blank"
+        rel="noreferrer"
+        aria-label={`Follow Little Legends Story on ${social.label}`}
+        title={social.label}
+        className={`${buttonClass} ${social.className}`}
+      >
+        <Icon aria-hidden="true" className={iconClass} />
+      </a>
+    ))
+
   return (
-    <aside
-      aria-label="Follow Little Legends Story"
-      className={`fixed left-3 top-1/2 z-40 hidden -translate-y-1/2 rounded-2xl border px-2.5 py-3 backdrop-blur md:block ${shellClass}`}
-    >
-      <p className="[writing-mode:vertical-rl] rotate-180 text-[0.68rem] font-black uppercase tracking-[0.18em]">
-        Follow the magic
-      </p>
-      <div className="mt-3 grid gap-2">
-        {socialLinks.map(({ Icon, ...social }) => (
-          <a
-            key={social.label}
-            href={social.href}
-            target="_blank"
-            rel="noreferrer"
-            aria-label={`Follow Little Legends Story on ${social.label}`}
-            title={social.label}
-            className={`grid h-9 w-9 place-items-center rounded-full transition hover:-translate-y-0.5 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-amber-200/60 ${social.className}`}
-          >
-            <Icon aria-hidden="true" className={iconClass} />
-          </a>
-        ))}
-      </div>
-    </aside>
+    <>
+      <aside
+        aria-label="Follow Little Legends Story"
+        className={`fixed bottom-3 left-1/2 z-40 flex -translate-x-1/2 items-center gap-2 rounded-full border px-2.5 py-2 backdrop-blur md:hidden ${shellClass}`}
+      >
+        <p className="whitespace-nowrap text-[0.68rem] font-black uppercase tracking-[0.14em]">Follow</p>
+        <div className="flex gap-1.5">
+          {renderLinks(
+            "grid h-9 w-9 place-items-center rounded-full transition active:scale-95 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-amber-200/60",
+          )}
+        </div>
+      </aside>
+
+      <aside
+        aria-label="Follow Little Legends Story"
+        className={`fixed right-3 top-1/2 z-40 hidden -translate-y-1/2 rounded-2xl border px-2.5 py-3 backdrop-blur md:block lg:hidden ${shellClass}`}
+      >
+        <p className="[writing-mode:vertical-rl] rotate-180 text-[0.68rem] font-black uppercase tracking-[0.18em]">
+          Follow the magic
+        </p>
+        <div className="mt-3 grid gap-2">
+          {renderLinks(
+            "grid h-9 w-9 place-items-center rounded-full transition hover:-translate-y-0.5 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-amber-200/60",
+          )}
+        </div>
+      </aside>
+
+      <aside
+        aria-label="Follow Little Legends Story"
+        className={`fixed left-3 top-1/2 z-40 hidden -translate-y-1/2 rounded-2xl border px-2.5 py-3 backdrop-blur lg:block ${shellClass}`}
+      >
+        <p className="[writing-mode:vertical-rl] rotate-180 text-[0.68rem] font-black uppercase tracking-[0.18em]">
+          Follow the magic
+        </p>
+        <div className="mt-3 grid gap-2">
+          {renderLinks(
+            "grid h-9 w-9 place-items-center rounded-full transition hover:-translate-y-0.5 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-amber-200/60",
+          )}
+        </div>
+      </aside>
+    </>
   )
 }

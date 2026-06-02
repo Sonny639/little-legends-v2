@@ -47,7 +47,7 @@ export default function ContactPage() {
   }
 
   return (
-    <main className="storybook-app-bg min-h-screen px-4 py-4 sm:py-5">
+    <main className="storybook-app-bg min-h-screen px-4 pb-24 pt-4 md:py-5">
       <SocialFollowStrip />
       <div className="mx-auto max-w-2xl">
         <Card className="storybook-panel p-4 sm:p-5">
