@@ -66,7 +66,7 @@ export default function ContactPage() {
           <div className="mt-4 rounded-2xl border-2 border-amber-100 bg-amber-50 px-4 py-3 text-sm font-bold leading-6 text-amber-950">
             Want to share photos or a review of your finished book? Visit the{" "}
             <Link href="/gallery" className="font-black text-sky-700 underline-offset-4 hover:underline">
-              Gallery & Reviews
+              Share Your Story
             </Link>{" "}
             page, or email them to hello@littlelegendsstory.com with what you are happy for us to publish.
           </div>

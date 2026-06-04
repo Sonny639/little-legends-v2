@@ -21,16 +21,16 @@ const shareSteps = [
     icon: ShieldCheck,
   },
   {
-    title: "Approved stories appear here",
-    text: "Once approved, we can add your review and book photos to this page.",
+    title: "We share chosen moments",
+    text: "If your photos are selected and approved, they may be featured on this page.",
     icon: Heart,
   },
 ]
 
 const galleryPlaceholders = [
   {
-    title: "Finished hardback photos",
-    text: "Real customer book photos can be added here once parents send them in and approve sharing.",
+    title: "Finished book moments",
+    text: "Share a favourite photo of your Little Legends book, gift moment, or bedtime read.",
   },
   {
     title: "Bedtime smiles",
@@ -47,6 +47,15 @@ export default async function GalleryPage() {
     console.error("Failed to load published gallery entries:", error)
     return []
   })
+  const hasPublishedEntries = galleryEntries.length > 0
+  const pageTitle = hasPublishedEntries ? "Gallery & Reviews" : "Share Your Story"
+  const introText = hasPublishedEntries
+    ? "Finished books, parent reviews, and magical reading moments shared by Little Legends families."
+    : "Have a finished Little Legends book or a magical reading moment to share? Send it in for review and possible feature."
+  const heroBadgeText = hasPublishedEntries ? "Family photos and reviews" : "Share a magical book moment"
+  const heroBadgeDescription = hasPublishedEntries
+    ? "Approved family photos and reviews from Little Legends readers."
+    : "Photos and words are only published with clear permission."
 
   return (
     <main className="storybook-app-bg min-h-screen px-4 pb-24 pt-4 md:py-6">
@@ -64,10 +73,10 @@ export default async function GalleryPage() {
             <div>
               <p className="text-xs font-black uppercase tracking-widest text-sky-700">Little Legends Story</p>
               <h1 className="mt-2 text-4xl font-black leading-tight text-sky-950 sm:text-5xl">
-                Gallery & Reviews
+                {pageTitle}
               </h1>
               <p className="mt-3 max-w-2xl text-base font-semibold leading-7 text-slate-700 sm:text-lg">
-                A little home for finished books, parent reviews, and magical reading moments shared by Little Legends families.
+                {introText}
               </p>
               <div className="mt-5 rounded-3xl border-2 border-amber-100 bg-amber-50/90 p-4 text-sm font-bold leading-6 text-amber-950 sm:p-5">
                 Want to share yours? Use the upload form below, or email photos and a short review to{" "}
@@ -87,10 +96,10 @@ export default async function GalleryPage() {
               <div className="absolute inset-x-4 bottom-4 rounded-3xl border border-white/70 bg-white/90 p-4 shadow-lg backdrop-blur">
                 <div className="flex items-center gap-2 text-sm font-black text-sky-950">
                   <Star className="h-5 w-5 fill-amber-300 text-amber-400" />
-                  Real customer photos and reviews
+                  {heroBadgeText}
                 </div>
                 <p className="mt-1 text-sm font-semibold leading-5 text-slate-700">
-                  Approved family photos and reviews can be added here whenever you are ready.
+                  {heroBadgeDescription}
                 </p>
               </div>
             </div>

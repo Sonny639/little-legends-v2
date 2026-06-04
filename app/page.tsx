@@ -27,7 +27,13 @@ export default function HomePage() {
             className="hero-cta relative flex min-h-[4.45rem] items-center justify-center gap-3 rounded-full bg-[linear-gradient(135deg,#fff5cb_0%,#ffe08a_48%,#ffd56b_100%)] px-5 text-[clamp(1.15rem,5vw,1.5rem)] font-black tracking-normal text-[#35165f] transition hover:-translate-y-0.5 hover:brightness-105 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-amber-200/45 max-[380px]:min-h-[4rem]"
           >
             <Sparkles className="h-[1.08em] w-[1.08em]" />
-            Begin the Magic
+            Create Your Child's Story
+          </Link>
+          <Link
+            href="/create?how=1"
+            className="relative mx-auto mt-2 flex h-11 w-[78%] items-center justify-center rounded-full border border-white/70 bg-white/86 px-4 text-sm font-black text-[#35165f] shadow-[0_10px_25px_rgba(18,8,54,0.16)] backdrop-blur transition hover:-translate-y-0.5 hover:bg-white focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-amber-200/45 max-[380px]:h-10"
+          >
+            See How It Works
           </Link>
         </div>
       </section>
@@ -48,7 +54,13 @@ export default function HomePage() {
               className="hero-cta relative flex h-[9.1%] min-h-[4.7rem] items-center justify-center gap-[1.8%] rounded-full bg-[linear-gradient(135deg,#fff5cb_0%,#ffe08a_48%,#ffd56b_100%)] px-[4%] text-[clamp(1rem,1.7vw,1.52rem)] font-black tracking-normal text-[#35165f] transition hover:-translate-y-0.5 hover:brightness-105 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-amber-200/45"
             >
               <Sparkles className="h-[1.08em] w-[1.08em]" />
-              Begin the Magic
+              Create Your Child's Story
+            </Link>
+            <Link
+              href="/create?how=1"
+              className="relative mx-auto mt-[2.2%] flex min-h-[2.8rem] w-[66%] items-center justify-center rounded-full border border-white/70 bg-white/86 px-[4%] text-[clamp(0.82rem,1vw,1rem)] font-black text-[#35165f] shadow-[0_10px_25px_rgba(18,8,54,0.15)] backdrop-blur transition hover:-translate-y-0.5 hover:bg-white focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-amber-200/45"
+            >
+              See How It Works
             </Link>
           </div>
         </div>

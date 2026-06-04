@@ -205,6 +205,14 @@ export default function Home() {
     phone: "",
   })
 
+  useEffect(() => {
+    const searchParams = new URLSearchParams(window.location.search)
+
+    if (searchParams.get("how") === "1") {
+      setHowItWorksOpen(true)
+    }
+  }, [])
+
   // Initialize legend names and randomize when gender changes
   useEffect(() => {
     const initialLegendNames = [
