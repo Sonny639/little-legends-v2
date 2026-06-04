@@ -4,6 +4,7 @@ import { ArrowLeft, Camera, Heart, Mail, ShieldCheck, Sparkles, Star } from "luc
 import { SocialFollowStrip } from "@/components/social-follow-strip"
 import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
+import { GalleryEntryGrid } from "@/app/gallery/gallery-entry-grid"
 import { GallerySubmissionForm } from "@/app/gallery/gallery-submission-form"
 import { readPublishedGalleryEntries } from "@/lib/gallery"
 
@@ -105,29 +106,7 @@ export default async function GalleryPage() {
             </div>
           </section>
 
-          {galleryEntries.length > 0 && (
-            <section className="mt-6 grid gap-4 md:grid-cols-2 xl:grid-cols-3">
-              {galleryEntries.map((entry) => (
-                <article key={entry.title} className="overflow-hidden rounded-3xl bg-white/85 shadow-sm">
-                  <div className={`grid gap-1 ${entry.images.length > 1 ? "grid-cols-2" : ""}`}>
-                    {entry.images.slice(0, 4).map((image, index) => (
-                      <img
-                        key={image.src}
-                        src={image.src}
-                        alt={image.alt}
-                        className={`${entry.images.length > 1 ? "h-40" : "h-72"} w-full object-cover ${index === 0 && entry.images.length === 3 ? "col-span-2" : ""}`}
-                      />
-                    ))}
-                  </div>
-                  <div className="p-4">
-                    <h2 className="text-lg font-black text-sky-950">{entry.title}</h2>
-                    <p className="mt-2 text-sm font-semibold leading-6 text-slate-700">{entry.review}</p>
-                    <p className="mt-3 text-xs font-black uppercase tracking-widest text-rose-500">{entry.credit}</p>
-                  </div>
-                </article>
-              ))}
-            </section>
-          )}
+          {galleryEntries.length > 0 && <GalleryEntryGrid entries={galleryEntries} />}
 
           <section className="mt-6 grid gap-4 md:grid-cols-3">
             {galleryPlaceholders.map(({ title, text }) => (
