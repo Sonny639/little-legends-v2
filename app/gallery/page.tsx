@@ -53,7 +53,7 @@ export default async function GalleryPage() {
   const introText = hasPublishedEntries
     ? "Finished books, parent reviews, and magical reading moments shared by Little Legends families."
     : "Have a finished Little Legends book or a magical reading moment to share? Send it in for review and possible feature."
-  const heroBadgeText = hasPublishedEntries ? "Family photos and reviews" : "Share a magical book moment"
+  const heroBadgeText = hasPublishedEntries ? "Little Legends in Real Life" : "Share a magical book moment"
   const heroBadgeDescription = hasPublishedEntries
     ? "Approved family photos and reviews from Little Legends readers."
     : "Photos and words are only published with clear permission."
