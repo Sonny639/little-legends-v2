@@ -16,6 +16,7 @@ import { getStoryArtworkFallback } from "@/lib/story-artwork-fallbacks"
 import { getStoryForCharacter, getStoryPathSummary, type StoryPathChoice } from "@/lib/stories"
 import { StoryArtPlaceholder } from "@/components/story-art-placeholder"
 import { SocialFollowStrip } from "@/components/social-follow-strip"
+import { launchOffer } from "@/lib/launch-offer"
 
 type UploadedPhoto = {
   file: File
@@ -752,10 +753,33 @@ export default function Home() {
           How it works
         </Button>
 
+        <div className="mt-3 w-full max-w-xl rounded-2xl border-2 border-amber-200 bg-amber-50/92 px-4 py-3 text-center shadow-sm sm:mt-4">
+          <p className="text-xs font-black uppercase tracking-widest text-amber-800">{launchOffer.headline}</p>
+          <p className="mt-1 text-sm font-black leading-5 text-sky-950">
+            Use code <span className="rounded-md bg-white px-2 py-0.5 text-rose-600 shadow-sm">{launchOffer.code}</span> for {launchOffer.discount} - {launchOffer.limit}.
+          </p>
+        </div>
+
         <div className="mt-2 flex flex-wrap justify-center gap-1.5 text-[11px] font-bold text-[#7a6692] min-[390px]:mt-3 sm:mt-4 sm:gap-3 sm:text-sm">
           <span className="rounded-full bg-white/75 px-3 py-1.5 shadow-sm sm:px-4 sm:py-2">Choose a hero name</span>
           <span className="rounded-full bg-white/75 px-3 py-1.5 shadow-sm sm:px-4 sm:py-2">Add photos</span>
           <span className="rounded-full bg-white/75 px-3 py-1.5 shadow-sm sm:px-4 sm:py-2">Create a story</span>
+        </div>
+        <div className="mt-3 grid w-full max-w-3xl gap-2 text-left sm:mt-4 sm:grid-cols-2 sm:gap-3">
+          <div className="rounded-2xl border-2 border-sky-100 bg-white/82 px-4 py-3 shadow-sm">
+            <div className="flex items-center justify-between gap-3">
+              <p className="text-sm font-black text-sky-950">Digital Storybook</p>
+              <p className="shrink-0 text-sm font-black text-rose-600">{money.format(checkoutProducts.digital.price)}</p>
+            </div>
+            <p className="mt-1 text-xs font-bold leading-5 text-slate-700">Fast access after order confirmation.</p>
+          </div>
+          <div className="rounded-2xl border-2 border-emerald-100 bg-white/82 px-4 py-3 shadow-sm">
+            <div className="flex items-center justify-between gap-3">
+              <p className="text-sm font-black text-sky-950">Hardback Keepsake</p>
+              <p className="shrink-0 text-sm font-black text-rose-600">{money.format(checkoutProducts.hardback.price)}</p>
+            </div>
+            <p className="mt-1 text-xs font-bold leading-5 text-slate-700">Printed on demand. UK delivery usually estimated around 5-10 working days.</p>
+          </div>
         </div>
         <div className="mt-2 flex flex-wrap justify-center gap-3 text-[11px] font-black text-sky-700 sm:text-sm">
           <a href="/gallery" className="underline-offset-4 hover:underline">Gallery</a>
@@ -1250,7 +1274,7 @@ export default function Home() {
             <div>
               <p className="text-sm font-black text-emerald-900">Used for their illustrated character</p>
               <p className="mt-1 text-sm font-semibold leading-6 text-emerald-800">
-                Photos help us create a warm storybook likeness and are stored privately with your order for artwork reference.
+                Your child's photo is used only to create their personalised storybook artwork. We never sell personal information or use your child's image in adverts without permission.
               </p>
             </div>
           </div>
@@ -2780,7 +2804,7 @@ export default function Home() {
         ? "Available straight after payment"
         : shippingQuote?.amountPence
           ? "Printed after payment; international delivery times vary"
-          : "Printed and posted in 5-7 working days"
+          : "Printed on demand; UK delivery usually estimated around 5-10 working days"
 
     const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
       event.preventDefault()
@@ -3136,6 +3160,13 @@ export default function Home() {
                   </button>
                 )
               })}
+            </div>
+
+            <div className="mt-4 rounded-2xl border-2 border-amber-200 bg-amber-50 px-4 py-3">
+              <p className="text-xs font-black uppercase tracking-widest text-amber-800">{launchOffer.headline}</p>
+              <p className="mt-1 text-sm font-bold leading-6 text-sky-950">
+                Enter code <span className="rounded-md bg-white px-2 py-0.5 font-black text-rose-600 shadow-sm">{launchOffer.code}</span> in Stripe Checkout for {launchOffer.discount}. Limited to the {launchOffer.limit}.
+              </p>
             </div>
 
             <div className="mt-6 grid gap-4">

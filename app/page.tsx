@@ -1,7 +1,9 @@
 import Link from "next/link"
-import { Sparkles } from "lucide-react"
+import { ShieldCheck, Sparkles, TicketPercent } from "lucide-react"
 
 import { SocialFollowStrip } from "@/components/social-follow-strip"
+import { HomepageInfoPanel } from "@/app/homepage-info-panel"
+import { launchOffer } from "@/lib/launch-offer"
 
 export default function HomePage() {
   return (
@@ -38,6 +40,24 @@ export default function HomePage() {
         </div>
       </section>
 
+      <section className="bg-[#070820] px-4 pb-3 pt-2 sm:hidden">
+        <div className="mx-auto mb-2 max-w-md rounded-2xl border border-amber-200/40 bg-amber-100/12 px-3 py-3 text-left shadow-[0_12px_32px_rgba(0,0,0,0.22)] backdrop-blur">
+          <div className="flex items-center gap-2">
+            <TicketPercent className="h-5 w-5 shrink-0 text-amber-200" />
+            <p className="text-xs font-black uppercase tracking-widest text-amber-100">{launchOffer.headline}</p>
+          </div>
+          <p className="mt-1 text-sm font-black leading-5 text-white">
+            Use code <span className="rounded-md bg-white px-1.5 py-0.5 text-[#35165f]">{launchOffer.code}</span> for {launchOffer.discount} - {launchOffer.limit}.
+          </p>
+        </div>
+        <div className="mx-auto flex max-w-md gap-3 rounded-2xl border border-emerald-200/30 bg-emerald-50/10 px-3 py-3 text-left shadow-[0_12px_32px_rgba(0,0,0,0.22)] backdrop-blur">
+          <ShieldCheck className="mt-0.5 h-5 w-5 shrink-0 text-emerald-200" />
+          <p className="text-xs font-bold leading-5 text-white/92">
+            Your child's photo is used only to create their personalised storybook artwork. We never sell personal information or use your child's image in adverts without permission.
+          </p>
+        </div>
+      </section>
+
       <section className="relative hidden h-screen w-screen place-items-center overflow-hidden sm:grid">
         <div className="relative aspect-[1600/980] max-h-screen w-screen max-w-[calc(100vh*1600/980)]">
           <img
@@ -62,9 +82,26 @@ export default function HomePage() {
             >
               See How It Works
             </Link>
+            <div className="relative mx-auto mt-[2%] w-[78%] rounded-2xl border border-amber-200/40 bg-amber-100/14 px-3 py-2.5 text-left shadow-[0_12px_34px_rgba(0,0,0,0.2)] backdrop-blur">
+              <div className="flex items-center gap-2">
+                <TicketPercent className="h-[1rem] w-[1rem] shrink-0 text-amber-200" />
+                <p className="text-[clamp(0.62rem,0.72vw,0.78rem)] font-black uppercase tracking-widest text-amber-100">{launchOffer.headline}</p>
+              </div>
+              <p className="mt-1 text-[clamp(0.72rem,0.82vw,0.9rem)] font-black leading-[1.3] text-white">
+                Use code <span className="rounded bg-white px-1.5 py-0.5 text-[#35165f]">{launchOffer.code}</span> for {launchOffer.discount} - {launchOffer.limit}.
+              </p>
+            </div>
+            <div className="relative mx-auto mt-[2%] flex w-[84%] gap-2 rounded-2xl border border-emerald-200/30 bg-[#071428]/66 px-3 py-2.5 text-left shadow-[0_12px_34px_rgba(0,0,0,0.22)] backdrop-blur">
+              <ShieldCheck className="mt-0.5 h-[1rem] w-[1rem] shrink-0 text-emerald-200" />
+              <p className="text-[clamp(0.68rem,0.78vw,0.82rem)] font-bold leading-[1.35] text-white/92">
+                Your child's photo is used only to create their personalised storybook artwork. We never sell personal information or use your child's image in adverts without permission.
+              </p>
+            </div>
           </div>
         </div>
       </section>
+
+      <HomepageInfoPanel />
     </main>
   )
 }
