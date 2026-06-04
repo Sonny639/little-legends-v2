@@ -6,7 +6,7 @@ import { isRequestTooLarge } from "@/lib/request-size"
 export const runtime = "nodejs"
 
 const galleryStatuses: GalleryEntryStatus[] = ["draft", "published"]
-const maxGalleryUploadBytes = 28 * 1024 * 1024
+const maxGalleryUploadBytes = 4 * 1024 * 1024
 
 export async function GET() {
   try {

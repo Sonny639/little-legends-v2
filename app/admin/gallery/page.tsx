@@ -28,6 +28,12 @@ type AdminGalleryEntry = {
   }>
 }
 
+const maxGalleryFileCount = 4
+const maxOptimisedImageBytes = 950 * 1024
+const maxOptimisedUploadBytes = 3.8 * 1024 * 1024
+const imageQualitySteps = [0.82, 0.74, 0.66, 0.58]
+const imageMaxEdgeSteps = [1600, 1400, 1200, 1000]
+
 const statusStyles: Record<GalleryEntryStatus, string> = {
   draft: "bg-amber-100 text-amber-900",
   published: "bg-emerald-100 text-emerald-800",
@@ -38,6 +44,109 @@ const formatDate = (value: string) =>
     dateStyle: "medium",
     timeStyle: "short",
   }).format(new Date(value))
+
+const readJsonResponse = async (response: Response) => {
+  const text = await response.text()
+
+  if (!text) return {}
+
+  try {
+    return JSON.parse(text)
+  } catch {
+    return {
+      error:
+        response.status === 413 || /request entity too large|body exceeded|too large/i.test(text)
+          ? "Those photos are too large to upload together. The admin page now optimises images first, so please select the photos again and try once more."
+          : text.slice(0, 180) || "The server returned an unreadable response.",
+    }
+  }
+}
+
+const loadImage = (file: File) =>
+  new Promise<HTMLImageElement>((resolve, reject) => {
+    const objectUrl = URL.createObjectURL(file)
+    const image = new Image()
+
+    image.onload = () => {
+      URL.revokeObjectURL(objectUrl)
+      resolve(image)
+    }
+    image.onerror = () => {
+      URL.revokeObjectURL(objectUrl)
+      reject(new Error(`Could not read ${file.name || "that image"}. Try a JPG, PNG, or WEBP file.`))
+    }
+    image.src = objectUrl
+  })
+
+const canvasToBlob = (canvas: HTMLCanvasElement, quality: number) =>
+  new Promise<Blob>((resolve, reject) => {
+    canvas.toBlob(
+      (blob) => {
+        if (blob) {
+          resolve(blob)
+        } else {
+          reject(new Error("Could not prepare the gallery image."))
+        }
+      },
+      "image/jpeg",
+      quality,
+    )
+  })
+
+const optimiseGalleryImage = async (file: File) => {
+  if (!file.type.startsWith("image/")) {
+    throw new Error("Only image files can be added to the gallery.")
+  }
+
+  const image = await loadImage(file)
+  let bestBlob: Blob | null = null
+
+  for (const maxEdge of imageMaxEdgeSteps) {
+    const scale = Math.min(1, maxEdge / Math.max(image.naturalWidth, image.naturalHeight))
+    const width = Math.max(1, Math.round(image.naturalWidth * scale))
+    const height = Math.max(1, Math.round(image.naturalHeight * scale))
+    const canvas = document.createElement("canvas")
+    const context = canvas.getContext("2d")
+
+    if (!context) {
+      throw new Error("This browser could not prepare the gallery images.")
+    }
+
+    canvas.width = width
+    canvas.height = height
+    context.fillStyle = "#ffffff"
+    context.fillRect(0, 0, width, height)
+    context.drawImage(image, 0, 0, width, height)
+
+    for (const quality of imageQualitySteps) {
+      const blob = await canvasToBlob(canvas, quality)
+      bestBlob = blob
+
+      if (blob.size <= maxOptimisedImageBytes) {
+        const baseName = (file.name || "gallery-photo").replace(/\.[^.]+$/, "")
+        return new File([blob], `${baseName}.jpg`, { type: "image/jpeg", lastModified: Date.now() })
+      }
+    }
+  }
+
+  if (!bestBlob) {
+    throw new Error("Could not prepare the gallery images.")
+  }
+
+  const baseName = (file.name || "gallery-photo").replace(/\.[^.]+$/, "")
+  return new File([bestBlob], `${baseName}.jpg`, { type: "image/jpeg", lastModified: Date.now() })
+}
+
+const optimiseGalleryImages = async (files: File[]) => {
+  const optimisedFiles = await Promise.all(files.slice(0, maxGalleryFileCount).map(optimiseGalleryImage))
+  const totalBytes = optimisedFiles.reduce((total, file) => total + file.size, 0)
+
+  if (totalBytes > maxOptimisedUploadBytes) {
+    throw new Error("Those photos are still too large together. Try uploading fewer photos, or crop them slightly before selecting them.")
+  }
+
+  return optimisedFiles
+}
 
 export default function AdminGalleryPage() {
   const [entries, setEntries] = useState<AdminGalleryEntry[]>([])
@@ -80,22 +189,24 @@ export default function AdminGalleryPage() {
 
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault()
+    const form = event.currentTarget
     setIsSaving(true)
-    setMessage("")
+    setMessage("Optimising photos for upload...")
 
     try {
+      const optimisedFiles = await optimiseGalleryImages(selectedFiles)
       const formData = new FormData()
       formData.set("title", title)
       formData.set("review", review)
       formData.set("credit", credit)
       formData.set("status", publishNow ? "published" : "draft")
-      selectedFiles.forEach((file) => formData.append("images", file))
+      optimisedFiles.forEach((file) => formData.append("images", file))
 
       const response = await fetch("/api/gallery", {
         method: "POST",
         body: formData,
       })
-      const data = await response.json()
+      const data = await readJsonResponse(response)
 
       if (!response.ok) {
         throw new Error(data.error || "Could not save gallery post")
@@ -107,7 +218,7 @@ export default function AdminGalleryPage() {
       setCredit("")
       setPublishNow(true)
       setSelectedFiles([])
-      event.currentTarget.reset()
+      form.reset()
       setMessage(data.entry.status === "published" ? "Gallery post published." : "Gallery post saved as draft.")
     } catch (error) {
       setMessage(error instanceof Error ? error.message : "Could not save gallery post.")
@@ -125,7 +236,7 @@ export default function AdminGalleryPage() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ entryId, status }),
       })
-      const data = await response.json()
+      const data = await readJsonResponse(response)
 
       if (!response.ok) throw new Error(data.error || "Could not update gallery post")
 
@@ -143,7 +254,7 @@ export default function AdminGalleryPage() {
 
     try {
       const response = await fetch(`/api/gallery?entryId=${encodeURIComponent(entry.id)}`, { method: "DELETE" })
-      const data = await response.json()
+      const data = await readJsonResponse(response)
 
       if (!response.ok) throw new Error(data.error || "Could not delete gallery post")
 
@@ -230,11 +341,17 @@ export default function AdminGalleryPage() {
                 type="file"
                 accept="image/jpeg,image/png,image/webp"
                 multiple
-                onChange={(event) => setSelectedFiles(Array.from(event.target.files || []))}
+                onChange={(event) => {
+                  const files = Array.from(event.target.files || []).slice(0, maxGalleryFileCount)
+                  setSelectedFiles(files)
+                  if (files.length > 0) {
+                    setMessage("Photos selected. They will be optimised automatically before publishing.")
+                  }
+                }}
                 className="h-auto rounded-xl border-2 border-sky-100 bg-white py-3 font-bold"
                 required
               />
-              <p className="text-xs font-bold text-slate-600">Add 1 to 4 approved JPG, PNG, or WEBP photos. Each image can be up to 6MB.</p>
+              <p className="text-xs font-bold text-slate-600">Add 1 to 4 approved JPG, PNG, or WEBP photos. Large phone photos are resized automatically before upload.</p>
             </div>
 
             {previewUrls.length > 0 && (

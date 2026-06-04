@@ -38,7 +38,7 @@ const localGalleryFile = path.join(localGalleryDirectory, "entries.json")
 const galleryManifestPath = "gallery/entries.json"
 const galleryImagePrefix = "gallery/images"
 const maxGalleryImages = 4
-const maxGalleryImageSizeBytes = 6 * 1024 * 1024
+const maxGalleryImageSizeBytes = 1024 * 1024
 const allowedGalleryMimeTypes = new Set(["image/jpeg", "image/png", "image/webp"])
 
 const getGalleryBucket = () => process.env.SUPABASE_GALLERY_STORAGE_BUCKET || process.env.SUPABASE_STORAGE_BUCKET || "order-photos"
