@@ -580,6 +580,13 @@ export default function Home() {
         const statusResult = await readJsonResponse(statusResponse)
         const preview = statusResult.preview
 
+        if (statusResponse.status === 429) {
+          const retryAfterSeconds = Number(statusResponse.headers.get("Retry-After") || "8")
+          setLikenessPreviewMessage("Your preview is still being prepared. We are checking again in a moment.")
+          await wait(Math.max(3, Math.min(20, retryAfterSeconds)) * 1000)
+          continue
+        }
+
         if (!statusResponse.ok) {
           throw new Error(statusResult.error || "Could not read the first-page preview status.")
         }

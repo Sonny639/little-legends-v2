@@ -109,7 +109,7 @@ export async function GET(request: NextRequest) {
     const clientIp = getClientIp(request)
     const rateLimit = checkRateLimit({
       key: `story-preview-status:${clientIp}:${requestId}`,
-      limit: 30,
+      limit: 90,
       windowMs: 15 * 60 * 1000,
     })
 
