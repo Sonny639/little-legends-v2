@@ -1,6 +1,7 @@
 import { resolveFullStoryPages } from "@/lib/full-story"
 import {
   generatedArtworkNegativePromptAdditions,
+  getChildPortraitQualityPrompt,
   getHairContinuityPrompt,
   getMouthContinuityPrompt,
 } from "@/lib/artwork-continuity-prompts"
@@ -85,6 +86,7 @@ export const createOrderArtworkPack = async (order: OrderRecord) => {
           : "",
         "Final artwork requirement: premium full-page children's storybook illustration, warm magical lighting, child-friendly emotion, no text in image.",
         "Face-swap requirement: keep the child's face front-facing, unobstructed, well lit, and large enough for later replacement.",
+        getChildPortraitQualityPrompt("the customer reference photo"),
         getHairContinuityPrompt({
           storyId: order.storyId,
           gender,

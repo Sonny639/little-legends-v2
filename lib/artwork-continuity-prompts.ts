@@ -50,7 +50,15 @@ const highRiskHairByStory: Record<string, Partial<Record<Gender, string>>> = {
 }
 
 export const generatedArtworkNegativePromptAdditions =
-  "distorted mouth, distorted teeth, extra teeth, adult teeth, sharp teeth, dark gaps in teeth"
+  "uncanny face, harsh face, distorted mouth, distorted teeth, extra teeth, adult teeth, sharp teeth, dark gaps in teeth"
+
+export const getChildPortraitQualityPrompt = (referenceLabel = "image 2") =>
+  [
+    "Child portrait quality requirement: the hero must look lovely, warm, healthy, glowing, kind, and childlike.",
+    `Keep the child recognisable from ${referenceLabel}, but make the finished expression flattering, gentle, natural, and suitable for a premium keepsake storybook.`,
+    "Eyes should look bright and friendly, cheeks softly lit, skin natural and even, and the whole face should feel charming rather than uncanny.",
+    "If a facial detail is uncertain, choose the softer, simpler, more natural option rather than adding complex invented detail.",
+  ].join(" ")
 
 export const getHairContinuityPrompt = ({
   storyId,
@@ -88,3 +96,6 @@ export const getBaseArtworkHairRiskPrompt = (storyId: string, gender: Gender) =>
 
 export const baseArtworkMouthRiskPrompt =
   "Keep the mouth and smile natural, childlike, and easy to personalise later. Avoid adult teeth, extra teeth, sharp teeth, crowded teeth, dark gaps, exaggerated grins, or distorted mouths."
+
+export const baseArtworkPortraitQualityPrompt =
+  "Keep the hero's face lovely, warm, glowing, childlike, friendly, and premium-storybook charming. Avoid uncanny expressions or harsh facial details."

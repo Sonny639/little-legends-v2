@@ -1,4 +1,5 @@
 import {
+  baseArtworkPortraitQualityPrompt,
   baseArtworkMouthRiskPrompt,
   generatedArtworkNegativePromptAdditions,
   getBaseArtworkHairRiskPrompt,
@@ -120,6 +121,7 @@ export const getArtworkPromptPack = (options?: {
       "Story fit requirement: image must match the exact page title, setting, emotional beat, and hero role described in the brief.",
       "Reference match requirement: preserve the child's visible skin tone and facial features from the uploaded reference photo.",
       "Face-swap requirement: child face must be front-facing, unobstructed, well lit, and large enough for later replacement.",
+      baseArtworkPortraitQualityPrompt,
       getBaseArtworkHairRiskPrompt(item.storyId, item.gender),
       baseArtworkMouthRiskPrompt,
     ].join(" "),

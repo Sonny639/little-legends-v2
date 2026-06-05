@@ -1,6 +1,10 @@
 import { fal } from "@fal-ai/client"
 
-import { getHairContinuityPrompt, getMouthContinuityPrompt } from "@/lib/artwork-continuity-prompts"
+import {
+  getChildPortraitQualityPrompt,
+  getHairContinuityPrompt,
+  getMouthContinuityPrompt,
+} from "@/lib/artwork-continuity-prompts"
 import { getStoryForCharacter } from "@/lib/stories"
 
 type StoryPreviewOptions = {
@@ -34,6 +38,7 @@ const getPrompt = (storyId: string, gender: "boy" | "girl") =>
     "Remove any original hero hair that conflicts with the child's hairstyle from image 2, including spikes, tufts, or extra strands that would show through behind the new hair.",
     "Keep the original pose, body, costume, background, composition, lighting, framing, and storybook art style from image 1 unchanged.",
     "Preserve the child likeness from image 2: face shape, exact skin tone and complexion, undertone, eyes, nose, mouth, expression, hairline, hair colour, and visible hairstyle.",
+    getChildPortraitQualityPrompt(),
     getHairContinuityPrompt({ storyId, gender }),
     getMouthContinuityPrompt(),
     "Match every visible area of the main hero child's skin to the child's complexion from image 2, including face, ears, neck, arms, elbows, hands, fingers, knees, legs, ankles, and feet where visible.",
