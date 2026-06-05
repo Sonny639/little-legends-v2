@@ -5,6 +5,7 @@ import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
 import { checkoutProducts } from "@/lib/checkout"
+import { formatHeroRole } from "@/lib/hero-title"
 import { hasValidOrderAccess } from "@/lib/order-access"
 import { readOrders } from "@/lib/orders"
 import { UpgradeCheckoutForm } from "./upgrade-form"
@@ -57,7 +58,7 @@ export default async function UpgradePage({ params, searchParams }: UpgradePageP
                   <p className="text-xs font-black uppercase tracking-widest text-sky-700">Original digital order</p>
                   <h2 className="mt-1 text-xl font-black text-sky-950">{order.storyTitle}</h2>
                   <p className="mt-1 text-sm font-semibold text-slate-700">
-                    {order.heroName} the {order.heroType}
+                    {formatHeroRole(order.heroName, order.heroType)}
                   </p>
                 </div>
                 <Button asChild variant="outline" className="h-11 rounded-xl border-sky-200 bg-white font-black text-sky-700">

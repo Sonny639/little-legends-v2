@@ -7,6 +7,7 @@ import { Camera, Download, Eye, Loader2, Mail, PackageCheck, Truck } from "lucid
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
+import { formatHeroRole } from "@/lib/hero-title"
 
 type CheckoutProduct = "digital" | "hardback" | "upgrade"
 type FulfilmentStatus = "new" | "in_progress" | "ready" | "sent"
@@ -149,7 +150,7 @@ export function PrintQueueClient({ initialOrders }: { initialOrders: PrintQueueO
                   )}
                 </div>
                 <h3 className="break-all text-xl font-black text-sky-950">{order.id}</h3>
-                <p className="mt-1 text-sm font-bold text-slate-700">{order.heroName} the {order.heroType}</p>
+                <p className="mt-1 text-sm font-bold text-slate-700">{formatHeroRole(order.heroName, order.heroType)}</p>
                 <p className="text-sm font-semibold text-slate-600">{order.storyTitle}</p>
                 <p className="mt-2 flex items-center gap-2 break-all text-xs font-bold text-slate-500">
                   <Mail className="h-3.5 w-3.5 shrink-0 text-sky-700" />

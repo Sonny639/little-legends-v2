@@ -5,6 +5,7 @@ import { Badge } from "@/components/ui/badge"
 import { Card } from "@/components/ui/card"
 import { readEmailLog } from "@/lib/email"
 import { readEnquiries } from "@/lib/enquiries"
+import { formatHeroRole } from "@/lib/hero-title"
 import { readOrders } from "@/lib/orders"
 import { AdminShell } from "./admin-shell"
 
@@ -83,7 +84,7 @@ export default async function AdminDashboardPage() {
                   <Badge className="bg-sky-100 text-sky-800">{order.product}</Badge>
                 </div>
                 <p className="mt-2 break-all text-sm font-black text-sky-950">{order.id}</p>
-                <p className="text-sm font-semibold text-slate-700">{order.heroName} the {order.heroType}</p>
+                <p className="text-sm font-semibold text-slate-700">{formatHeroRole(order.heroName, order.heroType)}</p>
               </div>
             ))}
             {orders.length === 0 && <p className="text-sm font-bold text-slate-600">No orders yet.</p>}

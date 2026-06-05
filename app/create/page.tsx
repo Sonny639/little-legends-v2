@@ -12,6 +12,7 @@ import { Upload, Sparkles, BookOpen, Star, Heart, Wand2, User, Search, Download,
 import { checkoutProducts } from "@/lib/checkout"
 import { resolveFullStoryPages } from "@/lib/full-story"
 import { getShippingCountryByCode, getShippingQuote, shippingCountries } from "@/lib/shipping"
+import { formatHeroRole } from "@/lib/hero-title"
 import { getStoryArtworkFallback } from "@/lib/story-artwork-fallbacks"
 import { getStoryForCharacter, getStoryPathSummary, type StoryPathChoice } from "@/lib/stories"
 import { StoryArtPlaceholder } from "@/components/story-art-placeholder"
@@ -258,11 +259,11 @@ export default function Home() {
       { name: "Blaze Runner", category: "powerful", gender: "any" },
 
       // Magical & Fantasy (Popular with Girls)
-      { name: "Princess Starlight", category: "magical", gender: "girl" },
+      { name: "Moonlight Rose", category: "magical", gender: "girl" },
       { name: "Lady Rainbow", category: "magical", gender: "girl" },
-      { name: "Queen Crystal", category: "magical", gender: "girl" },
-      { name: "Star Moonbeam", category: "magical", gender: "girl" },
-      { name: "Fairy Sparkle", category: "magical", gender: "girl" },
+      { name: "Crystal Wish", category: "magical", gender: "girl" },
+      { name: "Moonbeam Magic", category: "magical", gender: "girl" },
+      { name: "Sparkle Belle", category: "magical", gender: "girl" },
       { name: "Diamond Rose", category: "magical", gender: "girl" },
       { name: "Golden Butterfly", category: "magical", gender: "girl" },
       { name: "Silver Dream", category: "magical", gender: "girl" },
@@ -275,8 +276,8 @@ export default function Home() {
       { name: "Lord Phoenix", category: "adventure", gender: "boy" },
       { name: "Master Lightning", category: "adventure", gender: "boy" },
       { name: "Champion Bolt", category: "adventure", gender: "boy" },
-      { name: "Hero Striker", category: "adventure", gender: "boy" },
-      { name: "Knight Blazer", category: "adventure", gender: "boy" },
+      { name: "Turbo Striker", category: "adventure", gender: "boy" },
+      { name: "Blaze Charger", category: "adventure", gender: "boy" },
       { name: "Warrior Storm", category: "adventure", gender: "boy" },
       { name: "Ranger Swift", category: "adventure", gender: "boy" },
       { name: "Guardian Steel", category: "adventure", gender: "boy" },
@@ -287,7 +288,7 @@ export default function Home() {
       { name: "Rocket Blast", category: "modern", gender: "any" },
       { name: "Turbo Speed", category: "modern", gender: "any" },
       { name: "Laser Strike", category: "modern", gender: "any" },
-      { name: "Digital Hero", category: "modern", gender: "any" },
+      { name: "Digital Dash", category: "modern", gender: "any" },
       { name: "Tech Master", category: "modern", gender: "any" },
       { name: "Code Breaker", category: "modern", gender: "any" },
 
@@ -312,7 +313,7 @@ export default function Home() {
       { name: "Sweet Dreams", category: "friendly", gender: "any" },
 
       // Classic Heroes (Inspired by popular characters)
-      { name: "Wonder Star", category: "classic", gender: "any" },
+      { name: "Wonder Spark", category: "classic", gender: "any" },
       { name: "Super Nova", category: "classic", gender: "any" },
       { name: "Amazing Grace", category: "classic", gender: "any" },
       { name: "Incredible Force", category: "classic", gender: "any" },
@@ -620,42 +621,68 @@ export default function Home() {
   const generateLegendNames = (name: string, gender: "boy" | "girl") => {
     if (gender === "girl") {
       return [
-        `${name} Starlight`,
+        `Super ${name}`,
+        `Brave ${name}`,
+        `Kind ${name}`,
+        `Sparkle ${name}`,
+        `Magic ${name}`,
+        `Rainbow ${name}`,
+        `Sweet ${name}`,
+        `Lovely ${name}`,
+        `Moonlight ${name}`,
+        `Wonder ${name}`,
+        `${name} the Brave`,
+        `${name} the Kind`,
+        `${name} the Magical`,
+        `${name} the Gentle`,
+        `${name} the Wonderful`,
+        `${name} Shimmerlight`,
         `${name} Moonbeam`,
         `${name} Rose Sparkle`,
         `${name} Rainbow Heart`,
-        `${name} Crystal Star`,
-        `${name} Fairy Glow`,
+        `${name} Crystal Glow`,
+        `${name} Petal Glow`,
         `${name} Golden Lily`,
         `${name} Diamond Dream`,
         `${name} Twinkle Belle`,
         `${name} Pearl Shine`,
         `${name} Sunshine Wish`,
-        `${name} Butterfly Star`,
+        `${name} Butterfly Wish`,
         `${name} Magic Blossom`,
-        `${name} Star Princess`,
+        `${name} Sky Song`,
         `${name} Sparkle Joy`,
         `${name} Dream Dancer`,
         `${name} Glitter Grace`,
         `${name} Rainbow Rose`,
-        `${name} Sweet Star`,
+        `${name} Sweet Shine`,
         `${name} Wish Keeper`,
         `${name} Moonlight Lily`,
         `${name} Crystal Heart`,
-        `${name} Kindness Queen`,
+        `${name} Kindness Spark`,
         `${name} Wonder Bloom`,
-        `${name} Starflower`,
-        `${name} the Magical`,
-        `${name} the Shimmering`,
+        `${name} Glowflower`,
+        `${name} the Sparkly`,
       ]
     }
 
     return [
-      `${name} Star Shield`,
-      `${name} Thunderbolt`,
       `Super ${name}`,
-      `${name} the Galaxy Guardian`,
+      `Brave ${name}`,
+      `Kind ${name}`,
+      `Clever ${name}`,
       `Captain ${name}`,
+      `Lightning ${name}`,
+      `Rocket ${name}`,
+      `Cosmic ${name}`,
+      `Mighty ${name}`,
+      `${name} the Brave`,
+      `${name} the Kind`,
+      `${name} the Clever`,
+      `${name} the Mighty`,
+      `${name} the Great`,
+      `${name} Sky Shield`,
+      `${name} Thunderbolt`,
+      `${name} the Galaxy Guardian`,
       `${name} Lightning Heart`,
       `${name} Rocket Rider`,
       `${name} Magic Bolt`,
@@ -666,15 +693,13 @@ export default function Home() {
       `${name} Supernova`,
       `${name} Rainbow Rescue`,
       `${name} Firefly Force`,
-      `${name} Moonbeam Hero`,
+      `${name} Moonbeam Dash`,
       `${name} Sky Saver`,
       `${name} Spark Squad`,
-      `${name} the Great`,
-      `${name} the Brave`,
       `${name} Hope Keeper`,
       `${name} Dream Builder`,
-      `${name} Courage Star`,
-      `${name} Kindness Knight`,
+      `${name} Courage Spark`,
+      `${name} Kindness Bolt`,
       `${name} Wonder Heart`,
       `${name} Victory Spark`,
       `${name} Bright Future`,
@@ -1205,7 +1230,7 @@ export default function Home() {
               <div className="mt-4 space-y-3">
                 <Input
                   type="text"
-                  placeholder={`e.g. ${heroNameBase} Star Shield`}
+                  placeholder={`e.g. Super ${heroNameBase}`}
                   className="h-12 rounded-2xl border-sky-100 bg-white text-center text-lg font-bold text-sky-900 placeholder:text-sky-300"
                   value={customLegendName}
                   onChange={(e) => {
@@ -2151,7 +2176,7 @@ export default function Home() {
               <Badge className="mb-2 bg-amber-300 px-3 py-1 text-sky-950">{currentPage.kicker}</Badge>
               <h2 className="text-4xl font-black uppercase leading-tight text-sky-950 sm:text-5xl">{storyTitle}</h2>
               <p className="mt-1 text-lg font-black text-rose-600">
-                {heroName} the {heroType} comic adventure
+                {formatHeroRole(heroName, heroType)} comic adventure
               </p>
             </div>
             <div className="rounded-2xl border-4 border-sky-950 bg-sky-100 px-5 py-3 text-center shadow-[5px_5px_0_rgba(8,47,73,0.18)]">
@@ -3504,7 +3529,7 @@ export default function Home() {
                 <p className="text-xs font-black uppercase tracking-widest text-rose-500">Made especially for</p>
                 <h2 className="mt-2 text-3xl font-black leading-tight text-sky-950 sm:text-4xl">{heroName}</h2>
                 <p className="mt-2 text-lg font-bold leading-7 text-slate-700">
-                  A magical adventure starring {heroName} the {heroType}.
+                  A magical adventure starring {formatHeroRole(heroName, heroType)}.
                 </p>
               </div>
               <div className="grid gap-3 sm:grid-cols-2">

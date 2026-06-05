@@ -10,6 +10,7 @@ import { StoryPreparation } from "@/components/story-preparation"
 import { adminSessionCookieName, getAdminSessionToken, isAdminAuthEnabled } from "@/lib/admin-auth"
 import { artworkAssetPaths } from "@/lib/artwork-assets.generated"
 import { resolveFullStoryPages } from "@/lib/full-story"
+import { formatHeroRole } from "@/lib/hero-title"
 import {
   createOrderStoryArtworkLinks,
   getOrderStoryArtworkSummary,
@@ -386,7 +387,7 @@ export default async function DownloadPage({ params, searchParams }: DownloadPag
                 <p className="text-xs font-black uppercase tracking-widest text-rose-500">Made especially for</p>
                 <h2 className="mt-2 text-3xl font-black leading-tight text-sky-950 sm:text-4xl">{order.heroName}</h2>
                 <p className="mt-2 text-lg font-bold leading-7 text-slate-700">
-                  A magical adventure starring {order.heroName} the {order.heroType}.
+                  A magical adventure starring {formatHeroRole(order.heroName, order.heroType)}.
                 </p>
               </div>
               <div className="grid gap-3 sm:grid-cols-2">
@@ -436,7 +437,7 @@ export default async function DownloadPage({ params, searchParams }: DownloadPag
                   <h2 className="mt-5 text-4xl font-black uppercase leading-tight text-sky-950 sm:text-6xl">{story.title}</h2>
                   <p className="mx-auto mt-5 max-w-xl text-lg font-bold leading-8 text-slate-700">{story.subtitle}</p>
                   <p className="mt-8 text-base font-black uppercase tracking-[0.18em] text-rose-500">
-                    Starring {order.heroName} the {order.heroType}
+                    Starring {formatHeroRole(order.heroName, order.heroType)}
                   </p>
                 </div>
               </div>

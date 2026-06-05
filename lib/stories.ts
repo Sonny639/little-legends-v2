@@ -1,3 +1,5 @@
+import { formatHeroRole } from "@/lib/hero-title"
+
 export type StoryChoice = {
   id: string
   text: string
@@ -145,7 +147,7 @@ const visualDirectionForHero = (heroType: string) => {
 }
 
 const imageBrief = (heroName: string, heroType: string, pageTitle: string, scene: string) =>
-  `Front-facing child as ${heroName} the ${heroType}. Page scene: ${pageTitle}. ${scene} ${visualDirectionForHero(heroType)} ${
+  `Front-facing child as ${formatHeroRole(heroName, heroType)}. Page scene: ${pageTitle}. ${scene} ${visualDirectionForHero(heroType)} ${
     heroType.toLowerCase().includes("bitcoin")
       ? "Outfit requirement: bright orange Bitcoin superhero suit with a round Bitcoin chest emblem, gold utility belt, lightning cape, and friendly futuristic saver-hero details."
       : ""
@@ -371,7 +373,7 @@ const modernStoryTheme =
 const starterStoryThemes: Record<string, (heroName: string, heroType: string) => StarterStoryTheme> = {
   wizard: (heroName, heroType) => ({
     title: `${heroName} and the Moonbeam Spell`,
-    subtitle: `${heroName} the ${heroType} discovers that the brightest magic begins with a gentle voice and a brave heart.`,
+    subtitle: `${formatHeroRole(heroName, heroType)} discovers that the brightest magic begins with a gentle voice and a brave heart.`,
     lesson: "Patience, kindness, and using power wisely",
     headline: "Unlock the full magical spellbook adventure",
     body: `The full story follows ${heroName} through Moonbeam Library, a runaway spellbook, and a rescue where calm words turn tangled magic into wonder.`,
@@ -510,7 +512,7 @@ const starterStoryThemes: Record<string, (heroName: string, heroType: string) =>
   }),
   fairy: (heroName, heroType) => ({
     title: `${heroName} and the Glow Garden`,
-    subtitle: `${heroName} the ${heroType} brings colour back to a sleeping garden by listening before sprinkling sparkle.`,
+    subtitle: `${formatHeroRole(heroName, heroType)} brings colour back to a sleeping garden by listening before sprinkling sparkle.`,
     lesson: "Gentleness, confidence, and caring for nature",
     headline: "Unlock the full fairy garden adventure",
     body: `The full story follows ${heroName} through Fairy Meadow, missing colours, and a rescue where every tiny creature remembers how to shine.`,
@@ -649,7 +651,7 @@ const starterStoryThemes: Record<string, (heroName: string, heroType: string) =>
   }),
   astronaut: (heroName, heroType) => ({
     title: `${heroName} and the Star Rescue`,
-    subtitle: `${heroName} the ${heroType} discovers that space feels friendliest when nobody is left behind.`,
+    subtitle: `${formatHeroRole(heroName, heroType)} discovers that space feels friendliest when nobody is left behind.`,
     lesson: "Bravery, calm thinking, and helping others feel at home",
     headline: "Unlock the full space rescue adventure",
     body: `The full story follows ${heroName} through Moonbase Kindness, a lonely star, and a teamwork mission across the moonbeams.`,
@@ -680,7 +682,7 @@ const starterStoryThemes: Record<string, (heroName: string, heroType: string) =>
   }),
   princess: (heroName, heroType) => ({
     title: `${heroName} and the Starlight Crown`,
-    subtitle: `${heroName} the ${heroType} learns that a true royal heart listens first and helps everyone feel important.`,
+    subtitle: `${formatHeroRole(heroName, heroType)} learns that a true royal heart listens first and helps everyone feel important.`,
     lesson: "Leadership, kindness, and sharing the spotlight",
     headline: "Unlock the full royal starlight adventure",
     body: `The full story follows ${heroName} through Starlight Castle, a worried crown, and a celebration where every small voice matters.`,
@@ -819,7 +821,7 @@ const starterStoryThemes: Record<string, (heroName: string, heroType: string) =>
   }),
   "dragon-trainer": (heroName, heroType) => ({
     title: `${heroName} and the Dragon's Brave Roar`,
-    subtitle: `${heroName} the ${heroType} discovers that even fiery friends need patience and gentle courage.`,
+    subtitle: `${formatHeroRole(heroName, heroType)} discovers that even fiery friends need patience and gentle courage.`,
     lesson: "Patience, trust, and helping big feelings settle",
     headline: "Unlock the full dragon-training adventure",
     body: `The full story follows ${heroName} through Ember Valley, a nervous dragon, and a rescue where trust is stronger than shouting.`,
@@ -850,7 +852,7 @@ const starterStoryThemes: Record<string, (heroName: string, heroType: string) =>
   }),
   ninja: (heroName, heroType) => ({
     title: `${heroName} and the Silent Star Mission`,
-    subtitle: `${heroName} the ${heroType} learns that focus, fairness, and kindness are stronger than sneaking alone.`,
+    subtitle: `${formatHeroRole(heroName, heroType)} learns that focus, fairness, and kindness are stronger than sneaking alone.`,
     lesson: "Focus, self-control, and using skill to help",
     headline: "Unlock the full ninja mission",
     body: `The full story follows ${heroName} through Lantern Rooftops, missing calm bells, and a mission where quiet courage saves the day.`,
@@ -881,7 +883,7 @@ const starterStoryThemes: Record<string, (heroName: string, heroType: string) =>
   }),
   pirate: (heroName, heroType) => ({
     title: `${heroName} and the Sharing Treasure`,
-    subtitle: `${heroName} the ${heroType} finds that the best treasure is fair, kind, and shared.`,
+    subtitle: `${formatHeroRole(heroName, heroType)} finds that the best treasure is fair, kind, and shared.`,
     lesson: "Fairness, honesty, and teamwork",
     headline: "Unlock the full pirate treasure adventure",
     body: `The full story follows ${heroName} across Starfish Cove, a worried map, and a treasure that only opens for teamwork.`,
@@ -912,7 +914,7 @@ const starterStoryThemes: Record<string, (heroName: string, heroType: string) =>
   }),
   knight: (heroName, heroType) => ({
     title: `${heroName} and the Gentle Shield`,
-    subtitle: `${heroName} the ${heroType} learns that true bravery protects, listens, and stands up kindly.`,
+    subtitle: `${formatHeroRole(heroName, heroType)} learns that true bravery protects, listens, and stands up kindly.`,
     lesson: "Bravery, protection, and gentle leadership",
     headline: "Unlock the full knightly quest",
     body: `The full story follows ${heroName} through Kindness Keep, a worried shield, and a quest where gentle bravery wins.`,
@@ -1057,7 +1059,7 @@ const starterStoryThemes: Record<string, (heroName: string, heroType: string) =>
   }),
   mermaid: (heroName, heroType) => ({
     title: `${heroName} and the Pearl of Kindness`,
-    subtitle: `${heroName} the ${heroType} dives into a shimmering sea quest where listening helps every creature shine.`,
+    subtitle: `${formatHeroRole(heroName, heroType)} dives into a shimmering sea quest where listening helps every creature shine.`,
     lesson: "Kindness, courage, and caring for others",
     headline: "Unlock the full mermaid sea adventure",
     body: `The full story follows ${heroName} through Coral Cove, a worried pearl, and an underwater rescue filled with courage and care.`,
@@ -1088,7 +1090,7 @@ const starterStoryThemes: Record<string, (heroName: string, heroType: string) =>
   }),
   "unicorn-rider": (heroName, heroType) => ({
     title: `${heroName} and the Rainbow Rein`,
-    subtitle: `${heroName} the ${heroType} learns that trust and kindness guide even the brightest magic.`,
+    subtitle: `${formatHeroRole(heroName, heroType)} learns that trust and kindness guide even the brightest magic.`,
     lesson: "Trust, confidence, and gentle leadership",
     headline: "Unlock the full unicorn riding adventure",
     body: `The full story follows ${heroName} across Rainbow Meadow, a nervous unicorn, and a ride where trust saves the day.`,
@@ -1119,7 +1121,7 @@ const starterStoryThemes: Record<string, (heroName: string, heroType: string) =>
   }),
   "dinosaur-expert": (heroName, heroType) => ({
     title: `${heroName} and the Dino Egg Rescue`,
-    subtitle: `${heroName} the ${heroType} follows fossil clues and learns that big discoveries need gentle hands and patient eyes.`,
+    subtitle: `${formatHeroRole(heroName, heroType)} follows fossil clues and learns that big discoveries need gentle hands and patient eyes.`,
     lesson: "Curiosity, patience, and caring for nature",
     headline: "Unlock the full dinosaur rescue",
     body: `The full story follows ${heroName} through Fossil Valley, a missing egg, and a rescue where careful thinking keeps tiny dinosaurs safe.`,
@@ -1258,7 +1260,7 @@ const starterStoryThemes: Record<string, (heroName: string, heroType: string) =>
   }),
   "pop-star": (heroName, heroType) => ({
     title: `${heroName} and the Song of Shine`,
-    subtitle: `${heroName} the ${heroType} discovers that the best performance helps everyone find their voice.`,
+    subtitle: `${formatHeroRole(heroName, heroType)} discovers that the best performance helps everyone find their voice.`,
     lesson: "Confidence, creativity, and sharing the spotlight",
     headline: "Unlock the full pop star performance",
     body: `The full story follows ${heroName} through Melody Theatre, a missing song, and a show where every voice matters.`,
@@ -1289,7 +1291,7 @@ const starterStoryThemes: Record<string, (heroName: string, heroType: string) =>
   }),
   "race-driver": (heroName, heroType) => ({
     title: `${heroName} and the Rainbow Race`,
-    subtitle: `${heroName} the ${heroType} learns that a kind race is safer, fairer, and more fun for everyone.`,
+    subtitle: `${formatHeroRole(heroName, heroType)} learns that a kind race is safer, fairer, and more fun for everyone.`,
     lesson: "Fair play, safety, and steady confidence",
     headline: "Unlock the full racing adventure",
     body: `The full story follows ${heroName} around Speedy City Circuit, a wobbly racer, and a finish where fairness wins.`,
@@ -1320,7 +1322,7 @@ const starterStoryThemes: Record<string, (heroName: string, heroType: string) =>
   }),
   doctor: (heroName, heroType) => ({
     title: `${heroName} and the Care Town Check-Up`,
-    subtitle: `${heroName} the ${heroType} shows that helping works best with calm words and careful listening.`,
+    subtitle: `${formatHeroRole(heroName, heroType)} shows that helping works best with calm words and careful listening.`,
     lesson: "Care, calm problem-solving, and empathy",
     headline: "Unlock the full caring doctor adventure",
     body: `The full story follows ${heroName} through Care Town, a worried waiting room, and a rescue where everyone feels looked after.`,
@@ -1351,7 +1353,7 @@ const starterStoryThemes: Record<string, (heroName: string, heroType: string) =>
   }),
   "basketball-player": (heroName, heroType) => ({
     title: `${heroName} and the Teamwork Shot`,
-    subtitle: `${heroName} the ${heroType} learns that great players lift the whole team before taking the final shot.`,
+    subtitle: `${formatHeroRole(heroName, heroType)} learns that great players lift the whole team before taking the final shot.`,
     lesson: "Teamwork, confidence, and fair play",
     headline: "Unlock the full basketball teamwork story",
     body: `The full story follows ${heroName} through Bounce Arena, missing team spirit, and a final play where everyone matters.`,
@@ -1383,7 +1385,7 @@ const starterStoryThemes: Record<string, (heroName: string, heroType: string) =>
   spy: modernStoryTheme({
     title: (heroName) => `${heroName} and the Kindness Code`,
     subtitle: (heroName, heroType) =>
-      `${heroName} the ${heroType} discovers that the best secret agents protect people with patience, honesty, and care.`,
+      `${formatHeroRole(heroName, heroType)} discovers that the best secret agents protect people with patience, honesty, and care.`,
     lesson: "Honesty, focus, and using secrets responsibly",
     headline: "Unlock the full secret mission story",
     destination: "Moonlight Mission HQ",
@@ -1413,7 +1415,7 @@ const starterStoryThemes: Record<string, (heroName: string, heroType: string) =>
   prince: modernStoryTheme({
     title: (heroName) => `${heroName} and the Listening Crown`,
     subtitle: (heroName, heroType) =>
-      `${heroName} the ${heroType} learns that real leadership begins by listening before deciding.`,
+      `${formatHeroRole(heroName, heroType)} learns that real leadership begins by listening before deciding.`,
     lesson: "Leadership, listening, and sharing responsibility",
     headline: "Unlock the full royal listening adventure",
     destination: "Kindness Kingdom",
@@ -1443,7 +1445,7 @@ const starterStoryThemes: Record<string, (heroName: string, heroType: string) =>
   "zoo-keeper": modernStoryTheme({
     title: (heroName) => `${heroName} and the Moonlit Zoo Rescue`,
     subtitle: (heroName, heroType) =>
-      `${heroName} the ${heroType} helps every animal feel safe, understood, and ready for bedtime.`,
+      `${formatHeroRole(heroName, heroType)} helps every animal feel safe, understood, and ready for bedtime.`,
     lesson: "Gentleness, responsibility, and caring for animals",
     headline: "Unlock the full animal rescue story",
     destination: "Moonlit Zoo",
@@ -1473,7 +1475,7 @@ const starterStoryThemes: Record<string, (heroName: string, heroType: string) =>
   artist: modernStoryTheme({
     title: (heroName) => `${heroName} and the Colour Wish`,
     subtitle: (heroName, heroType) =>
-      `${heroName} the ${heroType} learns that art can turn big feelings into something bright and shareable.`,
+      `${formatHeroRole(heroName, heroType)} learns that art can turn big feelings into something bright and shareable.`,
     lesson: "Creativity, confidence, and expressing feelings",
     headline: "Unlock the full colour-filled story",
     destination: "Rainbow Studio",
@@ -1503,7 +1505,7 @@ const starterStoryThemes: Record<string, (heroName: string, heroType: string) =>
   firefighter: modernStoryTheme({
     title: (heroName) => `${heroName} and the Brave Bell`,
     subtitle: (heroName, heroType) =>
-      `${heroName} the ${heroType} shows that helping means staying calm, checking first, and working as a team.`,
+      `${formatHeroRole(heroName, heroType)} shows that helping means staying calm, checking first, and working as a team.`,
     lesson: "Calm bravery, safety, and teamwork",
     headline: "Unlock the full brave rescue story",
     destination: "Safety Street",
@@ -1533,7 +1535,7 @@ const starterStoryThemes: Record<string, (heroName: string, heroType: string) =>
   teacher: modernStoryTheme({
     title: (heroName) => `${heroName} and the Wonder Lesson`,
     subtitle: (heroName, heroType) =>
-      `${heroName} the ${heroType} helps a classroom discover that every question can become a doorway.`,
+      `${formatHeroRole(heroName, heroType)} helps a classroom discover that every question can become a doorway.`,
     lesson: "Curiosity, patience, and helping everyone learn",
     headline: "Unlock the full classroom wonder story",
     destination: "Wonder School",
@@ -1563,7 +1565,7 @@ const starterStoryThemes: Record<string, (heroName: string, heroType: string) =>
   vet: modernStoryTheme({
     title: (heroName) => `${heroName} and the Pawprint Promise`,
     subtitle: (heroName, heroType) =>
-      `${heroName} the ${heroType} helps worried pets feel safe with gentle hands and calm words.`,
+      `${formatHeroRole(heroName, heroType)} helps worried pets feel safe with gentle hands and calm words.`,
     lesson: "Empathy, patience, and caring for animals",
     headline: "Unlock the full pet care story",
     destination: "Pawprint Clinic",
@@ -1593,7 +1595,7 @@ const starterStoryThemes: Record<string, (heroName: string, heroType: string) =>
   chef: modernStoryTheme({
     title: (heroName) => `${heroName} and the Kindness Kitchen`,
     subtitle: (heroName, heroType) =>
-      `${heroName} the ${heroType} discovers that the best recipes are made with sharing, patience, and care.`,
+      `${formatHeroRole(heroName, heroType)} discovers that the best recipes are made with sharing, patience, and care.`,
     lesson: "Sharing, patience, and creativity",
     headline: "Unlock the full kitchen adventure",
     destination: "Kindness Kitchen",
@@ -1623,7 +1625,7 @@ const starterStoryThemes: Record<string, (heroName: string, heroType: string) =>
   "robot-builder": modernStoryTheme({
     title: (heroName) => `${heroName} and the Robot Heart`,
     subtitle: (heroName, heroType) =>
-      `${heroName} the ${heroType} learns that clever inventions work best when they help people feel understood.`,
+      `${formatHeroRole(heroName, heroType)} learns that clever inventions work best when they help people feel understood.`,
     lesson: "Problem solving, empathy, and responsible technology",
     headline: "Unlock the full robot-building story",
     destination: "Spark Lab",
@@ -1653,7 +1655,7 @@ const starterStoryThemes: Record<string, (heroName: string, heroType: string) =>
   inventor: modernStoryTheme({
     title: (heroName) => `${heroName} and the Try-Again Machine`,
     subtitle: (heroName, heroType) =>
-      `${heroName} the ${heroType} discovers that the brightest ideas often begin with one brave wobble.`,
+      `${formatHeroRole(heroName, heroType)} discovers that the brightest ideas often begin with one brave wobble.`,
     lesson: "Resilience, creativity, and learning from mistakes",
     headline: "Unlock the full invention adventure",
     destination: "Idea Workshop",
@@ -1683,7 +1685,7 @@ const starterStoryThemes: Record<string, (heroName: string, heroType: string) =>
   scientist: modernStoryTheme({
     title: (heroName) => `${heroName} and the Wonder Experiment`,
     subtitle: (heroName, heroType) =>
-      `${heroName} the ${heroType} follows the clues and learns that good questions are a kind of magic.`,
+      `${formatHeroRole(heroName, heroType)} follows the clues and learns that good questions are a kind of magic.`,
     lesson: "Curiosity, careful thinking, and asking good questions",
     headline: "Unlock the full science adventure",
     destination: "Wonder Lab",
@@ -1713,7 +1715,7 @@ const starterStoryThemes: Record<string, (heroName: string, heroType: string) =>
   pilot: modernStoryTheme({
     title: (heroName) => `${heroName} and the Cloud Compass`,
     subtitle: (heroName, heroType) =>
-      `${heroName} the ${heroType} learns that the safest adventures begin with calm checks and a caring crew.`,
+      `${formatHeroRole(heroName, heroType)} learns that the safest adventures begin with calm checks and a caring crew.`,
     lesson: "Preparation, calm courage, and teamwork",
     headline: "Unlock the full flying adventure",
     destination: "Cloud Harbour",
@@ -1743,7 +1745,7 @@ const starterStoryThemes: Record<string, (heroName: string, heroType: string) =>
   "marine-biologist": modernStoryTheme({
     title: (heroName) => `${heroName} and the Coral Song`,
     subtitle: (heroName, heroType) =>
-      `${heroName} the ${heroType} dives into a glowing reef and learns that careful noticing can protect a whole underwater world.`,
+      `${formatHeroRole(heroName, heroType)} dives into a glowing reef and learns that careful noticing can protect a whole underwater world.`,
     lesson: "Curiosity, care for nature, and gentle problem solving",
     headline: "Unlock the full ocean discovery story",
     destination: "Coral Lantern Reef",
@@ -1773,7 +1775,7 @@ const starterStoryThemes: Record<string, (heroName: string, heroType: string) =>
   "horse-rider": modernStoryTheme({
     title: (heroName) => `${heroName} and the Trusty Trail`,
     subtitle: (heroName, heroType) =>
-      `${heroName} the ${heroType} learns that trust is built with calm hands, kind words, and patient steps.`,
+      `${formatHeroRole(heroName, heroType)} learns that trust is built with calm hands, kind words, and patient steps.`,
     lesson: "Trust, patience, and gentle leadership",
     headline: "Unlock the full riding adventure",
     destination: "Meadowlight Stables",
@@ -1803,7 +1805,7 @@ const starterStoryThemes: Record<string, (heroName: string, heroType: string) =>
   "pet-trainer": modernStoryTheme({
     title: (heroName) => `${heroName} and the Good Listen Lesson`,
     subtitle: (heroName, heroType) =>
-      `${heroName} the ${heroType} discovers that training works best with patience, praise, and understanding.`,
+      `${formatHeroRole(heroName, heroType)} discovers that training works best with patience, praise, and understanding.`,
     lesson: "Patience, kindness, and clear communication",
     headline: "Unlock the full pet-training story",
     destination: "Happy Paws Park",
@@ -1833,7 +1835,7 @@ const starterStoryThemes: Record<string, (heroName: string, heroType: string) =>
   gymnast: modernStoryTheme({
     title: (heroName) => `${heroName} and the Balance Beam Wish`,
     subtitle: (heroName, heroType) =>
-      `${heroName} the ${heroType} learns that brave balance grows from practice, breath, and trying again.`,
+      `${formatHeroRole(heroName, heroType)} learns that brave balance grows from practice, breath, and trying again.`,
     lesson: "Confidence, resilience, and steady practice",
     headline: "Unlock the full gymnastics story",
     destination: "Twinkle Gym",
@@ -1863,7 +1865,7 @@ const starterStoryThemes: Record<string, (heroName: string, heroType: string) =>
   swimmer: modernStoryTheme({
     title: (heroName) => `${heroName} and the Calm Current`,
     subtitle: (heroName, heroType) =>
-      `${heroName} the ${heroType} discovers that confidence in the water begins with calm, safety, and steady strokes.`,
+      `${formatHeroRole(heroName, heroType)} discovers that confidence in the water begins with calm, safety, and steady strokes.`,
     lesson: "Safety, confidence, and steady effort",
     headline: "Unlock the full swimming story",
     destination: "Ripple Pool",
@@ -1893,7 +1895,7 @@ const starterStoryThemes: Record<string, (heroName: string, heroType: string) =>
   "ice-skater": modernStoryTheme({
     title: (heroName) => `${heroName} and the Snowflake Spin`,
     subtitle: (heroName, heroType) =>
-      `${heroName} the ${heroType} learns that graceful moments are made from practice, courage, and kind support.`,
+      `${formatHeroRole(heroName, heroType)} learns that graceful moments are made from practice, courage, and kind support.`,
     lesson: "Practice, confidence, and kindness after mistakes",
     headline: "Unlock the full ice-skating story",
     destination: "Snowlight Rink",
@@ -1923,7 +1925,7 @@ const starterStoryThemes: Record<string, (heroName: string, heroType: string) =>
   ballerina: modernStoryTheme({
     title: (heroName) => `${heroName} and the Moonlit Dance`,
     subtitle: (heroName, heroType) =>
-      `${heroName} the ${heroType} discovers that the most beautiful dance helps every performer feel seen.`,
+      `${formatHeroRole(heroName, heroType)} discovers that the most beautiful dance helps every performer feel seen.`,
     lesson: "Confidence, expression, and sharing the spotlight",
     headline: "Unlock the full dance story",
     destination: "Moonlit Theatre",
@@ -1953,7 +1955,7 @@ const starterStoryThemes: Record<string, (heroName: string, heroType: string) =>
   musician: modernStoryTheme({
     title: (heroName) => `${heroName} and the Brave Note`,
     subtitle: (heroName, heroType) =>
-      `${heroName} the ${heroType} learns that music sounds best when every voice has room to join.`,
+      `${formatHeroRole(heroName, heroType)} learns that music sounds best when every voice has room to join.`,
     lesson: "Creativity, teamwork, and brave expression",
     headline: "Unlock the full music story",
     destination: "Harmony Hall",
@@ -1983,7 +1985,7 @@ const starterStoryThemes: Record<string, (heroName: string, heroType: string) =>
   dancer: modernStoryTheme({
     title: (heroName) => `${heroName} and the Glow-Step Groove`,
     subtitle: (heroName, heroType) =>
-      `${heroName} the ${heroType} finds courage in movement and helps everyone dance in their own way.`,
+      `${formatHeroRole(heroName, heroType)} finds courage in movement and helps everyone dance in their own way.`,
     lesson: "Confidence, inclusion, and joyful self-expression",
     headline: "Unlock the full dance-floor story",
     destination: "Glow-Step Studio",
@@ -2013,7 +2015,7 @@ const starterStoryThemes: Record<string, (heroName: string, heroType: string) =>
   photographer: modernStoryTheme({
     title: (heroName) => `${heroName} and the Memory Lens`,
     subtitle: (heroName, heroType) =>
-      `${heroName} the ${heroType} learns that the best pictures notice real feelings, not just perfect poses.`,
+      `${formatHeroRole(heroName, heroType)} learns that the best pictures notice real feelings, not just perfect poses.`,
     lesson: "Noticing, empathy, and celebrating real moments",
     headline: "Unlock the full photography story",
     destination: "Memory Meadow",
@@ -2043,7 +2045,7 @@ const starterStoryThemes: Record<string, (heroName: string, heroType: string) =>
   "fashion-designer": modernStoryTheme({
     title: (heroName) => `${heroName} and the Confidence Cape`,
     subtitle: (heroName, heroType) =>
-      `${heroName} the ${heroType} discovers that style shines brightest when it helps people feel like themselves.`,
+      `${formatHeroRole(heroName, heroType)} discovers that style shines brightest when it helps people feel like themselves.`,
     lesson: "Confidence, creativity, and celebrating differences",
     headline: "Unlock the full fashion story",
     destination: "Starlight Studio",
@@ -2073,7 +2075,7 @@ const starterStoryThemes: Record<string, (heroName: string, heroType: string) =>
   explorer: modernStoryTheme({
     title: (heroName) => `${heroName} and the Wonder Map`,
     subtitle: (heroName, heroType) =>
-      `${heroName} the ${heroType} learns that the best explorers are brave, prepared, and kind to the places they visit.`,
+      `${formatHeroRole(heroName, heroType)} learns that the best explorers are brave, prepared, and kind to the places they visit.`,
     lesson: "Curiosity, preparation, and respect for nature",
     headline: "Unlock the full explorer adventure",
     destination: "Whispering Valley",
@@ -2103,7 +2105,7 @@ const starterStoryThemes: Record<string, (heroName: string, heroType: string) =>
   archaeologist: modernStoryTheme({
     title: (heroName) => `${heroName} and the Time-Tunnel Treasure`,
     subtitle: (heroName, heroType) =>
-      `${heroName} the ${heroType} uncovers old stories and learns that treasures should be protected, not grabbed.`,
+      `${formatHeroRole(heroName, heroType)} uncovers old stories and learns that treasures should be protected, not grabbed.`,
     lesson: "Respect, patience, and learning from history",
     headline: "Unlock the full discovery story",
     destination: "Time-Tunnel Dig",
@@ -2133,7 +2135,7 @@ const starterStoryThemes: Record<string, (heroName: string, heroType: string) =>
   "mountain-climber": modernStoryTheme({
     title: (heroName) => `${heroName} and the Summit Star`,
     subtitle: (heroName, heroType) =>
-      `${heroName} the ${heroType} learns that reaching the top matters less than helping everyone climb safely.`,
+      `${formatHeroRole(heroName, heroType)} learns that reaching the top matters less than helping everyone climb safely.`,
     lesson: "Perseverance, safety, and teamwork",
     headline: "Unlock the full mountain adventure",
     destination: "Summit Star Mountain",
@@ -2163,7 +2165,7 @@ const starterStoryThemes: Record<string, (heroName: string, heroType: string) =>
   "treasure-hunter": modernStoryTheme({
     title: (heroName) => `${heroName} and the Sharing Gem`,
     subtitle: (heroName, heroType) =>
-      `${heroName} the ${heroType} learns that the best treasure helps more than one heart shine.`,
+      `${formatHeroRole(heroName, heroType)} learns that the best treasure helps more than one heart shine.`,
     lesson: "Fairness, generosity, and teamwork",
     headline: "Unlock the full treasure-hunting story",
     destination: "Glowstone Cove",
@@ -2193,7 +2195,7 @@ const starterStoryThemes: Record<string, (heroName: string, heroType: string) =>
   "police-officer": modernStoryTheme({
     title: (heroName) => `${heroName} and the Kindness Patrol`,
     subtitle: (heroName, heroType) =>
-      `${heroName} the ${heroType} helps a busy town feel safe by listening, guiding, and staying calm.`,
+      `${formatHeroRole(heroName, heroType)} helps a busy town feel safe by listening, guiding, and staying calm.`,
     lesson: "Safety, fairness, and helping people calmly",
     headline: "Unlock the full kindness patrol story",
     destination: "Safe Street Square",
@@ -2223,7 +2225,7 @@ const starterStoryThemes: Record<string, (heroName: string, heroType: string) =>
   "video-game-designer": modernStoryTheme({
     title: (heroName) => `${heroName} and the Kind Game Quest`,
     subtitle: (heroName, heroType) =>
-      `${heroName} the ${heroType} builds a game where every player can learn, try again, and feel welcome.`,
+      `${formatHeroRole(heroName, heroType)} builds a game where every player can learn, try again, and feel welcome.`,
     lesson: "Creativity, inclusion, and responsible screen time",
     headline: "Unlock the full game-design story",
     destination: "Pixel Playground",
@@ -2253,7 +2255,7 @@ const starterStoryThemes: Record<string, (heroName: string, heroType: string) =>
   "boat-captain": modernStoryTheme({
     title: (heroName) => `${heroName} and the Starlight Sail`,
     subtitle: (heroName, heroType) =>
-      `${heroName} the ${heroType} learns that good captains steer with calm, care, and a crew-first heart.`,
+      `${formatHeroRole(heroName, heroType)} learns that good captains steer with calm, care, and a crew-first heart.`,
     lesson: "Leadership, safety, and teamwork",
     headline: "Unlock the full sailing adventure",
     destination: "Starlight Harbour",
@@ -2283,7 +2285,7 @@ const starterStoryThemes: Record<string, (heroName: string, heroType: string) =>
   "motorcycle-racer": modernStoryTheme({
     title: (heroName) => `${heroName} and the Safety Spark Race`,
     subtitle: (heroName, heroType) =>
-      `${heroName} the ${heroType} discovers that the fastest hero is the one who rides safely and fairly.`,
+      `${formatHeroRole(heroName, heroType)} discovers that the fastest hero is the one who rides safely and fairly.`,
     lesson: "Safety, fairness, and self-control",
     headline: "Unlock the full racing story",
     destination: "Spark Track",
@@ -2316,7 +2318,7 @@ function createSuperheroStory(heroName: string, heroType: string): CharacterStor
   return {
     characterId: "superhero",
     title: `${heroName} and the Sky-High Promise`,
-    subtitle: `${heroName} the ${heroType} discovers that the bravest heroes make people feel safe, seen, and less alone.`,
+    subtitle: `${formatHeroRole(heroName, heroType)} discovers that the bravest heroes make people feel safe, seen, and less alone.`,
     readingAge: "Ages 3 to 8",
     lesson: "Courage, kindness, and teamwork",
     previewPageLimit: 3,
@@ -2573,7 +2575,7 @@ function createBitcoinHeroStory(heroName: string, heroType: string): CharacterSt
   return {
     characterId: "bitcoin-hero",
     title: `${heroName} and the Bitcoin Beacon`,
-    subtitle: `${heroName} the ${heroType} suits up in orange and gold to show Pocket Town how Bitcoin can help people save, plan, and send value fairly.`,
+    subtitle: `${formatHeroRole(heroName, heroType)} suits up in orange and gold to show Pocket Town how Bitcoin can help people save, plan, and send value fairly.`,
     readingAge: "Ages 5 to 10",
     lesson: "Bitcoin basics, saving, patience, self-custody, fairness, and learning before spending",
     previewPageLimit: 3,
@@ -2830,7 +2832,7 @@ function createFootballerStory(heroName: string, heroType: string): CharacterSto
   return {
     characterId: "footballer",
     title: `${heroName} and the Friendship Final`,
-    subtitle: `${heroName} the ${heroType} plays the biggest match of the season and learns that great players help every teammate feel brave.`,
+    subtitle: `${formatHeroRole(heroName, heroType)} plays the biggest match of the season and learns that great players help every teammate feel brave.`,
     readingAge: "Ages 3 to 9",
     lesson: "Teamwork, confidence, resilience, and fair play",
     previewPageLimit: 3,
@@ -3062,7 +3064,7 @@ function createRaceDriverStory(heroName: string, heroType: string): CharacterSto
   return {
     characterId: "race-driver",
     title: `${heroName} and the Rainbow Race`,
-    subtitle: `${heroName} the ${heroType} enters the brightest race of the year and learns that real champions keep everyone safe, brave, and included.`,
+    subtitle: `${formatHeroRole(heroName, heroType)} enters the brightest race of the year and learns that real champions keep everyone safe, brave, and included.`,
     readingAge: "Ages 3 to 8",
     lesson: "Fair play, safety, steady confidence, and kindness",
     previewPageLimit: 3,
@@ -3301,7 +3303,7 @@ function createDinosaurExpertStory(heroName: string, heroType: string): Characte
   return {
     characterId: "dinosaur-expert",
     title: `${heroName} and the Dino Egg Rescue`,
-    subtitle: `${heroName} the ${heroType} follows fossil clues and learns that big discoveries need gentle hands and patient eyes.`,
+    subtitle: `${formatHeroRole(heroName, heroType)} follows fossil clues and learns that big discoveries need gentle hands and patient eyes.`,
     readingAge: "Ages 3 to 8",
     lesson: "Curiosity, patience, and caring for nature",
     previewPageLimit: 3,
@@ -3528,7 +3530,7 @@ function createStarterStory(characterId: string, heroName: string, heroType: str
     title: theme?.title || `${heroName} and the Kindness Comet`,
     subtitle:
       theme?.subtitle ||
-      `${heroName} the ${heroType} follows a glowing comet and discovers that every adventure is better with courage and care.`,
+      `${formatHeroRole(heroName, heroType)} follows a glowing comet and discovers that every adventure is better with courage and care.`,
     readingAge: "Ages 3 to 8",
     lesson: theme?.lesson || "Confidence, kindness, and problem solving",
     previewPageLimit: 3,

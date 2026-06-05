@@ -5,6 +5,7 @@ import nodemailer from "nodemailer"
 
 import { hasDatabase, query } from "@/lib/db"
 import { renderBrandedEmail, withPlainEmailSignature } from "@/lib/email-template"
+import { formatHeroRole } from "@/lib/hero-title"
 import { getOrderAccessToken } from "@/lib/order-access"
 import { type OrderRecord, updateOrderEmailSentAt } from "@/lib/orders"
 import { getSupabase, hasSupabase } from "@/lib/supabase"
@@ -208,7 +209,7 @@ const sendAdminOrderNotification = async (order: OrderRecord, createdAt: string)
     `Product: ${productLabel}`,
     `Total: ${money.format(order.total)}`,
     `Customer email: ${order.email}`,
-    `Hero: ${order.heroName} the ${order.heroType}`,
+    `Hero: ${formatHeroRole(order.heroName, order.heroType)}`,
     `Story: ${order.storyTitle}`,
     `Photos uploaded: ${order.photoCount || 0}`,
     ...deliverySummary,
@@ -230,7 +231,7 @@ const sendAdminOrderNotification = async (order: OrderRecord, createdAt: string)
       { label: "Product", value: productLabel },
       { label: "Total", value: money.format(order.total) },
       { label: "Customer", value: order.email },
-      { label: "Hero", value: `${order.heroName} the ${order.heroType}` },
+      { label: "Hero", value: formatHeroRole(order.heroName, order.heroType) },
       { label: "Story", value: order.storyTitle },
       { label: "Photos", value: String(order.photoCount || 0) },
       ...(order.postage ? [{ label: "Delivery", value: `${order.postage.fullName}, ${order.postage.country}` }] : []),
@@ -323,7 +324,7 @@ export const sendPrintFulfilmentEmail = async (order: OrderRecord) => {
     `Good news - ${order.heroName}'s hardback storybook has now been sent for printing and fulfilment.`,
     ``,
     `Story: ${order.storyTitle}`,
-    `Hero: ${order.heroName} the ${order.heroType}`,
+    `Hero: ${formatHeroRole(order.heroName, order.heroType)}`,
     `Order reference: ${order.id}`,
     ``,
     `The print partner will prepare the book and send it to the delivery address on your order. Please keep an eye out for any delivery or tracking updates.`,
@@ -340,7 +341,7 @@ export const sendPrintFulfilmentEmail = async (order: OrderRecord) => {
     ],
     details: [
       { label: "Story", value: order.storyTitle },
-      { label: "Hero", value: `${order.heroName} the ${order.heroType}` },
+      { label: "Hero", value: formatHeroRole(order.heroName, order.heroType) },
       { label: "Order", value: order.id },
       ...(order.postage ? [{ label: "Delivery", value: `${order.postage.fullName}, ${order.postage.country}` }] : []),
     ],
@@ -407,7 +408,7 @@ export const sendOrderConfirmationEmail = async (order: OrderRecord) => {
       : `${order.heroName}'s personalised adventure has been created and is ready to read, print, or save.`,
     ``,
     `Story: ${order.storyTitle}`,
-    `Hero: ${order.heroName} the ${order.heroType}`,
+    `Hero: ${formatHeroRole(order.heroName, order.heroType)}`,
     `Order reference: ${order.id}`,
     `Order total: ${money.format(order.total)}`,
     ...(deliveryLabel ? [`Delivery: ${deliveryLabel}${deliveryPrice ? ` (${deliveryPrice})` : ""}`] : []),
@@ -452,7 +453,7 @@ export const sendOrderConfirmationEmail = async (order: OrderRecord) => {
     ],
     details: [
       { label: "Story", value: order.storyTitle },
-      { label: "Hero", value: `${order.heroName} the ${order.heroType}` },
+      { label: "Hero", value: formatHeroRole(order.heroName, order.heroType) },
       { label: "Order", value: order.id },
       { label: "Total", value: money.format(order.total) },
       ...(deliveryLabel ? [{ label: "Delivery", value: `${deliveryLabel}${deliveryPrice ? ` (${deliveryPrice})` : ""}` }] : []),

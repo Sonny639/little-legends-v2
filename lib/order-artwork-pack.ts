@@ -5,6 +5,7 @@ import {
   getHairContinuityPrompt,
   getMouthContinuityPrompt,
 } from "@/lib/artwork-continuity-prompts"
+import { formatHeroRole } from "@/lib/hero-title"
 import { createOrderPhotoPreviewLinks, listOrderPhotos } from "@/lib/order-photos"
 import { type OrderRecord } from "@/lib/orders"
 import { getStoryForCharacter, getStoryPathSummary, type StoryPathChoice } from "@/lib/stories"
@@ -73,7 +74,7 @@ export const createOrderArtworkPack = async (order: OrderRecord) => {
       const prompt = [
         page.imageBrief,
         `Order: ${order.id}.`,
-        `Hero: ${order.heroName} the ${order.heroType}.`,
+        `Hero: ${formatHeroRole(order.heroName, order.heroType)}.`,
         `Story: ${story.title}.`,
         `Page ${page.pageNumber}: ${page.title}.`,
         `Scene: ${page.scene}`,

@@ -8,6 +8,7 @@ import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
+import { formatHeroRole } from "@/lib/hero-title"
 import { AdminShell } from "../admin-shell"
 
 type CheckoutProduct = "digital" | "hardback" | "upgrade"
@@ -800,7 +801,7 @@ export default function AdminOrdersPage() {
                     <div>
                       <p className="text-xs font-black uppercase tracking-widest text-sky-700">{formatDate(order.createdAt)}</p>
                       <h2 className="mt-1 break-all text-2xl font-black text-sky-950">{order.id}</h2>
-                      <p className="mt-2 text-lg font-black text-rose-600">{order.heroName} the {order.heroType}</p>
+                      <p className="mt-2 text-lg font-black text-rose-600">{formatHeroRole(order.heroName, order.heroType)}</p>
                       <p className="text-sm font-bold leading-6 text-slate-700">{order.storyTitle}</p>
                     </div>
 

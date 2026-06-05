@@ -4,6 +4,7 @@ import { ArrowLeft, Mail, XCircle } from "lucide-react"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
+import { formatHeroRole } from "@/lib/hero-title"
 import { readOrders } from "@/lib/orders"
 
 type CheckoutCancelPageProps = {
@@ -58,7 +59,7 @@ export default async function CheckoutCancelPage({ searchParams }: CheckoutCance
                 <div className="text-xs font-black uppercase tracking-widest text-sky-700">Order reference</div>
                 <div className="mt-1 break-all text-xl font-black text-sky-950">{order.id}</div>
                 <p className="mt-2 text-sm font-semibold leading-6 text-slate-700">
-                  {order.heroName} the {order.heroType} - {order.storyTitle}
+                  {formatHeroRole(order.heroName, order.heroType)} - {order.storyTitle}
                 </p>
               </div>
             )}
