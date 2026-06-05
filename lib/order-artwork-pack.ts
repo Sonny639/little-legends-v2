@@ -1,10 +1,15 @@
 import { resolveFullStoryPages } from "@/lib/full-story"
+import {
+  generatedArtworkNegativePromptAdditions,
+  getHairContinuityPrompt,
+  getMouthContinuityPrompt,
+} from "@/lib/artwork-continuity-prompts"
 import { createOrderPhotoPreviewLinks, listOrderPhotos } from "@/lib/order-photos"
 import { type OrderRecord } from "@/lib/orders"
 import { getStoryForCharacter, getStoryPathSummary, type StoryPathChoice } from "@/lib/stories"
 
 const negativePrompt =
-  "text, captions, speech bubbles, watermark, logo, cropped face, side profile face, hidden face, mask, helmet covering face, hands over face, props over face, dark face shadow, tiny face, extra limbs, distorted eyes, scary mood"
+  `text, captions, speech bubbles, watermark, logo, cropped face, side profile face, hidden face, mask, helmet covering face, hands over face, props over face, dark face shadow, tiny face, extra limbs, distorted eyes, ${generatedArtworkNegativePromptAdditions}, scary mood`
 
 const csvEscape = (value: string | number | boolean | null | undefined) =>
   `"${String(value ?? "").replaceAll('"', '""')}"`
@@ -80,6 +85,12 @@ export const createOrderArtworkPack = async (order: OrderRecord) => {
           : "",
         "Final artwork requirement: premium full-page children's storybook illustration, warm magical lighting, child-friendly emotion, no text in image.",
         "Face-swap requirement: keep the child's face front-facing, unobstructed, well lit, and large enough for later replacement.",
+        getHairContinuityPrompt({
+          storyId: order.storyId,
+          gender,
+          referenceLabel: "the customer reference photo",
+        }),
+        getMouthContinuityPrompt("the customer reference photo"),
       ]
         .filter(Boolean)
         .join(" ")

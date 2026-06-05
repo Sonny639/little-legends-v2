@@ -1,5 +1,7 @@
 import { fal } from "@fal-ai/client"
 
+import { generatedArtworkNegativePromptAdditions, getMouthContinuityPrompt } from "@/lib/artwork-continuity-prompts"
+
 export type CharacterStyle = "storybook" | "realistic"
 
 export interface CharacterGenerationOptions {
@@ -36,7 +38,7 @@ const isNoFaceDetectedError = (error: unknown) => {
 }
 
 const previewNegativePrompt =
-  "text, captions, logo, watermark, deformed face, distorted eyes, extra limbs, duplicate person, side profile, face hidden, face covered, mask, helmet, scary mood, adult proportions"
+  `text, captions, logo, watermark, deformed face, distorted eyes, ${generatedArtworkNegativePromptAdditions}, extra limbs, duplicate person, side profile, face hidden, face covered, mask, helmet, scary mood, adult proportions`
 
 const getFalKey = () => process.env.FAL_KEY || process.env.FAL_API_KEY || ""
 const maxReferencePhotos = 3
@@ -51,6 +53,7 @@ const getPrompt = ({ characterType, style, pose }: { characterType: string; styl
       `A child dressed as a ${characterType}, ${pose}.`,
       "Bright premium portrait photography, warm natural light, front-facing expressive face, age-appropriate child proportions.",
       "Preserve the child's visible facial identity, skin tone, eye shape, nose, mouth, and hair from the reference photo.",
+      getMouthContinuityPrompt("the reference photo"),
       "Clean background, face unobstructed, shoulders visible, polished family portrait quality.",
     ].join(" ")
   }
@@ -59,6 +62,7 @@ const getPrompt = ({ characterType, style, pose }: { characterType: string; styl
     `A child hero dressed as a ${characterType}, ${pose}.`,
     "Premium children's storybook illustration, magical warm light, rich colour, polished painterly detail, front-facing expressive face.",
     "Preserve the child's visible facial identity, skin tone, eye shape, nose, mouth, and hair from the reference photo.",
+    getMouthContinuityPrompt("the reference photo"),
     "Single child only, face clear and unobstructed, shoulders visible, child-safe joyful tone.",
   ].join(" ")
 }

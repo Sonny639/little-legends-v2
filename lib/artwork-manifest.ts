@@ -1,3 +1,8 @@
+import {
+  baseArtworkMouthRiskPrompt,
+  generatedArtworkNegativePromptAdditions,
+  getBaseArtworkHairRiskPrompt,
+} from "@/lib/artwork-continuity-prompts"
 import { artworkAssetPaths } from "@/lib/artwork-assets.generated"
 import { getStoryForCharacter } from "@/lib/stories"
 
@@ -115,9 +120,11 @@ export const getArtworkPromptPack = (options?: {
       "Story fit requirement: image must match the exact page title, setting, emotional beat, and hero role described in the brief.",
       "Reference match requirement: preserve the child's visible skin tone and facial features from the uploaded reference photo.",
       "Face-swap requirement: child face must be front-facing, unobstructed, well lit, and large enough for later replacement.",
+      getBaseArtworkHairRiskPrompt(item.storyId, item.gender),
+      baseArtworkMouthRiskPrompt,
     ].join(" "),
     negativePrompt:
-      "text, captions, speech bubbles, watermark, logo, cropped face, side profile face, hidden face, mask, helmet covering face, hands over face, props over face, dark face shadow, tiny face, extra limbs, distorted eyes, scary mood",
+      `text, captions, speech bubbles, watermark, logo, cropped face, side profile face, hidden face, mask, helmet covering face, hands over face, props over face, dark face shadow, tiny face, extra limbs, distorted eyes, ${generatedArtworkNegativePromptAdditions}, scary mood`,
   }))
 }
 

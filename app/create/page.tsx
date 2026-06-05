@@ -160,6 +160,36 @@ const readJsonResponse = async (response: Response) => {
 
 const wait = (milliseconds: number) => new Promise((resolve) => setTimeout(resolve, milliseconds))
 
+const preloadGeneratedImage = (src: string) =>
+  new Promise<void>((resolve, reject) => {
+    const nextImage = new Image()
+    nextImage.onload = () => resolve()
+    nextImage.onerror = () =>
+      reject(new Error("The first-page preview was created, but the image did not load. Please refresh the preview."))
+    nextImage.src = src
+  })
+
+const preloadGeneratedImageWithRetry = async (src: string, attempts = 4) => {
+  let lastError: unknown
+
+  for (let attempt = 0; attempt < attempts; attempt += 1) {
+    try {
+      await preloadGeneratedImage(src)
+      return
+    } catch (error) {
+      lastError = error
+
+      if (attempt < attempts - 1) {
+        await wait(1200)
+      }
+    }
+  }
+
+  throw lastError instanceof Error
+    ? lastError
+    : new Error("The first-page preview was created, but the image did not load. Please refresh the preview.")
+}
+
 export default function Home() {
   const [currentStep, setCurrentStep] = useState<Step>("welcome")
   const [selectedGender, setSelectedGender] = useState<"boy" | "girl" | null>(null)
@@ -554,11 +584,20 @@ export default function Home() {
         }
 
         if (preview?.imageUrl) {
+          setLikenessPreviewMessage("Your first story page has been created. Loading it into the story...")
+          await preloadGeneratedImageWithRetry(preview.imageUrl)
+          setFailedArtwork((current) => {
+            if (!current[preview.imageUrl]) return current
+
+            const nextFailedArtwork = { ...current }
+            delete nextFailedArtwork[preview.imageUrl]
+            return nextFailedArtwork
+          })
           setStoryPreview({
             characterId: selectedCharacter,
             imageUrl: preview.imageUrl,
           })
-          setLikenessPreviewMessage("Your first story page is ready.")
+          setLikenessPreviewMessage("Your first story page is loaded and ready.")
           return
         }
 
@@ -579,14 +618,44 @@ export default function Home() {
 
   // AI Legend Name Generator
   const generateLegendNames = (name: string, gender: "boy" | "girl") => {
-    const title = gender === "boy" ? "Captain" : "Star Captain"
+    if (gender === "girl") {
+      return [
+        `${name} Starlight`,
+        `${name} Moonbeam`,
+        `${name} Rose Sparkle`,
+        `${name} Rainbow Heart`,
+        `${name} Crystal Star`,
+        `${name} Fairy Glow`,
+        `${name} Golden Lily`,
+        `${name} Diamond Dream`,
+        `${name} Twinkle Belle`,
+        `${name} Pearl Shine`,
+        `${name} Sunshine Wish`,
+        `${name} Butterfly Star`,
+        `${name} Magic Blossom`,
+        `${name} Star Princess`,
+        `${name} Sparkle Joy`,
+        `${name} Dream Dancer`,
+        `${name} Glitter Grace`,
+        `${name} Rainbow Rose`,
+        `${name} Sweet Star`,
+        `${name} Wish Keeper`,
+        `${name} Moonlight Lily`,
+        `${name} Crystal Heart`,
+        `${name} Kindness Queen`,
+        `${name} Wonder Bloom`,
+        `${name} Starflower`,
+        `${name} the Magical`,
+        `${name} the Shimmering`,
+      ]
+    }
 
     return [
       `${name} Star Shield`,
       `${name} Thunderbolt`,
       `Super ${name}`,
       `${name} the Galaxy Guardian`,
-      `${title} ${name}`,
+      `Captain ${name}`,
       `${name} Lightning Heart`,
       `${name} Rocket Rider`,
       `${name} Magic Bolt`,

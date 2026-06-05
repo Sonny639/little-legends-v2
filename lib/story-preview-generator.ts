@@ -1,5 +1,6 @@
 import { fal } from "@fal-ai/client"
 
+import { getHairContinuityPrompt, getMouthContinuityPrompt } from "@/lib/artwork-continuity-prompts"
 import { getStoryForCharacter } from "@/lib/stories"
 
 type StoryPreviewOptions = {
@@ -25,7 +26,7 @@ export const isStoryPreviewConfigured = () => Boolean(getFalKey())
 
 const trimTrailingSlash = (value: string) => value.replace(/\/$/, "")
 
-const getPrompt = () =>
+const getPrompt = (storyId: string, gender: "boy" | "girl") =>
   [
     "Use image 1 as the exact base storybook illustration.",
     "Use image 2 only as the child's likeness reference.",
@@ -33,6 +34,8 @@ const getPrompt = () =>
     "Remove any original hero hair that conflicts with the child's hairstyle from image 2, including spikes, tufts, or extra strands that would show through behind the new hair.",
     "Keep the original pose, body, costume, background, composition, lighting, framing, and storybook art style from image 1 unchanged.",
     "Preserve the child likeness from image 2: face shape, exact skin tone and complexion, undertone, eyes, nose, mouth, expression, hairline, hair colour, and visible hairstyle.",
+    getHairContinuityPrompt({ storyId, gender }),
+    getMouthContinuityPrompt(),
     "Match every visible area of the main hero child's skin to the child's complexion from image 2, including face, ears, neck, arms, elbows, hands, fingers, knees, legs, ankles, and feet where visible.",
     "Do not leave the original lighter or darker base-art skin on the hero's body; the face and all visible body skin must look like one naturally consistent child under the scene lighting.",
     "Keep the finished artwork bright, colourful, and print-safe, with lifted midtones and clear child-friendly detail even in night or shadow scenes.",
@@ -56,8 +59,13 @@ const getBaseArtwork = (options: StoryPreviewOptions) => {
   }
 }
 
-const getPreviewInput = (baseArtworkUrl: string, referencePhoto: string) => ({
-  prompt: getPrompt(),
+const getPreviewInput = (
+  baseArtworkUrl: string,
+  referencePhoto: string,
+  storyId: string,
+  gender: "boy" | "girl",
+) => ({
+  prompt: getPrompt(storyId, gender),
   image_urls: [baseArtworkUrl, referencePhoto],
   image_size: "auto" as const,
   num_inference_steps: 20,
@@ -79,7 +87,7 @@ export async function submitStoryPreview(options: StoryPreviewOptions) {
   const { baseArtworkPath, baseArtworkUrl } = getBaseArtwork(options)
   const referencePhoto = options.referencePhotos[0]
   const queuedRequest = await fal.queue.submit(storyPreviewEndpoint, {
-    input: getPreviewInput(baseArtworkUrl, referencePhoto),
+    input: getPreviewInput(baseArtworkUrl, referencePhoto, options.storyId, options.gender),
   })
 
   return {
