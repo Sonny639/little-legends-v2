@@ -78,7 +78,7 @@ const howItWorksSteps = [
   },
   {
     title: "2. Add photos",
-    text: "Upload clear reference photos if you want the artwork to include your child's likeness. A close, bright face photo gives the best result.",
+    text: "Upload clear reference photos if you want the artwork to include your child's likeness. A close, bright, closed-mouth or gentle-smile face photo gives the cleanest result.",
   },
   {
     title: "3. View the preview",
@@ -1293,7 +1293,7 @@ export default function Home() {
         <Badge className="bg-amber-300 px-3 py-1 text-sky-950">Step 3 of 5</Badge>
         <h2 className="text-3xl font-black leading-tight text-sky-950 sm:text-5xl">Add photos for {selectedLegendName}</h2>
         <p className="mx-auto max-w-2xl text-sm font-semibold leading-6 text-slate-700 sm:text-lg sm:leading-7">
-          Add a clear face photo for the final artwork, or continue without one and keep the story moving.
+          Add a clear face photo for the final artwork. A closed-mouth or gentle-smile photo usually creates the cleanest storybook result.
         </p>
       </div>
 
@@ -1345,6 +1345,7 @@ export default function Home() {
               {[
                 "Use a front-facing photo with both eyes visible.",
                 "Pick a closed-mouth or gentle-smile photo as photo 1.",
+                "Big toothy smiles are lovely, but can be harder for the artwork to recreate cleanly.",
                 "Choose bright natural light, not a dark room.",
                 "Upload one child only, with no heavy filters.",
                 "Avoid sunglasses, hats covering the face, or side profiles.",
@@ -3725,7 +3726,7 @@ export default function Home() {
           </div>
 
           <div className="mt-4 rounded-2xl border-2 border-purple-100 bg-purple-50 px-4 py-3 text-sm font-bold leading-6 text-purple-900">
-            For best results, use a bright, clear photo where your child's face is easy to see. The final artwork may still be stylised, because it is made to match the magical storybook world.
+            For best results, use a bright, clear, front-facing photo where your child's face is easy to see. A closed-mouth or gentle-smile photo usually creates the cleanest storybook artwork.
           </div>
 
           <div className="mt-5 flex flex-col gap-2 sm:flex-row sm:justify-end">

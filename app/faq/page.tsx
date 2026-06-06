@@ -21,7 +21,7 @@ const faqs = [
     question: "How do I get the best face match for my child?",
     icon: Camera,
     answer:
-      "Upload a clear, front-facing photo with bright natural light. If possible, crop the first image close to your child's face. Avoid sunglasses, heavy filters, side profiles, hats covering the face, or group photos.",
+      "Upload a clear, front-facing photo with bright natural light. A closed-mouth or gentle-smile photo usually creates the cleanest storybook artwork, because big toothy smiles can be harder to recreate neatly. If possible, crop the first image close to your child's face. Avoid sunglasses, heavy filters, side profiles, hats covering the face, or group photos.",
   },
   {
     question: "Will the artwork look exactly like my child?",
