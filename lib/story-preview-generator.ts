@@ -30,32 +30,25 @@ const getFalKey = () => process.env.FAL_KEY || process.env.FAL_API_KEY || ""
 export const isStoryPreviewConfigured = () => Boolean(getFalKey())
 
 const trimTrailingSlash = (value: string) => value.replace(/\/$/, "")
-const maxReferencePhotos = 3
 
-const getReferencePhotoLabel = (referencePhotoCount: number) =>
-  referencePhotoCount > 1 ? `images 2 to ${referencePhotoCount + 1}` : "image 2"
-
-const getPrompt = (storyId: string, gender: "boy" | "girl", referencePhotoCount: number) => {
-  const referenceLabel = getReferencePhotoLabel(referencePhotoCount)
-
-  return [
+const getPrompt = (storyId: string, gender: "boy" | "girl") =>
+  [
     "Use image 1 as the exact base storybook illustration.",
-    `Use ${referenceLabel} as the child's likeness reference photos.`,
-    `Replace the face, hairline, visible hairstyle, and visible hair silhouette of the main hero child in image 1 with the child likeness from ${referenceLabel}.`,
-    `When the reference photos differ, use the clearest front-facing photo for identity and the warmest natural smile or most flattering childlike expression for expression. Make a polished storybook version of the same child; do not age the child, add makeup, or change their identity.`,
-    `Remove any original hero hair that conflicts with the child's hairstyle from ${referenceLabel}, including spikes, tufts, or extra strands that would show through behind the new hair.`,
+    "Use image 2 only as the child's main likeness reference.",
+    "Replace the face, hairline, visible hairstyle, and visible hair silhouette of the main hero child in image 1 with the child likeness from image 2.",
+    "Make a polished storybook version of the same child using the warmest natural smile and most flattering childlike expression possible from image 2. Do not age the child, add makeup, or change their identity.",
+    "Remove any original hero hair that conflicts with the child's hairstyle from image 2, including spikes, tufts, or extra strands that would show through behind the new hair.",
     "Keep the original pose, body, costume, background, composition, lighting, framing, and storybook art style from image 1 unchanged.",
-    `Preserve the child likeness from ${referenceLabel}: face shape, exact skin tone and complexion, undertone, eyes, nose, mouth, expression, hairline, hair colour, and visible hairstyle.`,
-    getChildPortraitQualityPrompt(referenceLabel),
-    getProportionContinuityPrompt({ storyId, referenceLabel }),
-    getHairContinuityPrompt({ storyId, gender, referenceLabel }),
-    getMouthContinuityPrompt(referenceLabel),
-    `Match every visible area of the main hero child's skin to the child's complexion from ${referenceLabel}, including face, ears, neck, arms, elbows, hands, fingers, knees, legs, ankles, and feet where visible.`,
+    "Preserve the child likeness from image 2: face shape, exact skin tone and complexion, undertone, eyes, nose, mouth, expression, hairline, hair colour, and visible hairstyle.",
+    getChildPortraitQualityPrompt(),
+    getProportionContinuityPrompt({ storyId }),
+    getHairContinuityPrompt({ storyId, gender }),
+    getMouthContinuityPrompt(),
+    "Match every visible area of the main hero child's skin to the child's complexion from image 2, including face, ears, neck, arms, elbows, hands, fingers, knees, legs, ankles, and feet where visible.",
     "Do not leave the original lighter or darker base-art skin on the hero's body; the face and all visible body skin must look like one naturally consistent child under the scene lighting.",
     "Keep the finished artwork bright, colourful, and print-safe, with lifted midtones and clear child-friendly detail even in night or shadow scenes.",
     "Do not add text, speech bubbles, extra people, extra limbs, new props, or a new scene.",
   ].join(" ")
-}
 
 const getBaseArtwork = (options: StoryPreviewOptions) => {
   const story = getStoryForCharacter(options.storyId, {
@@ -76,12 +69,12 @@ const getBaseArtwork = (options: StoryPreviewOptions) => {
 
 const getPreviewInput = (
   baseArtworkUrl: string,
-  referencePhotos: string[],
+  referencePhoto: string,
   storyId: string,
   gender: "boy" | "girl",
 ) => ({
-  prompt: getPrompt(storyId, gender, referencePhotos.length),
-  image_urls: [baseArtworkUrl, ...referencePhotos],
+  prompt: getPrompt(storyId, gender),
+  image_urls: [baseArtworkUrl, referencePhoto],
   image_size: "auto" as const,
   num_inference_steps: 20,
   num_images: 1,
@@ -100,14 +93,14 @@ export async function submitStoryPreview(options: StoryPreviewOptions) {
   fal.config({ credentials: apiKey })
 
   const { baseArtworkPath, baseArtworkUrl } = getBaseArtwork(options)
-  const referencePhotos = options.referencePhotos.filter(Boolean).slice(0, maxReferencePhotos)
+  const referencePhoto = options.referencePhotos.find(Boolean)
 
-  if (referencePhotos.length === 0) {
+  if (!referencePhoto) {
     throw new Error("At least one child reference photo is required.")
   }
 
   const queuedRequest = await fal.queue.submit(storyPreviewEndpoint, {
-    input: getPreviewInput(baseArtworkUrl, referencePhotos, options.storyId, options.gender),
+    input: getPreviewInput(baseArtworkUrl, referencePhoto, options.storyId, options.gender),
   })
 
   return {

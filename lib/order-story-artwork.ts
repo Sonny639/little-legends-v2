@@ -55,7 +55,6 @@ const manifestStoragePath = (orderId: string) => `generated/${orderId}/manifest.
 const pageStoragePath = (orderId: string, pageNumber: number) =>
   `generated/${orderId}/page-${String(pageNumber).padStart(2, "0")}.png`
 const localManifestPath = (orderId: string) => path.join(localArtworkDirectory, orderId, "manifest.json")
-const maxReferencePhotos = 3
 
 const getFalKey = () => process.env.FAL_KEY || process.env.FAL_API_KEY || ""
 
@@ -72,25 +71,20 @@ const normaliseChoices = (choices: OrderRecord["choices"]): StoryPathChoice[] =>
         : "brave",
   }))
 
-const getReferencePhotoLabel = (referencePhotoCount: number) =>
-  referencePhotoCount > 1 ? `images 2 to ${referencePhotoCount + 1}` : "image 2"
-
-const getPrompt = (pageTitle: string, storyId: string, gender: "boy" | "girl", referencePhotoCount: number) => {
-  const referenceLabel = getReferencePhotoLabel(referencePhotoCount)
-
-  return [
+const getPrompt = (pageTitle: string, storyId: string, gender: "boy" | "girl") =>
+  [
     "Use image 1 as the exact base storybook illustration.",
-    `Use ${referenceLabel} as the child's likeness reference photos.`,
-    `Replace the face, hairline, visible hairstyle, and visible hair silhouette of the main hero child in image 1 for the page "${pageTitle}" with the child likeness from ${referenceLabel}.`,
-    `When the reference photos differ, use the clearest front-facing photo for identity and the warmest natural smile or most flattering childlike expression for expression. Make a polished storybook version of the same child; do not age the child, add makeup, or change their identity.`,
-    `Remove any original hero hair that conflicts with the child's hairstyle from ${referenceLabel}, including spikes, tufts, or extra strands that would show through behind the new hair.`,
+    "Use image 2 only as the child's main likeness reference.",
+    `Replace the face, hairline, visible hairstyle, and visible hair silhouette of the main hero child in image 1 for the page "${pageTitle}" with the child likeness from image 2.`,
+    "Make a polished storybook version of the same child using the warmest natural smile and most flattering childlike expression possible from image 2. Do not age the child, add makeup, or change their identity.",
+    "Remove any original hero hair that conflicts with the child's hairstyle from image 2, including spikes, tufts, or extra strands that would show through behind the new hair.",
     "Keep the original pose, body, costume, background, composition, lighting, framing, and storybook art style from image 1 unchanged.",
-    `Preserve the child likeness from ${referenceLabel}: face shape, exact skin tone and complexion, undertone, eyes, nose, mouth, expression, hairline, hair colour, and visible hairstyle.`,
-    getChildPortraitQualityPrompt(referenceLabel),
-    getProportionContinuityPrompt({ storyId, referenceLabel }),
-    getHairContinuityPrompt({ storyId, gender, referenceLabel }),
-    getMouthContinuityPrompt(referenceLabel),
-    `Match every visible area of the main hero child's skin to the child's complexion from ${referenceLabel}, including face, ears, neck, arms, elbows, hands, fingers, knees, legs, ankles, and feet where visible.`,
+    "Preserve the child likeness from image 2: face shape, exact skin tone and complexion, undertone, eyes, nose, mouth, expression, hairline, hair colour, and visible hairstyle.",
+    getChildPortraitQualityPrompt(),
+    getProportionContinuityPrompt({ storyId }),
+    getHairContinuityPrompt({ storyId, gender }),
+    getMouthContinuityPrompt(),
+    "Match every visible area of the main hero child's skin to the child's complexion from image 2, including face, ears, neck, arms, elbows, hands, fingers, knees, legs, ankles, and feet where visible.",
     "Do not leave the original lighter or darker base-art skin on the hero's body; the face and all visible body skin must look like one naturally consistent child under the scene lighting.",
     "Keep the finished artwork bright, colourful, and print-safe, with lifted midtones and clear child-friendly detail even in night or shadow scenes.",
     storyId === "footballer"
@@ -100,17 +94,16 @@ const getPrompt = (pageTitle: string, storyId: string, gender: "boy" | "girl", r
   ]
     .filter(Boolean)
     .join(" ")
-}
 
 const getPreviewInput = (
   baseArtworkUrl: string,
-  referencePhotos: string[],
+  referencePhoto: string,
   pageTitle: string,
   storyId: string,
   gender: "boy" | "girl",
 ) => ({
-  prompt: getPrompt(pageTitle, storyId, gender, referencePhotos.length),
-  image_urls: [baseArtworkUrl, ...referencePhotos],
+  prompt: getPrompt(pageTitle, storyId, gender),
+  image_urls: [baseArtworkUrl, referencePhoto],
   image_size: printArtworkImageSize,
   num_inference_steps: 20,
   num_images: 1,
@@ -184,12 +177,9 @@ export const startOrderStoryArtwork = async (order: OrderRecord, appUrl: string)
 
   const photos = await listOrderPhotos(order.id)
   const signedPhotos = await createOrderPhotoPreviewLinks(photos, 60 * 60 * 6)
-  const referencePhotos = signedPhotos
-    .map((photo) => photo.url)
-    .filter((url): url is string => Boolean(url))
-    .slice(0, maxReferencePhotos)
+  const referencePhoto = signedPhotos.find((photo) => photo.url)?.url
 
-  if (referencePhotos.length === 0) {
+  if (!referencePhoto) {
     throw new Error("A stored reference photo is required for full-story personalization.")
   }
 
@@ -212,7 +202,7 @@ export const startOrderStoryArtwork = async (order: OrderRecord, appUrl: string)
       const queuedRequest = await fal.queue.submit(artworkEndpoint, {
         input: getPreviewInput(
           `${appUrl.replace(/\/$/, "")}${baseArtworkPath}`,
-          referencePhotos,
+          referencePhoto,
           page.title,
           order.storyId,
           gender,
