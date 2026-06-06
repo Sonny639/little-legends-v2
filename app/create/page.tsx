@@ -570,8 +570,10 @@ export default function Home() {
         throw new Error("The preview started without a tracking id. Please try again.")
       }
 
-      for (let attempt = 0; attempt < 60; attempt += 1) {
-        await wait(5000)
+      const maxPreviewStatusAttempts = 80
+
+      for (let attempt = 0; attempt < maxPreviewStatusAttempts; attempt += 1) {
+        await wait(7500)
 
         const statusResponse = await fetch(
           `/api/generate-story-preview?requestId=${encodeURIComponent(requestId)}`,
@@ -612,11 +614,13 @@ export default function Home() {
         setLikenessPreviewMessage(
           preview?.status === "IN_QUEUE"
             ? "Your child's page is queued and will begin shortly."
-            : "Please be patient while we fit your child's face into the first story page. This may take a few minutes. Please do not refresh the page.",
+            : attempt > 35
+              ? "Your preview is still being prepared. This is taking longer than usual, but it can still complete. Please keep this page open."
+              : "Please be patient while we fit your child's face into the first story page. This may take a few minutes. Please do not refresh the page.",
         )
       }
 
-      throw new Error("The first-page preview is still taking longer than expected. Please try again in a moment.")
+      throw new Error("The first-page preview is still taking longer than expected. Please wait a little longer before starting another preview, so you do not use another generation unnecessarily.")
     } catch (error) {
       setLikenessPreviewMessage(error instanceof Error ? error.message : "Could not create the first-page preview.")
     } finally {
