@@ -36,7 +36,7 @@ const getPrompt = (storyId: string, gender: "boy" | "girl") =>
     "Use image 1 as the exact base storybook illustration.",
     "Use image 2 only as the child's main likeness reference.",
     "Replace the face, hairline, visible hairstyle, and visible hair silhouette of the main hero child in image 1 with the child likeness from image 2.",
-    "Make a polished storybook version of the same child using the warmest natural smile and most flattering childlike expression possible from image 2. Do not age the child, add makeup, or change their identity.",
+    "Make a polished storybook version of the same child using a gentle, happy, lips-together smile and the most flattering childlike expression possible from image 2. Do not age the child, add makeup, or change their identity.",
     "Remove any original hero hair that conflicts with the child's hairstyle from image 2, including spikes, tufts, or extra strands that would show through behind the new hair.",
     "Keep the original pose, body, costume, background, composition, lighting, framing, and storybook art style from image 1 unchanged.",
     "Preserve the child likeness from image 2: face shape, exact skin tone and complexion, undertone, eyes, nose, mouth, expression, hairline, hair colour, and visible hairstyle.",

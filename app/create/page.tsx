@@ -737,9 +737,9 @@ export default function Home() {
     } else if (imageFiles.length !== selectedFiles.length) {
       setPhotoUploadMessage("Only image files can be used for the character reference.")
     } else if (imageFiles.length > acceptedFiles.length) {
-      setPhotoUploadMessage("We kept the first 3 photos. The first photo should be your favourite clear smiling face reference.")
+      setPhotoUploadMessage("We kept the first 3 photos. The first photo should be your favourite clear closed-mouth or gentle-smile face reference.")
     } else if (acceptedFiles.length > 0) {
-      setPhotoUploadMessage("Photo added. Make sure the first image is the favourite clear smiling photo for the best storybook likeness.")
+      setPhotoUploadMessage("Photo added. Make sure the first image is a clear closed-mouth or gentle-smile photo for the best storybook likeness.")
     }
 
     event.target.value = ""
@@ -754,7 +754,7 @@ export default function Home() {
 
       return currentPhotos.filter((_, index) => index !== imageIndex)
     })
-    setPhotoUploadMessage(imageIndex === 0 ? "Main face match removed. Add your favourite clear smiling photo first." : "Photo removed.")
+    setPhotoUploadMessage(imageIndex === 0 ? "Main face match removed. Add your favourite clear closed-mouth or gentle-smile photo first." : "Photo removed.")
     setStoryPreview(null)
     setLikenessPreviewMessage("")
   }
@@ -766,7 +766,7 @@ export default function Home() {
       }
     })
     setUploadedPhotos([])
-    setPhotoUploadMessage("Photos cleared. Add your favourite clear smiling photo first.")
+    setPhotoUploadMessage("Photos cleared. Add your favourite clear closed-mouth or gentle-smile photo first.")
     setStoryPreview(null)
     setLikenessPreviewMessage("")
   }
@@ -1326,7 +1326,7 @@ export default function Home() {
           </button>
         </div>
         <p className="text-sm font-semibold text-slate-600">
-          {uploadedPhotos.length > 0 ? `${uploadedPhotos.length} of 3 photos selected for reference` : "Add your favourite clear smiling face photo first."}
+          {uploadedPhotos.length > 0 ? `${uploadedPhotos.length} of 3 photos selected for reference` : "Add your favourite clear closed-mouth or gentle-smile face photo first."}
         </p>
         {photoTipsOpen && (
           <div className="mx-auto max-w-2xl rounded-3xl border-2 border-amber-100 bg-white/95 p-4 text-left shadow-[0_16px_40px_rgba(61,160,190,0.16)] sm:p-5">
@@ -1337,14 +1337,14 @@ export default function Home() {
               <div>
                 <p className="text-base font-black text-sky-950">Best photo for magical results</p>
                 <p className="mt-1 text-sm font-semibold leading-6 text-slate-700">
-                  If you have a clear smiling photo, crop it close to your child's face before uploading. The first photo is used as the main face, expression, and skin tone reference.
+                  For the cleanest storybook artwork, use a clear closed-mouth or gentle-smile photo. Crop it close to your child's face before uploading. The first photo is used as the main face, expression, and skin tone reference.
                 </p>
               </div>
             </div>
             <div className="mt-4 grid gap-2 sm:grid-cols-2">
               {[
                 "Use a front-facing photo with both eyes visible.",
-                "Pick the warmest natural smile as photo 1.",
+                "Pick a closed-mouth or gentle-smile photo as photo 1.",
                 "Choose bright natural light, not a dark room.",
                 "Upload one child only, with no heavy filters.",
                 "Avoid sunglasses, hats covering the face, or side profiles.",

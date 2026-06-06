@@ -55,7 +55,7 @@ const highRiskHairByStory: Record<string, Partial<Record<Gender, string>>> = {
 }
 
 export const generatedArtworkNegativePromptAdditions =
-  "uncanny face, harsh face, distorted mouth, distorted teeth, crooked teeth, broken teeth, jagged teeth, uneven teeth, extra teeth, adult teeth, sharp teeth, dark gaps in teeth, black mouth"
+  "uncanny face, harsh face, open mouth, visible teeth, toothy smile, distorted mouth, distorted teeth, crooked teeth, broken teeth, jagged teeth, uneven teeth, extra teeth, adult teeth, sharp teeth, dark gaps in teeth, black mouth"
 
 export const getChildPortraitQualityPrompt = (referenceLabel = "image 2") =>
   [
@@ -76,7 +76,7 @@ export const getProportionContinuityPrompt = ({
 
   const strictStoryPrompt =
     storyId === "princess" || storyId === "fairy"
-      ? "Princess and fairy full-body artwork needs stricter proportion matching: keep the base artwork's original head size, face size, neck length, body proportions, pose, and framing. Do not enlarge the child's head, paste an oversized face, shrink the body, or create a bobble-head effect."
+      ? "Princess and fairy full-body artwork needs strict proportion matching: keep the base artwork's original head size, face size, face placement, neck length, shoulder width, body proportions, pose, and framing. The child's face must fit naturally inside the original illustrated head area. Do not enlarge the child's head, paste an oversized face, shrink the body, stretch the face, or create a bobble-head effect."
       : "Keep the base artwork's original pose, body proportions, framing, and character scale. Do not paste an obviously oversized face, shrink the body, or create an unnatural bobble-head effect."
 
   return [
@@ -107,12 +107,10 @@ export const getHairContinuityPrompt = ({
 
 export const getMouthContinuityPrompt = (referenceLabel = "image 2") =>
   [
-    `Mouth and teeth continuity requirement: preserve the child's natural mouth shape, smile, lip line, tooth size, tooth spacing, baby teeth gaps, and gum visibility from ${referenceLabel}.`,
-    "Prefer a soft closed-mouth or lips-together smile for storybook artwork when there is any risk of teeth looking distorted.",
-    "Do not invent adult teeth, extra teeth, missing teeth, sharp teeth, crowded teeth, dark gaps, crooked distortions, black mouth holes, or an exaggerated grin.",
-    "If teeth are visible, render only a small, clean, healthy, bright, childlike smile that flatters the child while still feeling like their real smile. Small natural baby-tooth gaps are okay; avoid fake perfect adult veneers.",
-    "Do not show broken, patchy, jagged, uneven, crooked, or partially missing teeth. If the teeth cannot be reproduced cleanly, evenly, and naturally, replace visible teeth with a soft closed-mouth smile.",
-    "Never let the teeth become the focus of the face; the overall expression should feel gentle, warm, neat, and charming.",
+    `Mouth requirement: preserve the child's natural mouth shape, smile warmth, cheek expression, and lip line from ${referenceLabel}, but render the final storybook artwork with a soft closed-mouth or lips-together smile.`,
+    "Do not show visible teeth in the final personalised storybook artwork, even if the reference photo has a toothy smile.",
+    "Do not invent generic teeth, adult teeth, extra teeth, missing teeth, sharp teeth, crowded teeth, dark gaps, crooked distortions, black mouth holes, or an exaggerated grin.",
+    "The expression should feel gentle, warm, neat, charming, and happy without relying on visible teeth.",
   ].join(" ")
 
 export const getBaseArtworkHairRiskPrompt = (storyId: string, gender: Gender) =>
