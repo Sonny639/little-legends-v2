@@ -414,6 +414,8 @@ export const sendOrderConfirmationEmail = async (order: OrderRecord) => {
     ...(deliveryLabel ? [`Delivery: ${deliveryLabel}${deliveryPrice ? ` (${deliveryPrice})` : ""}`] : []),
     `Download link: ${downloadUrl}`,
     ``,
+    `Email note: if future Little Legends emails do not appear in your inbox, please check junk or spam and mark hello@littlelegendsstory.com as safe.`,
+    ``,
     requiresArtworkPreparation
       ? `Open the link above to watch the personalised storybook prepare. Please keep that page open while the artwork is being finished.`
       : order.product === "digital"
@@ -449,6 +451,7 @@ export const sendOrderConfirmationEmail = async (order: OrderRecord) => {
             `${photoCount} reference photo${photoCount === 1 ? " was" : "s were"} selected during checkout and stored privately with the order for the personalised artwork stage.`,
           ]
         : []),
+      `If this email landed in junk or spam, please mark hello@littlelegendsstory.com as safe so you do not miss order updates.`,
       `If anything looks wrong, reply via the contact page with your order reference and we will help.`,
     ],
     details: [

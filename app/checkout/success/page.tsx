@@ -1,5 +1,5 @@
 import Link from "next/link"
-import { CheckCircle2, Download, Truck } from "lucide-react"
+import { CheckCircle2, Download, Mail, Truck } from "lucide-react"
 
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
@@ -131,6 +131,17 @@ export default async function CheckoutSuccessPage({ searchParams }: CheckoutSucc
             ) : (
               <div className="rounded-xl border-2 border-amber-200 bg-amber-50 p-4 text-sm font-bold leading-6 text-amber-900">
                 No matching order was found for this checkout session.
+              </div>
+            )}
+
+            {visibleOrder && isPaid && (
+              <div className="rounded-xl border-2 border-amber-100 bg-amber-50 p-4 text-sm font-bold leading-6 text-amber-950">
+                <div className="flex items-start gap-3">
+                  <Mail className="mt-0.5 h-5 w-5 shrink-0 text-amber-700" />
+                  <p>
+                    We have sent a confirmation email to {visibleOrder.email}. If it is not in your inbox, please check junk or spam and mark Little Legends Story as safe.
+                  </p>
+                </div>
               </div>
             )}
 
