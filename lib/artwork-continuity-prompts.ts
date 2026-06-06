@@ -55,7 +55,7 @@ const highRiskHairByStory: Record<string, Partial<Record<Gender, string>>> = {
 }
 
 export const generatedArtworkNegativePromptAdditions =
-  "uncanny face, harsh face, distorted mouth, distorted teeth, extra teeth, adult teeth, sharp teeth, dark gaps in teeth"
+  "uncanny face, harsh face, distorted mouth, distorted teeth, crooked teeth, broken teeth, jagged teeth, uneven teeth, extra teeth, adult teeth, sharp teeth, dark gaps in teeth, black mouth"
 
 export const getChildPortraitQualityPrompt = (referenceLabel = "image 2") =>
   [
@@ -108,10 +108,11 @@ export const getHairContinuityPrompt = ({
 export const getMouthContinuityPrompt = (referenceLabel = "image 2") =>
   [
     `Mouth and teeth continuity requirement: preserve the child's natural mouth shape, smile, lip line, tooth size, tooth spacing, baby teeth gaps, and gum visibility from ${referenceLabel}.`,
+    "Prefer a soft closed-mouth or lips-together smile for storybook artwork when there is any risk of teeth looking distorted.",
     "Do not invent adult teeth, extra teeth, missing teeth, sharp teeth, crowded teeth, dark gaps, crooked distortions, black mouth holes, or an exaggerated grin.",
-    "If teeth are visible, render a clean, healthy, bright, childlike smile that flatters the child while still feeling like their real smile. Small natural baby-tooth gaps are okay; avoid fake perfect adult veneers.",
-    "Do not show broken, patchy, jagged, or partially missing teeth. If the teeth cannot be reproduced cleanly and naturally, use a small closed-mouth or lips-together soft smile instead.",
-    "Only show visible teeth when they look clean, natural, childlike, evenly lit, and charming.",
+    "If teeth are visible, render only a small, clean, healthy, bright, childlike smile that flatters the child while still feeling like their real smile. Small natural baby-tooth gaps are okay; avoid fake perfect adult veneers.",
+    "Do not show broken, patchy, jagged, uneven, crooked, or partially missing teeth. If the teeth cannot be reproduced cleanly, evenly, and naturally, replace visible teeth with a soft closed-mouth smile.",
+    "Never let the teeth become the focus of the face; the overall expression should feel gentle, warm, neat, and charming.",
   ].join(" ")
 
 export const getBaseArtworkHairRiskPrompt = (storyId: string, gender: Gender) =>
