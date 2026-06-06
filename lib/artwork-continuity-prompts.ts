@@ -62,8 +62,9 @@ export const getChildPortraitQualityPrompt = (referenceLabel = "image 2") =>
     "Child portrait quality requirement: the hero must look lovely, warm, healthy, glowing, kind, and childlike.",
     `Keep the child recognisable from ${referenceLabel}, but make the finished expression flattering, gentle, natural, and suitable for a premium keepsake storybook.`,
     "Apply gentle storybook polish: soften harsh shadows, brighten the expression, even the lighting, and make the child look their happiest natural self without changing their identity.",
-    "Apply very light complexion refinement: smooth camera noise, harsh texture, patchy shadows, redness, temporary blemishes, and tired-looking under-eye shadows while keeping the child's real skin tone, face shape, eye shape, cheeks, freckles, moles, birthmarks, and natural childlike skin detail.",
-    "Freshen the face gently so the child looks well-rested and warmly lit, but do not erase their natural features or create plastic, airbrushed skin.",
+    "Apply a subtle fresh-glow portrait filter, similar to a gentle phone-camera good-vibes filter: clearer skin, softened under-eye shadows, warmer cheeks, brighter eyes, smoother camera noise, and a soft healthy glow.",
+    "Smooth harsh texture, patchy shadows, redness, temporary blemishes, and tired-looking under-eye shadows while keeping the child's real skin tone, face shape, eye shape, cheeks, freckles, moles, birthmarks, and natural childlike skin detail.",
+    "Freshen the face gently so the child looks well-rested and warmly lit, but do not erase their natural features, change their facial structure, or create plastic, airbrushed skin.",
     "Eyes should look bright and friendly, cheeks softly lit, skin natural and even rather than airbrushed, and the whole face should feel charming rather than uncanny.",
     "If a facial detail is uncertain, choose the softer, simpler, more natural option rather than adding complex invented detail.",
   ].join(" ")
