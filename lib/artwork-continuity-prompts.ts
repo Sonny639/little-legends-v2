@@ -65,7 +65,9 @@ export const getChildPortraitQualityPrompt = (referenceLabel = "image 2") =>
     "Apply a subtle fresh-glow portrait filter, similar to a gentle phone-camera good-vibes filter: clearer skin, softened under-eye shadows, warmer cheeks, brighter eyes, smoother camera noise, and a soft healthy glow.",
     "Smooth harsh texture, patchy shadows, redness, temporary blemishes, and tired-looking under-eye shadows while keeping the child's real skin tone, face shape, eye shape, cheeks, freckles, moles, birthmarks, and natural childlike skin detail.",
     "Freshen the face gently so the child looks well-rested and warmly lit, but do not erase their natural features, change their facial structure, or create plastic, airbrushed skin.",
-    "Eyes should look bright and friendly, cheeks softly lit, skin natural and even rather than airbrushed, and the whole face should feel charming rather than uncanny.",
+    "Expression upgrade requirement: the child should look bright, bubbly, happy, confident, and full of personality rather than serious, tired, blank, worried, or sad.",
+    "Eyes should look slightly larger, bright, sparkly, open, and friendly while keeping the child's real eye shape and identity.",
+    "Cheeks should be softly lifted by the smile, skin natural and even rather than airbrushed, and the whole face should feel charming rather than uncanny.",
     "If a facial detail is uncertain, choose the softer, simpler, more natural option rather than adding complex invented detail.",
   ].join(" ")
 
@@ -112,7 +114,7 @@ export const getMouthContinuityPrompt = (referenceLabel = "image 2") =>
     `Mouth requirement: preserve the child's natural mouth shape, smile warmth, cheek expression, and lip line from ${referenceLabel}, but render the final storybook artwork with a soft closed-mouth or lips-together smile.`,
     "Do not show visible teeth in the final personalised storybook artwork, even if the reference photo has a toothy smile.",
     "Do not invent generic teeth, adult teeth, extra teeth, missing teeth, sharp teeth, crowded teeth, dark gaps, crooked distortions, black mouth holes, or an exaggerated grin.",
-    "The expression should feel gentle, warm, neat, charming, and happy without relying on visible teeth.",
+    "The expression should feel warm, bubbly, neat, charming, and clearly happy without relying on visible teeth. Use raised cheeks, a brighter lip curve, and friendly eyes so the closed-mouth smile does not look sad or flat.",
   ].join(" ")
 
 export const getBaseArtworkHairRiskPrompt = (storyId: string, gender: Gender) =>
